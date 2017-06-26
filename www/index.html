@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BIM 360 File Sharing</title>
+  <!-- Common packages: JQuery & Bootstrap -->
+  <link rel="stylesheet" href="/css/libraries/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/libraries/jstree/style.css"/>
+  <script language="JavaScript" src="/js/libraries/jquery.min.js"></script>
+  <script language="JavaScript" src="/js/libraries/bootstrap.min.js"></script>
+  <script language="JavaScript" src="/js/libraries/jstree.min.js"></script>
+  <script language="JavaScript" src="/js/libraries/moment.min.js"></script>
+  <script language="JavaScript" src="/js/libraries/notify.min.js"></script>
+  <!-- favicon -->
+  <link rel="shortcut icon" href=/img/favicon.ico type=image/x-icon>
+  <!-- -->
+  <link rel="stylesheet" href="/css/main.css"/>
+  <script language="JavaScript" src="/js/main.js"></script>
+  <script language="JavaScript" src="/js/autodesk.tree.js"></script>
+</head>
+<body>
+<header><img alt="Autodesk Forge" src="/img/bim360.png" height="24">
+  BIM 360 File Sharing
+</header>
+<div class="container">
+  <div class="row">
+    <div class="cell cell-side" id="autodeskSide">
+      <button class="btn btn-lg btn-default" id="autodeskSigninButton"><img src="/img/autodesk.png" height="20"> Sign in
+      </button>
+    </div>
+    <div class="cell cell-center">
+      <button type="button" class="btn btn-lg btn-default" id="tranferToButton">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;
+      </button>
+      &nbsp;
+      <button type="button" class="btn btn-lg btn-default" id="transferFromButton">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;
+      </button>
+    </div>
+    <div class="cell cell-side" id="storageSide">
+      <button class="btn btn-lg btn-default" id="storageSigninButton"><img src="" height="20" id="storageSigninIcon">
+        Sign in
+      </button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

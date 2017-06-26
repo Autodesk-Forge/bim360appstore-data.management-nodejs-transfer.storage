@@ -1,0 +1,32 @@
+{
+  "name": "bim360appstore-data.management-nodejs-transfer.storage",
+  "version": "1.0.0",
+  "description": "App that transfer data between storages",
+  "main": "start.js",
+  "scripts": {
+    "start": "NODE_ENV=production node start.js",
+    "dev": "node start.js",
+    "nodemon": "nodemon start.js --ignore www/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/augustogoncalves/bim360appstore-data.management-nodejs-transfer.storage.git"
+  },
+  "author": "Adam Nagy, Augusto Goncalves",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/augustogoncalves/bim360appstore-data.management-nodejs-transfer.storage/issues"
+  },
+  "homepage": "https://github.com/augustogoncalves/bim360appstore-data.management-nodejs-transfer.storage#readme",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "box-node-sdk": "^1.6.0",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.3",
+    "forge-apis": "^0.4.0",
+    "jquery": "^3.2.1",
+    "jstree": "^3.3.4",
+    "moment": "^2.18.1",
+    "serve-favicon": "^2.4.3"
+  }
+}

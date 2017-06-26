@@ -1,0 +1,61 @@
+html,body,.container {
+    height:100%;
+}
+.container {
+    display:table;
+    width: 100%;
+    margin-top: -50px;
+    padding: 50px 0 0 0; /*set left/right padding according to needs*/
+    box-sizing: border-box;
+}
+
+header {
+    background: #F1FAFD;
+    height: 50px;
+    padding: 12px;
+    border-bottom: solid 1px #C0C0C0;
+}
+
+.row {
+    height: 100%;
+    display: table-row;
+}
+
+.row .cell {
+    display: table-cell;
+    float: none;
+    padding: 5px;
+}
+
+.cell-center {
+    /*background: #F1FAFD;*/
+    width: 200px;
+    vertical-align: middle;
+    border-left: solid 1px #C0C0C0;
+    border-right: solid 1px #C0C0C0;
+}
+.cell-side {
+    background: white;
+    width: 50%;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.tree {
+    overflow: auto;
+    height: calc(100vh - 100px);
+    /*width: calc(50vw - 100);*/
+    position: absolute;
+}
+
+.treeTitle{
+    border-bottom: 1px solid #C0C0C0;
+    padding-bottom: 3px
+}
+
+.refreshIcon{
+    vertical-align: top;
+    cursor: pointer;
+    float: right;
+    margin-top: 9px;
+}
