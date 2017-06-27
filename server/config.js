@@ -35,7 +35,7 @@ module.exports = {
   // storage settings
   storage: {
     // storage name
-    // box, gdrive, dropbox, onedrive, egnyte
+    // box, google (drive), dropbox, onedrive, egnyte
     name: process.env.STORAGE_NAME,
     scope: process.env.STORAGE_SCOPE,
     callbackURL: process.env.STORAGE_CALLBACK_URL || 'http://localhost:3000/api/' + process.env.STORAGE_NAME + '/callback/oauth',

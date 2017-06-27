@@ -16,12 +16,12 @@
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
 
-function prepareAutodeskTree() {
-  $('#autodeskTree').jstree({
+function prepareStorageTree() {
+  $('#storageTree').jstree({
     'core': {
       'themes': {"icons": true},
       'data': {
-        "url": '/api/forge/tree',
+        "url": '/api/storage/tree',
         "dataType": "json",
         'multiple': false,
         'data': function (node) {
@@ -56,7 +56,7 @@ function prepareAutodeskTree() {
     //contextmenu: {items: autodeskCustomMenu}
   });
 
-  $('#refreshAutodeskTree').click(function () {
-    $('#autodeskTree').jstree(true).refresh();
+  $('#refreshStorageTree').click(function () {
+    $('#storageTree').jstree(true).refresh();
   })
 }

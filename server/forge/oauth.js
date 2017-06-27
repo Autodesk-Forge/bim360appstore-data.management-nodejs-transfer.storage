@@ -62,6 +62,12 @@ router.get('/api/forge/callback/oauth', function (req, res) {
 
 router.get('/api/forge/profile', function (req, res) {
   var token = new Credentials(req.session);
+  var credentials = token.getForgeCredentials();
+  if (credentials===undefined){
+    res.status(401).end();
+    return;
+  }
+
   var forge3legged = new forgeSDK.AuthClientThreeLegged(
     config.forge.credentials.client_id,
     config.forge.credentials.client_secret,

@@ -31,6 +31,7 @@ var server = app.listen(app.get('port'), function () {
   if (process.env.STORAGE_CLIENT_ID == null || process.env.STORAGE_CLIENT_SECRET == null)
     console.log('*****************\nWARNING: Storage Client ID & Client Secret not defined as environment variables.\n*****************');
 
+  console.log('Storage: ' + process.env.STORAGE_NAME);
   console.log('Starting at ' + (new Date()).toString());
   console.log('Server listening on port ' + server.address().port);
 });

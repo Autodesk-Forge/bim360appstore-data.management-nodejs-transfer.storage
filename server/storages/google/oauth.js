@@ -26,27 +26,39 @@ var config = require('./../../config');
 // web framework
 var express = require('express');
 var router = express.Router();
-// box sdk: https://github.com/box/box-node-sdk/
-var BoxSDK = require('box-node-sdk');
+// google drive sdk: https://developers.google.com/drive/v3/web/quickstart/nodejs
+var googleSdk = require('googleapis');
 
 router.get('/api/storage/signin', function (req, res) {
-  var url =
-    'https://account.box.com/api/oauth2/authorize?response_type=code&' +
-    '&client_id=' + config.storage.credentials.client_id +
-    '&redirect_uri=' + config.storage.callbackURL.toLowerCase() +
-    '&state=autodeskforge';
+  var oauth2Client = new googleSdk.auth.OAuth2(
+    config.storage.credentials.client_id,
+    config.storage.credentials.client_secret,
+    config.storage.callbackURL);
+
+  var scopes = [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/userinfo.profile'
+  ];
+  var url = oauth2Client.generateAuthUrl({
+    access_type: 'offline', // 'online' (default) or 'offline' (gets refresh_token)
+    scope: config.storage.scope.split(',')  // If you only need one scope you can pass it as string
+  });
   res.end(url);
 });
 
 // the callback endpoint should have the storage name (exception)
-router.get('/api/box/callback/oauth', function (req, res) {
+router.get('/api/google/callback/oauth', function (req, res) {
   var code = req.query.code;
-  var sdk = new BoxSDK({
-    clientID: config.storage.credentials.client_id, // required
-    clientSecret: config.storage.credentials.client_secret // required
-  });
 
-  sdk.getTokensAuthorizationCodeGrant(code, null, function (err, tokenInfo) {
+  var oauth2Client = new googleSdk.auth.OAuth2(
+    config.storage.credentials.client_id,
+    config.storage.credentials.client_secret,
+    config.storage.callbackURL);
+  oauth2Client.getToken(code, function (err, tokenInfo) {
+    if (err) {
+      res.end(JSON.stringify(err));
+      return;
+    }
     var token = new Credentials(req.session);
     token.setStorageCredentials(tokenInfo);
     res.redirect('/');
@@ -62,23 +74,26 @@ router.get('/api/storage/profile', function (req, res) {
     return;
   }
 
-  var sdk = new BoxSDK({
-    clientID: config.storage.credentials.client_id, // required
-    clientSecret: config.storage.credentials.client_secret // required
-  });
+  var oauth2Client = new googleSdk.auth.OAuth2(
+    config.storage.credentials.client_id,
+    config.storage.credentials.client_secret,
+    config.storage.callbackURL);
+  oauth2Client.setCredentials(token.getStorageCredentials());
 
-  var box = sdk.getBasicClient(credentials.accessToken);
-  box.users.get(box.users.CURRENT_USER_ID, null, function (err, user) {
+  var plus = googleSdk.plus('v1');
+  plus.people.get({userId: 'me', auth: oauth2Client}, function (err, user) {
     if (err) {
       console.log(err);
       res.status(500);
       return;
     }
     res.json({
-      name: user.name,
-      picture: user.avatar_url
+      name: user.displayName,
+      picture: user.image.url
     });
-  })
+  });
+
+
 });
 
 module.exports = router;

@@ -86,6 +86,8 @@ function prepareStorageSide(){
 
           $('#storageProfileName').text(profile.name)
           $('#storageProfilePicture').attr('src', profile.picture);
+
+          prepareStorageTree();
         },
         error: function(){
           $('#storageSigninButton').click(function () {

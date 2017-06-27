@@ -26,39 +26,9 @@ var config = require('./../../config');
 // web framework
 var express = require('express');
 var router = express.Router();
-// box sdk: https://github.com/box/box-node-sdk/
-var BoxSDK = require('box-node-sdk');
 
-router.get('/api/storage/tree', function (req, res) {
-  var token = new Credentials(req.session);
-  var credentials = token.getStorageCredentials();
-  if (credentials === undefined) {
-    res.status(401).end();
-    return;
-  }
+router.get('/endpoint', function (req, res) {
 
-  var sdk = new BoxSDK({
-    clientID: config.storage.credentials.client_id, // required
-    clientSecret: config.storage.credentials.client_secret // required
-  });
-
-  var box = sdk.getBasicClient(credentials.accessToken);
-  var id = (req.query.id === '#' ? '0' : req.query.id);
-
-  box.folders.getItems(id, {fields: 'name,shared_link,permissions,collections,sync_state'}, function (err, data) {
-    if (data == null || data.entries ==null) return '';
-    var items = [];
-    data.entries.forEach(function (item, index) {
-      var item = {
-        id: item.id,
-        text: item.name,
-        type: item.type,
-        children: (item.type === 'folder')
-      };
-      items.push(item);
-    });
-    res.json(items);
-  });
 });
 
 module.exports = router;
