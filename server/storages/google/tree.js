@@ -69,7 +69,7 @@ function drivePage(res, drive, folderId, npToken, first) {
         id: item.id,
         data: '',
         text: item.title,
-        type: ((item.mimeType != 'application/vnd.google-apps.folder') ? item.mimeType.replace('application/', '') : 'folder'),
+        type: ((item.mimeType != 'application/vnd.google-apps.folder') ? item.mimeType.replace('application/', '') : 'folders'),
         icon: item.iconLink,
         children: (item.mimeType === 'application/vnd.google-apps.folder')
       };

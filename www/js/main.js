@@ -21,6 +21,9 @@ var _storageName;
 $(document).ready(function () {
   prepareAutodeskSide();
   prepareStorageSide();
+
+  $('#transferToStorageButton').click(transferToStorage);
+  $('#transferFromStorageButton').click(transferToAutodesk);
 });
 
 function prepareAutodeskSide() {
@@ -31,7 +34,7 @@ function prepareAutodeskSide() {
       // start preparing for tree
       var autodeskSide = $('#autodeskSide');
       autodeskSide.empty();
-      autodeskSide.css("vertical-align","top");
+      autodeskSide.css("vertical-align", "top");
       autodeskSide.css('text-align', 'left');
       autodeskSide.append(
         '<div class="treeTitle"><img src="" id="autodeskProfilePicture" height="30px"> <span id="autodeskProfileName"></span>' +
@@ -60,7 +63,7 @@ function prepareAutodeskSide() {
   });
 }
 
-function prepareStorageSide(){
+function prepareStorageSide() {
   jQuery.ajax({
     url: '/api/storageName',
     success: function (storageName) {
@@ -68,15 +71,15 @@ function prepareStorageSide(){
 
       // preparing icons and titles
       $('#storageSigninIcon').attr("src", 'img/' + storageName + '/icon.png');
-      $('#tranferToButton').attr("title", 'Transfer selected BIM 360 files to ' + storageName);
-      $('#transferFromButton').attr("title", 'Transfer selected ' + storageName + ' files to BIM 360');
+      $('#tranferToStorageButton').attr("title", 'Transfer selected BIM 360 files to ' + storageName);
+      $('#transferFromStorageButton').attr("title", 'Transfer selected ' + storageName + ' files to BIM 360');
 
       jQuery.ajax({
         url: '/api/storage/profile',
         success: function (profile) {
           var storageSide = $('#storageSide');
           storageSide.empty();
-          storageSide.css("vertical-align","top");
+          storageSide.css("vertical-align", "top");
           storageSide.css('text-align', 'left');
           storageSide.append(
             '<div class="treeTitle"><img src="" id="storageProfilePicture" height="30px"> <span id="storageProfileName"></span>' +
@@ -89,7 +92,7 @@ function prepareStorageSide(){
 
           prepareStorageTree();
         },
-        error: function(){
+        error: function () {
           $('#storageSigninButton').click(function () {
             jQuery.ajax({
               url: '/api/storage/signin',
@@ -100,9 +103,100 @@ function prepareStorageSide(){
           });
         }
       });
-
-      $('#tranferToButton').click(function () {});
-      $('#tranferFromButton').click(function () {});
     }
+  });
+}
+
+function transferToAutodesk() {
+  var autodeskTree = $('#autodeskTree').jstree(true);
+  var storageTree = $('#storageTree').jstree(true);
+
+  if (!autodeskTree || !storageTree)
+  {
+    $("#transferFromStorageButton").notify(
+      "Please sign in first",
+      {position: "bottom", className: 'error'}
+    );
+    return;
+  }
+}
+
+function transferToStorage() {
+  var autodeskTree = $('#autodeskTree').jstree(true);
+  var storageTree = $('#storageTree').jstree(true);
+
+  if (!autodeskTree || !storageTree)
+  {
+    $("#transferToStorageButton").notify(
+      "Please sign in first",
+      {position: "bottom", className: 'error'}
+    );
+    return;
+  }
+  var autodeskNodes = autodeskTree.get_selected(true);
+  if (autodeskNodes === undefined || autodeskNodes.length == 0) {
+    $("#transferToStorageButton").notify(
+      "Please select files to transfer",
+      {position: "bottom", className: 'warn'}
+    );
+    return;
+  }
+
+  var storageNodes = storageTree.get_selected(true);
+  if (storageNodes === undefined || storageNodes.length != 1) {
+    $("#transferToStorageButton").notify(
+      "Please select destination folder",
+      {position: "bottom", className: 'warn'}
+    );
+    return;
+  }
+
+  var storageDestinationFolder = storageNodes[0];
+  if (storageDestinationFolder.type != 'folders') {
+    $("#transferToStorageButton").notify(
+      "The destination must be a folder",
+      {position: "bottom", className: 'warn'}
+    );
+    return;
+  }
+
+  $("#modalFilesToTransfer").modal();
+
+  var listOfFiles = $('#listFilesToTransfer');
+  listOfFiles.empty();
+  autodeskNodes.forEach(function (item) {
+    if (item.type === 'items') {
+      listOfFiles.append('<div class="checkbox"><label><input type="checkbox" value="' + item.id + '" checked>' + item.text + ' (last version)</label></div>');
+    }
+    else if (item.type === 'versions') {
+      var parent = $("#autodeskTree").jstree().get_node('#' + item.parent);
+      listOfFiles.append('<div class="checkbox"><label><input type="checkbox" value="' + item.id + '" checked> ' + parent.text + ' (' + item.text + ')</label></div>');
+    }
+    else if (item.type === 'folders')
+      listOfFiles.append('<div class="checkbox"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not supported</span></label></div>');
+  });
+
+  listOfFiles.append('<div>Destination folder: <strong>' + storageDestinationFolder.text + '</strong></div>')
+
+  $("#transferFiles").click(function () {
+    $(':checkbox:checked').each(function(i){
+      jQuery.ajax({
+        url: '/api/storage/transferTo',
+        contentType: 'application/json',
+        type: 'POST',
+        dataType: 'json',
+        data: JSON.stringify({
+          'autodeskItem': $(this).val(),
+          'storageFolder': storageDestinationFolder.id
+        }),
+        success: function (res) {
+        },
+        error: function (res) {
+        }
+      });
+
+    });
+    $('#modalFilesToTransfer').modal('toggle');
+    //$('#autodeskTree').jstree(true).refresh();
   });
 }

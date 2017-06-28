@@ -63,7 +63,7 @@ router.get('/api/forge/callback/oauth', function (req, res) {
 router.get('/api/forge/profile', function (req, res) {
   var token = new Credentials(req.session);
   var credentials = token.getForgeCredentials();
-  if (credentials===undefined){
+  if (credentials === undefined) {
     res.status(401).end();
     return;
   }
@@ -72,7 +72,8 @@ router.get('/api/forge/profile', function (req, res) {
     config.forge.credentials.client_id,
     config.forge.credentials.client_secret,
     config.forge.callbackURL,
-    config.forge.scope);
+    config.forge.scope,
+    true);
 
   var user = new forgeSDK.UserProfileApi();
   user.getUserProfile(forge3legged, token.getForgeCredentials())
