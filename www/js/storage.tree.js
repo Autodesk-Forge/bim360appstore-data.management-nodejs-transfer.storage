@@ -53,6 +53,7 @@ function prepareStorageTree() {
       }
     },
     "plugins": ["types", "state", "sort", "contextmenu"],
+    "state" : { "key" : "storageTree" }
     //contextmenu: {items: autodeskCustomMenu}
   });
 

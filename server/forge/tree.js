@@ -43,7 +43,8 @@ router.get('/api/forge/tree', function (req, res) {
     config.forge.credentials.client_id,
     config.forge.credentials.client_secret,
     config.forge.callbackURL,
-    config.forge.scope);
+    config.forge.scope,
+    true);
 
   var href = decodeURIComponent(req.query.id);
   if (href === '') {
@@ -59,6 +60,7 @@ router.get('/api/forge/tree', function (req, res) {
     var resourceId = params[params.length - 1];
     switch (resourceName) {
       case 'hubs':
+<<<<<<< HEAD
         // if the caller is a hub, then show projects
         var projects = new forgeSDK.ProjectsApi();
 
@@ -123,6 +125,32 @@ router.get('/api/forge/tree', function (req, res) {
             console.log(error);
             respondWithError(res, error);
           });
+=======
+        getProjects(resourceId, forge3legged, token.getForgeCredentials(), res);
+        break;
+      case 'projects':
+        // for a project, first we need the top/root folder
+        var hubId = params[params.length - 3];
+        var projects = new forgeSDK.ProjectsApi();
+        projects.getProject(hubId, resourceId/*project_id*/, forge3legged, token.getForgeCredentials())
+          .then(function (project) {
+            var rootFolderId = project.body.data.relationships.rootFolder.data.id;
+            getFolder(resourceId/*projectId*/, rootFolderId, forge3legged, token.getForgeCredentials(), res);
+          })
+          .catch(function (error) {
+            console.log(error);
+            res.status(500).end();
+          });
+        break;
+      case 'folders':
+        var projectId = params[params.length - 3];
+        getFolder(projectId, resourceId, forge3legged, token.getForgeCredentials(), res);
+        break;
+      case 'items':
+        var projectId = params[params.length - 3];
+        getVersions(projectId, resourceId, forge3legged, token.getForgeCredentials(), res);
+        break;
+>>>>>>> origin/master
     }
   }
 });
@@ -140,16 +168,15 @@ function getHubs(oauthClient, credentials, res) {
             hubType = "hubs";
             break;
           case "hubs:autodesk.a360:PersonalHub":
-            hubType = "personalhub";
+            hubType = "personalHub";
             break;
           case "hubs:autodesk.bim360:Account":
-            hubType = "bim360hubs";
+            hubType = "bim360Hubs";
             break;
         }
 
         hubsForTree.push(prepareItemForTree(
           hub.links.self.href,
-          '',
           hub.attributes.name,
           hubType,
           true
@@ -163,7 +190,85 @@ function getHubs(oauthClient, credentials, res) {
     });
 }
 
-function prepareItemForTree(_id, _data, _text, _type, _children) {
+function getProjects(hubId, oauthClient, credentials, res) {
+  var projects = new forgeSDK.ProjectsApi();
+
+  projects.getHubProjects(hubId, {}, oauthClient, credentials)
+    .then(function (projects) {
+      var projectsForTree = [];
+      projects.body.data.forEach(function (project) {
+        var projectType = 'projects';
+        switch (project.attributes.extension.type) {
+          case 'projects:autodesk.core:Project':
+            projectType = 'a360projects';
+            break;
+          case 'projects:autodesk.bim360:Project':
+            projectType = 'bim360projects';
+            break;
+        }
+
+        projectsForTree.push(prepareItemForTree(
+          project.links.self.href,
+          project.attributes.name,
+          projectType,
+          true
+        ));
+      });
+      res.json(projectsForTree);
+    })
+    .catch(function (error) {
+      console.log(error);
+      res.status(500).end();
+    });
+}
+
+function getFolder(projectId, folderId, oauthClient, credentials, res) {
+  var folders = new forgeSDK.FoldersApi();
+  folders.getFolderContents(projectId, folderId, {}, oauthClient, credentials)
+    .then(function (folderContents) {
+      var folderItemsForTree = [];
+      folderContents.body.data.forEach(function (item) {
+        folderItemsForTree.push(prepareItemForTree(
+          item.links.self.href,
+          item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName,
+          item.type,
+          true
+        ))
+      });
+      res.json(folderItemsForTree);
+    })
+    .catch(function (error) {
+      console.log(error);
+      res.status(500).end();
+    });
+}
+
+function getVersions(projectId, itemId, oauthClient, credentials, res) {
+  var items = new forgeSDK.ItemsApi();
+  items.getItemVersions(projectId, itemId, {}, oauthClient, credentials)
+    .then(function (versions) {
+      var versionsForTree = [];
+      versions.body.data.forEach(function (version) {
+        var moment = require('moment');
+        var lastModifiedTime = moment(version.attributes.lastModifiedTime);
+        var days = moment().diff(lastModifiedTime, 'days')
+        var dateFormated = (versions.body.data.length > 1 || days > 7 ? lastModifiedTime.format('MMM D, YYYY, h:mm a') : lastModifiedTime.fromNow());
+        versionsForTree.push(prepareItemForTree(
+          version.links.self.href,
+          dateFormated + ' by ' + version.attributes.lastModifiedUserName,
+          'versions',
+          false
+        ));
+      });
+      res.json(versionsForTree);
+    })
+    .catch(function (error) {
+      console.log(error);
+      res.status(500).end();
+    })
+}
+
+function prepareItemForTree(_id, _text, _type, _children) {
   return {id: _id, text: _text, type: _type, children: _children};
 }
 

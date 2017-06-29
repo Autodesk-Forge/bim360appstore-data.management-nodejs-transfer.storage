@@ -26,9 +26,19 @@ var config = require('./../../config');
 // web framework
 var express = require('express');
 var router = express.Router();
+var bodyParser = require('body-parser');
+var jsonParser = bodyParser.json();
 
-router.get('/endpoint', function (req, res) {
+var utility = require('./../utility');
 
+router.post('/api/storage/transferTo', jsonParser, function (req, res) {
+  utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
+    var storageFolder = req.body.storageFolder;
+
+    // ToDo
+    res.status(200).end();
+  });
 });
+
 
 module.exports = router;

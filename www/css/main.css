@@ -44,7 +44,7 @@ header {
 .tree {
     overflow: auto;
     height: calc(100vh - 100px);
-    /*width: calc(50vw - 100);*/
+    width: calc(50vw - 50px);
     position: absolute;
 }
 

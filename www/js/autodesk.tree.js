@@ -20,10 +20,11 @@ function prepareAutodeskTree() {
   $('#autodeskTree').jstree({
     'core': {
       'themes': {"icons": true},
+      'multiple': true,
       'data': {
         "url": '/api/forge/tree',
         "dataType": "json",
-        'multiple': false,
+        'multiple': true,
         'data': function (node) {
           return {"id": node.id};
         }
@@ -31,16 +32,25 @@ function prepareAutodeskTree() {
     },
     'types': {
       'default': {
-        'icon': 'glyphicon glyphicon-cloud'
+        'icon': 'glyphicon glyphicon-question-sign'
       },
       '#': {
         'icon': 'glyphicon glyphicon-user'
       },
       'hubs': {
-        'icon': 'glyphicon glyphicon-inbox'
+        'icon': '/img/a360Hub.png' // should have a better icon
       },
-      'projects': {
-        'icon': 'glyphicon glyphicon-list-alt'
+      'personalHub': {
+        'icon': '/img/a360Hub.png'
+      },
+      'bim360Hubs': {
+        'icon': '/img/bim360Hub.png'
+      },
+      'bim360projects': {
+        'icon': '/img/bim360project.png'
+      },
+      'a360projects': {
+        'icon': '/img/a360project.png'
       },
       'items': {
         'icon': 'glyphicon glyphicon-file'
@@ -53,6 +63,7 @@ function prepareAutodeskTree() {
       }
     },
     "plugins": ["types", "state", "sort", "contextmenu"],
+    "state" : { "key" : "autodeskTree" }
     //contextmenu: {items: autodeskCustomMenu}
   });
 
