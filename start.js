@@ -20,18 +20,51 @@
 
 var app = require('./server/server');
 
-// start server
-var server = app.listen(app.get('port'), function () {
-  if (process.env.FORGE_CLIENT_ID == null || process.env.FORGE_CLIENT_SECRET == null)
-    console.log('*****************\nWARNING: Forge Client ID & Client Secret not defined as environment variables.\n*****************');
+// In case of production environment (e.g. herokuapp) https will
+// be provided automatically, otherwise we need to set up the local https
+// support using https library and our locally saved keys
+if (process.env.NODE_ENV === "production") {
+  // start server
+  var server = app.listen(app.get('port'), function () {
+    if (process.env.FORGE_CLIENT_ID == null || process.env.FORGE_CLIENT_SECRET == null)
+      console.log('*****************\nWARNING: Forge Client ID & Client Secret not defined as environment variables.\n*****************');
 
-  if (process.env.STORAGE_NAME == null)
-    console.log('*****************\nWARNING: Storage type not defined as environment variables.\n*****************');
+    if (process.env.STORAGE_NAME == null)
+      console.log('*****************\nWARNING: Storage type not defined as environment variables.\n*****************');
 
-  if (process.env.STORAGE_CLIENT_ID == null || process.env.STORAGE_CLIENT_SECRET == null)
-    console.log('*****************\nWARNING: Storage Client ID & Client Secret not defined as environment variables.\n*****************');
+    if (process.env.STORAGE_CLIENT_ID == null || process.env.STORAGE_CLIENT_SECRET == null)
+      console.log('*****************\nWARNING: Storage Client ID & Client Secret not defined as environment variables.\n*****************');
 
-  console.log('Storage: ' + process.env.STORAGE_NAME);
-  console.log('Starting at ' + (new Date()).toString());
-  console.log('Server listening on port ' + server.address().port);
-});
+    console.log('Storage: ' + process.env.STORAGE_NAME);
+    console.log('Starting at ' + (new Date()).toString());
+    console.log('Server listening on port ' + server.address().port);
+  });
+} else {
+  // Setting up local https support
+  var fs = require('fs');
+  var https = require('https');
+
+  var options = {
+    key: fs.readFileSync('./server/https/server.key'), //('/etc/apache2/ssl/server.key'),
+    cert: fs.readFileSync('./server/https/server.crt'), //('/etc/apache2/ssl/server.crt'),
+    passphrase: 'erny97',
+    requestCert: false,
+    rejectUnauthorized: false
+  };
+
+  // start server
+  var server = https.createServer(options, app).listen(app.get('port'), function () {
+    if (process.env.FORGE_CLIENT_ID == null || process.env.FORGE_CLIENT_SECRET == null)
+      console.log('*****************\nWARNING: Forge Client ID & Client Secret not defined as environment variables.\n*****************');
+
+    if (process.env.STORAGE_NAME == null)
+      console.log('*****************\nWARNING: Storage type not defined as environment variables.\n*****************');
+
+    if (process.env.STORAGE_CLIENT_ID == null || process.env.STORAGE_CLIENT_SECRET == null)
+      console.log('*****************\nWARNING: Storage Client ID & Client Secret not defined as environment variables.\n*****************');
+
+    console.log('Storage: ' + process.env.STORAGE_NAME);
+    console.log('Starting at ' + (new Date()).toString());
+    console.log('Server listening on port ' + server.address().port);
+  });
+}
