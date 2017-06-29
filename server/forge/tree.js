@@ -60,72 +60,6 @@ router.get('/api/forge/tree', function (req, res) {
     var resourceId = params[params.length - 1];
     switch (resourceName) {
       case 'hubs':
-<<<<<<< HEAD
-        // if the caller is a hub, then show projects
-        var projects = new forgeSDK.ProjectsApi();
-
-        projects.getHubProjects(resourceId/*hub_id*/, {},
-          forge3legged, token.getForgeCredentials())
-          .then(function (projects) {
-            res.json(prepareArrayForJSTree(projects.body.data, true));
-          })
-          .catch(function (error) {
-            console.log(error);
-            respondWithError(res, error);
-          });
-        break;
-      case 'projects':
-        // if the caller is a project, then show folders
-        var hubId = params[params.length - 3];
-        var projects = new forgeSDK.ProjectsApi();
-        projects.getProject(hubId, resourceId/*project_id*/,
-          forge3legged, token.getForgeCredentials())
-          .then(function (project) {
-            var rootFolderId = project.body.data.relationships.rootFolder.data.id;
-            var folders = new forgeSDK.FoldersApi();
-            folders.getFolderContents(resourceId, rootFolderId, {},
-              forge3legged, token.getForgeCredentials())
-              .then(function (folderContents) {
-                res.json(prepareArrayForJSTree(folderContents.body.data, true));
-              })
-              .catch(function (error) {
-                console.log(error);
-                respondWithError(res, error);
-              });
-          })
-          .catch(function (error) {
-            console.log(error);
-            respondWithError(res, error);
-          });
-        break;
-      case 'folders':
-        // if the caller is a folder, then show contents
-        var projectId = params[params.length - 3];
-        var folders = new forgeSDK.FoldersApi();
-        folders.getFolderContents(projectId, resourceId/*folder_id*/,
-          {}, forge3legged, token.getForgeCredentials())
-          .then(function (folderContents) {
-            res.json(prepareArrayForJSTree(folderContents.body.data, true));
-          })
-          .catch(function (error) {
-            console.log(error);
-            respondWithError(res, error);
-          });
-        break;
-      case 'items':
-        // if the caller is an item, then show versions
-        var projectId = params[params.length - 3];
-        var items = new forgeSDK.ItemsApi();
-        items.getItemVersions(projectId, resourceId/*item_id*/,
-          {}, forge3legged, token.getForgeCredentials())
-          .then(function (versions) {
-            res.json(prepareArrayForJSTree(versions.body.data, false));
-          })
-          .catch(function (error) {
-            console.log(error);
-            respondWithError(res, error);
-          });
-=======
         getProjects(resourceId, forge3legged, token.getForgeCredentials(), res);
         break;
       case 'projects':
@@ -150,7 +84,6 @@ router.get('/api/forge/tree', function (req, res) {
         var projectId = params[params.length - 3];
         getVersions(projectId, resourceId, forge3legged, token.getForgeCredentials(), res);
         break;
->>>>>>> origin/master
     }
   }
 });
