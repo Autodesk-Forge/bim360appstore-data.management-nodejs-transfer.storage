@@ -29,14 +29,66 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 
+var googleSdk = require('googleapis');
+
+var request = require('request');
+
 var utility = require('./../utility');
 
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
-  utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
-    var storageFolder = req.body.storageFolder;
+  var token = new Credentials(req.session);
+  var credentials = token.getStorageCredentials();
+  if (credentials === undefined) {
+    res.status(401).end();
+    return;
+  }
 
-    // ToDo
-    res.status(200).end();
+  utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
+    utility.getVersion(autodeskVersionId, req, function (version) {
+      var storageFolder = req.body.storageFolder;
+
+      // Google API first need to create an entry, then upload
+      request({
+        url: 'https://www.googleapis.com/drive/v3/files',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+        },
+        body: JSON.stringify({
+          name: version.attributes.displayName,
+          parents: [storageFolder]
+        })
+      }, function (error, response, file) {
+        var newFile = JSON.parse(response.body);
+
+        // now with the file created, let's prepare the transfer job\
+        var source = {
+          url: version.relationships.storage.meta.link.href,
+          method: "GET",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
+
+        var destination = {
+          url: 'https://www.googleapis.com/upload/drive/v2/files/' + newFile.id + '?uploadType=media',
+          method: 'PUT',
+          headers: {
+            'Content-Type': newFile.mimeType,
+            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+          }
+        };
+
+        // send Lambda job
+        utility.postLambdaJob(source, destination);
+      });
+
+
+      // ToDo
+      res.status(200).end();
+    });
   });
 });
 

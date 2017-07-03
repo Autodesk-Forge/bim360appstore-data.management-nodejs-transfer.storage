@@ -29,14 +29,6 @@ var router = express.Router();
 // forge oAuth package
 var forgeSDK = require('forge-apis');
 
-function respondWithError(res, error) {
-  if (error.statusCode) {
-    res.status(error.statusCode).end(error.statusMessage);
-  } else {
-    res.status(500).end(error.message);
-  }
-}
-
 router.get('/api/forge/tree', function (req, res) {
   var token = new Credentials(req.session);
   var forge3legged = new forgeSDK.AuthClientThreeLegged(
@@ -203,29 +195,6 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
 
 function prepareItemForTree(_id, _text, _type, _children) {
   return {id: _id, text: _text, type: _type, children: _children};
-}
-
-// Formats a list to JSTree structure
-function prepareArrayForJSTree(listOf, canHaveChildren, data) {
-  if (listOf == null) return '';
-  var treeList = [];
-  listOf.forEach(function (item, index) {
-    console.log(item.links.self.href);
-    console.log(
-      "item.attributes.displayName = " + item.attributes.displayName +
-      "; item.attributes.name = " + item.attributes.name
-    );
-    var treeItem = {
-      id: item.links.self.href,
-      data: (item.relationships != null && item.relationships.derivatives != null ?
-        item.relationships.derivatives.data.id : null),
-      text: (item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName),
-      type: item.type,
-      children: canHaveChildren
-    };
-    treeList.push(treeItem);
-  });
-  return treeList;
 }
 
 module.exports = router;

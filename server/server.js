@@ -21,6 +21,8 @@
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+//var cookieSession = require('cookie-session')
+
 var app = express();
 
 // this session will be used to save the oAuth token
@@ -36,6 +38,14 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+
+/*app.use(cookieSession({
+  name: 'session',
+  keys: ['autodeskForge'],
+
+  // Cookie Options
+  maxAge: 60 * 60 * 1000
+}));*/
 
 // favicon
 var favicon = require('serve-favicon');
@@ -72,5 +82,10 @@ var storageIntegration = require('./storages/' + storageName + '/integration.js'
 app.use('/', storateOAuth); // redirect oauth API calls
 app.use('/', storateTree); // redirect oauth API calls
 app.use('/', storageIntegration); // redirect oauth API calls
+
+var localTransfer = require('./lambda/localEndpoint');
+app.use('/', localTransfer);
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 
 module.exports = app;

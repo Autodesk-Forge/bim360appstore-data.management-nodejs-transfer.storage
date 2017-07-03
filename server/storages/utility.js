@@ -28,13 +28,13 @@ var forgeSDK = require('forge-apis');
 
 module.exports = {
   assertIsVersion: function (autodeskItem, req, callback) {
-    if (autodeskItem.indexOf('/versions/')>-1){
+    if (autodeskItem.indexOf('/versions/') > -1) {
       // already a version, just return
       callback(autodeskItem);
       return;
     }
 
-    if (autodeskItem.indexOf('/items/')==-1){
+    if (autodeskItem.indexOf('/items/') == -1) {
       console.log('Invalid item: ' + autodeskItem);
       return;
     }
@@ -70,5 +70,47 @@ module.exports = {
       .catch(function (error) {
 
       });
+  },
+
+  getVersion: function (versionUrl, req, callback) {
+    var params = decodeURIComponent(versionUrl).split('/');
+    var projectId = params[params.length - 3];
+    var versionId = params[params.length - 1];
+
+    var token = new Credentials(req.session);
+    var forge3legged = new forgeSDK.AuthClientThreeLegged(
+      config.forge.credentials.client_id,
+      config.forge.credentials.client_secret,
+      config.forge.callbackURL,
+      config.forge.scope,
+      true);
+
+    var versions = new forgeSDK.VersionsApi();
+    versions.getVersion(projectId, versionId, forge3legged, token.getForgeCredentials())
+      .then(function (version) {
+        if (!version.body.data.relationships.storage || !version.body.data.relationships.storage.meta.link.href) {
+          return;
+        }
+        callback(version.body.data)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  },
+
+  postLambdaJob: function (sourceReq, destinationReq) {
+    var request = require('request');
+    request({
+      url: config.transfer.endpoint,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': // lambda headers
+      },
+      rejectUnhauthorized : false,
+      body: JSON.stringify({source: sourceReq, destination: destinationReq})
+    }, function (error, response) {
+      console.log(error);
+    });
   }
-}
+};

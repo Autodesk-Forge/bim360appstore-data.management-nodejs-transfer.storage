@@ -26,7 +26,7 @@ var config = require('./../../config');
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 
-var request = require('request')
+var request = require('request');
 
 var forgeSDK = require('forge-apis');
 
