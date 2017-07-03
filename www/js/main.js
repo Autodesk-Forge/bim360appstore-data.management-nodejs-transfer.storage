@@ -184,12 +184,14 @@ function transferToStorage() {
         url: '/api/storage/transferTo',
         contentType: 'application/json',
         type: 'POST',
-        dataType: 'json',
+        //dataType: 'json', comment this to avoid parsing the response which would result in an error
         data: JSON.stringify({
           'autodeskItem': $(this).val(),
           'storageFolder': storageDestinationFolder.id
         }),
         success: function (res) {
+          // Refresh the storage tree
+          $('#storageTree').jstree(true).refresh();
         },
         error: function (res) {
         }

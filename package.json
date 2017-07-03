@@ -30,6 +30,7 @@
     "jstree": "^3.3.4",
     "moment": "^2.18.1",
     "serve-favicon": "^2.4.3",
-    "@microsoft/microsoft-graph-client": "^1.0.0"
+    "@microsoft/microsoft-graph-client": "^1.0.0",
+    "body-parser": "*"
   }
 }
