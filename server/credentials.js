@@ -30,6 +30,14 @@ Credentials.prototype.getForgeCredentials = function () {
   return this._session.ForgeCredentials;
 };
 
+Credentials.prototype.setAutodeskId = function(autodeskId){
+  this._session.AutodeskId = autodeskId;
+};
+
+Credentials.prototype.getAutodeskId = function () {
+  return this._session.AutodeskId;
+};
+
 Credentials.prototype.setStorageCredentials = function (accessToken) {
   this._session.StorageCredentials = accessToken;
 };

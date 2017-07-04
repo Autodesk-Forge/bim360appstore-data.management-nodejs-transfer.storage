@@ -20,15 +20,15 @@
 
 var express = require('express');
 var cookieParser = require('cookie-parser');
-var session = require('express-session');
-//var cookieSession = require('cookie-session')
+//var session = require('express-session');
+var cookieSession = require('cookie-session')
 
 var app = express();
 
 // this session will be used to save the oAuth token
 app.use(cookieParser());
 app.set('trust proxy', 1) // trust first proxy - HTTPS on Heroku
-app.use(session({
+/*app.use(session({
   secret: 'autodeskforge',
   cookie: {
     httpOnly: true,
@@ -37,15 +37,15 @@ app.use(session({
   },
   resave: false,
   saveUninitialized: true
-}));
+}));*/
 
-/*app.use(cookieSession({
+app.use(cookieSession({
   name: 'session',
   keys: ['autodeskForge'],
 
   // Cookie Options
   maxAge: 60 * 60 * 1000
-}));*/
+}));
 
 // favicon
 var favicon = require('serve-favicon');
@@ -57,6 +57,7 @@ app.use('/js/libraries', express.static(__dirname + '/../node_modules/bootstrap/
 app.use('/js/libraries', express.static(__dirname + '/../node_modules/jquery/dist')); // redirect static calls
 app.use('/js/libraries', express.static(__dirname + '/../node_modules/jstree/dist')); // redirect static calls
 app.use('/js/libraries', express.static(__dirname + '/../node_modules/moment/min')); // redirect static calls
+//app.use('/socket.io', express.static(__dirname + '/../node_modules/socket.io-client/dist')); // redirect static calls
 app.use('/css/libraries', express.static(__dirname + '/../node_modules/bootstrap/dist/css')); // redirect static calls
 app.use('/css/libraries/jstree', express.static(__dirname + '/../node_modules/jstree/dist/themes/default')); // redirect static calls (jstree use 'style.css', which is very generic, so let's use an extra folder)
 app.use('/css/fonts', express.static(__dirname + '/../node_modules/bootstrap/dist/fonts')); // redirect static calls
@@ -83,9 +84,12 @@ app.use('/', storateOAuth); // redirect oauth API calls
 app.use('/', storateTree); // redirect oauth API calls
 app.use('/', storageIntegration); // redirect oauth API calls
 
-var localTransfer = require('./lambda/localEndpoint');
-app.use('/', localTransfer);
+if (process.env.NODE_ENV != 'production') {
+  // define a local testing that transfer the files
+  var localTransfer = require('./lambda/localEndpoint');
+  app.use('/', localTransfer);
+}
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // for httpS://localhost
 
 module.exports = app;

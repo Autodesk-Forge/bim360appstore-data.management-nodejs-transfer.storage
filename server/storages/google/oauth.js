@@ -77,7 +77,8 @@ router.get('/api/storage/profile', function (req, res) {
   var oauth2Client = new googleSdk.auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
-    config.storage.callbackURL);
+    config.storage.callbackURL,
+    true);
   oauth2Client.setCredentials(token.getStorageCredentials());
 
   var plus = googleSdk.plus('v1');

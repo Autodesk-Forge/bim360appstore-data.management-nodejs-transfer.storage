@@ -21,6 +21,8 @@
 // web framework
 var express = require('express');
 var router = express.Router();
+var bodyParser = require('body-parser');
+var jsonParser = bodyParser.json();
 
 // app config settings
 var config = require('./config');
@@ -30,6 +32,15 @@ router.get('/api/storageInfo', function (req, res) {
     'storageName': config.storage.name,
     'needsAccountName': config.storage.needsAccountName
   });
+});
+
+router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) {
+  var connectedUser = io.sockets.in(req.body.autodeskId);
+  if (connectedUser != null)
+    connectedUser.emit('taskStatus', {
+      taskId: req.body.taskId,
+      status: 'completed'
+    });
 });
 
 module.exports = router;

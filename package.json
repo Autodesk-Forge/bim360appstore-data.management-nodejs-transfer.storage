@@ -20,12 +20,12 @@
   "homepage": "https://github.com/augustogoncalves/bim360appstore-data.management-nodejs-transfer.storage#readme",
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^1.0.0",
-    "egnyte-js-sdk": "*",
     "body-parser": "*",
     "bootstrap": "^3.3.7",
     "box-node-sdk": "^1.6.0",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.2",
+    "egnyte-js-sdk": "*",
     "express": "^4.15.3",
     "express-session": "*",
     "forge-apis": "^0.4.0",
@@ -33,6 +33,7 @@
     "jquery": "^3.2.1",
     "jstree": "^3.3.4",
     "moment": "^2.18.1",
-    "serve-favicon": "^2.4.3"
+    "serve-favicon": "^2.4.3",
+    "socket.io": "^2.0.3"
   }
 }

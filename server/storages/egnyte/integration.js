@@ -76,10 +76,9 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
       };
 
       // send Lambda job
-      utility.postLambdaJob(source, destination);
+      var id = utility.postLambdaJob(source, destination, token);
 
-      // ToDo
-      res.status(200).end();
+      res.json({taskId: id, status: 'received'});
     });
   });
 

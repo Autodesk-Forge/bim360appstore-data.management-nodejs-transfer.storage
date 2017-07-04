@@ -20,6 +20,8 @@ var _storageName;
 var _needsAccountName;
 var _accountName;
 
+var socket = io.connect(location.host);
+
 $(document).ready(function () {
   prepareAutodeskSide();
   prepareStorageSide();
@@ -48,6 +50,23 @@ function prepareAutodeskSide() {
       $('#autodeskProfilePicture').attr('src', profile.picture);
 
       prepareAutodeskTree('autodeskTree');
+
+      socket.emit('join', {
+        autodeskId: profile.id
+      });
+
+      socket.on('taskStatus', function (data) {
+        var taskLabel = $('#' + data.taskId);
+        taskLabel.empty();
+        switch (data.status){
+          case 'started':
+            taskLabel.append('<span class="glyphicon glyphicon-transfer" title="Transfering..."></span>');
+            break;
+          case 'completed':
+            taskLabel.append('<span class="glyphicon glyphicon-ok" title="Completed!"></span>');
+            break;
+        }
+      });
     },
     statusCode: {
       401: function () {
@@ -99,7 +118,7 @@ function prepareStorageSide() {
           $('#storageSigninButton').click(function () {
             _accountName = undefined
             if (_needsAccountName) {
-                _accountName = prompt("Please provide account name", "autodesktesting");
+              _accountName = prompt("Please provide account name", "autodesktesting");
             }
 
             if (_accountName || !_needsAccountName) {
@@ -121,8 +140,7 @@ function transferToAutodesk() {
   var autodeskTree = $('#autodeskTree').jstree(true);
   var storageTree = $('#storageTree').jstree(true);
 
-  if (!autodeskTree || !storageTree)
-  {
+  if (!autodeskTree || !storageTree) {
     $("#transferFromStorageButton").notify(
       "Please sign in first",
       {position: "bottom", className: 'error'}
@@ -135,8 +153,7 @@ function transferToStorage() {
   var autodeskTree = $('#autodeskTree').jstree(true);
   var storageTree = $('#storageTree').jstree(true);
 
-  if (!autodeskTree || !storageTree)
-  {
+  if (!autodeskTree || !storageTree) {
     $("#transferToStorageButton").notify(
       "Please sign in first",
       {position: "bottom", className: 'error'}
@@ -176,39 +193,51 @@ function transferToStorage() {
   listOfFiles.empty();
   autodeskNodes.forEach(function (item) {
     if (item.type === 'items') {
-      listOfFiles.append('<div class="checkbox"><label><input type="checkbox" value="' + item.id + '" checked>' + item.text + ' (last version)</label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" checked>' + item.text + ' (last version)</label></div>');
     }
     else if (item.type === 'versions') {
       var parent = $("#autodeskTree").jstree().get_node('#' + item.parent);
-      listOfFiles.append('<div class="checkbox"><label><input type="checkbox" value="' + item.id + '" checked> ' + parent.text + ' (' + item.text + ')</label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" checked> ' + parent.text + ' (' + item.text + ')</label></div>');
     }
     else if (item.type === 'folders')
-      listOfFiles.append('<div class="checkbox"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not supported</span></label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not supported</span></label></div>');
   });
 
   listOfFiles.append('<div>Destination folder: <strong>' + storageDestinationFolder.text + '</strong></div>')
 
   $("#transferFiles").click(function () {
-    $(':checkbox:checked').each(function(i){
+    $(this).prop('disabled', true);
+    $(this).html('Transfering...');
+    $(':checkbox:checked').each(function (i) {
+      var checkBox = $(this);
       jQuery.ajax({
         url: '/api/storage/transferTo',
         contentType: 'application/json',
         type: 'POST',
         //dataType: 'json', comment this to avoid parsing the response which would result in an error
         data: JSON.stringify({
-          'autodeskItem': $(this).val(),
+          'autodeskItem': checkBox.val(),
           'storageFolder': storageDestinationFolder.id
         }),
         success: function (res) {
+          var itemDiv = checkBox.parent().parent();
+          itemDiv.prepend('<div style="float: right; z-index: 10; background-color: #FFFFFF;" id="' + res.taskId + '"><img src="/css/libraries/jstree/throbber.gif" style="/css/libraries/jstree/throbber.gif" title="Preparing..."></div>');
           // Refresh the storage tree
-          $('#storageTree').jstree(true).refresh();
+          //storageTree.refresh(storageDestinationFolder);
         },
         error: function (res) {
+
         }
       });
-
     });
-    $('#modalFilesToTransfer').modal('toggle');
-    //$('#autodeskTree').jstree(true).refresh();
+
+    //$('#modalFilesToTransfer').modal('toggle');
   });
+
+  $('#modalFilesToTransfer').on('hidden.bs.modal', function () {
+    var transferFilesButton = $("#transferFiles");
+    transferFilesButton.unbind('click');
+    transferFilesButton.prop('disabled', false);
+    transferFilesButton.html('Start transfer');
+  })
 }

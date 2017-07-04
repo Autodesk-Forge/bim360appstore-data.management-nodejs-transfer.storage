@@ -78,9 +78,11 @@ router.get('/api/forge/profile', function (req, res) {
   var user = new forgeSDK.UserProfileApi();
   user.getUserProfile(forge3legged, token.getForgeCredentials())
     .then(function (profile) {
+      token.setAutodeskId(profile.body.userId);
       res.json({
         name: profile.body.firstName + ' ' + profile.body.lastName,
-        picture: profile.body.profileImages.sizeX40
+        picture: profile.body.profileImages.sizeX40,
+        id: profile.body.userId
       });
     })
     .catch(function (error) {

@@ -52,7 +52,7 @@ function prepareStorageTree() {
         'icon': 'glyphicon glyphicon-time'
       }
     },
-    "plugins": ["types", "state", "sort", "contextmenu"],
+    "plugins": ["types", "state", "sort"/*, "contextmenu"*/],
     "state" : { "key" : "storageTree" }
     //contextmenu: {items: autodeskCustomMenu}
   });

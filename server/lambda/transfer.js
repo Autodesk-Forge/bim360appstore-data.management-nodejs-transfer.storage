@@ -21,13 +21,23 @@
 var request = require('request');
 
 module.exports = {
-  transferFile : function (source, destination) {
+  transferFile : function (autodeskId, taskId, source, destination) {
 
     request
       .get(source)
       .pipe(destination.method === 'PUT' ? request.put(destination) : request.post(destination))
       .on('response', function (r) {
-        console.log(r);
+        request({
+          url: process.env.STATUS_CALLBACK || 'https://localhost:3000/api/app/callback/transferStatus',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          rejectUnhauthorized: false, // required on httpS://localhost
+          body: JSON.stringify({autodeskId: autodeskId, taskId: taskId, status: 'complete'})
+        }, function (error, response) {
+          // do nothing
+        });
       });
 
     return true;

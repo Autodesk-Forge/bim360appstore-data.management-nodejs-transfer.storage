@@ -98,7 +98,8 @@ module.exports = {
       });
   },
 
-  postLambdaJob: function (sourceReq, destinationReq) {
+  postLambdaJob: function (sourceReq, destinationReq, token) {
+    var newTaskId = guid();
     var request = require('request');
     request({
       url: config.transfer.endpoint,
@@ -107,10 +108,32 @@ module.exports = {
         'Content-Type': 'application/json',
         //'Authorization': // lambda headers
       },
-      rejectUnhauthorized : false,
-      body: JSON.stringify({source: sourceReq, destination: destinationReq})
+      rejectUnhauthorized: false, // required on httpS://localhost
+      body: JSON.stringify({autodeskId: token.getAutodeskId(), taskId: newTaskId, source: sourceReq, destination: destinationReq})
     }, function (error, response) {
-      console.log(error);
+      // job received by Lambda
+      // any error?
+      // if a token is available, then notify caller
+      if (token) {
+        var connectedUser = io.sockets.in(token.getAutodeskId());
+        if (connectedUser != null)
+          connectedUser.emit('taskStatus', {
+            taskId: newTaskId,
+            status: 'started'
+          });
+      }
     });
+    return newTaskId;
   }
 };
+
+//as per https://stackoverflow.com/a/105074/4838205
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+
+  return s4() + s4() + s4() + +s4() + s4() + s4() + s4() + s4();
+}

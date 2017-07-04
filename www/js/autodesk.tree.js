@@ -62,7 +62,7 @@ function prepareAutodeskTree() {
         'icon': 'glyphicon glyphicon-time'
       }
     },
-    "plugins": ["types", "state", "sort", "contextmenu"],
+    "plugins": ["types", "state", "sort"/*, "contextmenu"*/],
     "state" : { "key" : "autodeskTree" }
     //contextmenu: {items: autodeskCustomMenu}
   });
