@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////
 
 var _storageName;
+var _needsAccountName;
+var _accountName;
 
 $(document).ready(function () {
   prepareAutodeskSide();
@@ -65,14 +67,15 @@ function prepareAutodeskSide() {
 
 function prepareStorageSide() {
   jQuery.ajax({
-    url: '/api/storageName',
-    success: function (storageName) {
-      _storageName = storageName;
+    url: '/api/storageInfo',
+    success: function (storageInfo) {
+      _storageName = storageInfo.storageName
+      _needsAccountName = storageInfo.needsAccountName
 
       // preparing icons and titles
-      $('#storageSigninIcon').attr("src", 'img/' + storageName + '/icon.png');
-      $('#tranferToStorageButton').attr("title", 'Transfer selected BIM 360 files to ' + storageName);
-      $('#transferFromStorageButton').attr("title", 'Transfer selected ' + storageName + ' files to BIM 360');
+      $('#storageSigninIcon').attr("src", 'img/' + _storageName + '/icon.png');
+      $('#tranferToStorageButton').attr("title", 'Transfer selected BIM 360 files to ' + _storageName);
+      $('#transferFromStorageButton').attr("title", 'Transfer selected ' + _storageName + ' files to BIM 360');
 
       jQuery.ajax({
         url: '/api/storage/profile',
@@ -94,12 +97,19 @@ function prepareStorageSide() {
         },
         error: function () {
           $('#storageSigninButton').click(function () {
-            jQuery.ajax({
-              url: '/api/storage/signin',
-              success: function (storageOAuthURL) {
-                location.href = storageOAuthURL;
-              }
-            });
+            _accountName = undefined
+            if (_needsAccountName) {
+                _accountName = prompt("Please provide account name", "Harry Potter");
+            }
+
+            if (_accountName || !_needsAccountName) {
+              jQuery.ajax({
+                url: '/api/storage/signin?accountName=' + _accountName,
+                success: function (storageOAuthURL) {
+                  location.href = storageOAuthURL;
+                }
+              });
+            }
           });
         }
       });

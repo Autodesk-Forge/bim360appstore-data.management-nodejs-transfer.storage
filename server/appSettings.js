@@ -25,8 +25,11 @@ var router = express.Router();
 // app config settings
 var config = require('./config');
 
-router.get('/api/storageName', function (req, res) {
-  res.end(config.storage.name);
+router.get('/api/storageInfo', function (req, res) {
+  res.json({
+    'storageName': config.storage.name,
+    'needsAccountName': config.storage.needsAccountName
+  });
 });
 
 module.exports = router;

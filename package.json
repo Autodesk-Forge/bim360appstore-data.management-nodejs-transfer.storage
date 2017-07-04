@@ -20,6 +20,7 @@
   "homepage": "https://github.com/augustogoncalves/bim360appstore-data.management-nodejs-transfer.storage#readme",
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^1.0.0",
+    "egnyte-js-sdk": "*",
     "body-parser": "*",
     "bootstrap": "^3.3.7",
     "box-node-sdk": "^1.6.0",
