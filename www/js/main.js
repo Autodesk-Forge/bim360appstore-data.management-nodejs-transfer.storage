@@ -19,6 +19,7 @@
 var _storageName;
 var _needsAccountName;
 var _accountName;
+var _pendingTransfers = [];
 
 var socket = io.connect(location.host);
 
@@ -58,12 +59,26 @@ function prepareAutodeskSide() {
       socket.on('taskStatus', function (data) {
         var taskLabel = $('#' + data.taskId);
         taskLabel.empty();
-        switch (data.status){
+        switch (data.status) {
           case 'started':
             taskLabel.append('<span class="glyphicon glyphicon-transfer" title="Transfering..."></span>');
             break;
           case 'completed':
             taskLabel.append('<span class="glyphicon glyphicon-ok" title="Completed!"></span>');
+            _pendingTransfers.splice(_pendingTransfers.indexOf(data.taskId), 1);
+            var storageTree = $('#storageTree').jstree(true);
+            storageTree.refresh_node(storageTree.get_selected(true)[0]);
+            if (_pendingTransfers.length == 0) {
+              // from now, the use can dismiss this dialog
+              var transferFilesButton = $("#transferFiles");
+              transferFilesButton.unbind('click');
+              transferFilesButton.html('Done');
+              transferFilesButton.prop('disabled', false);
+              transferFilesButton.click(function () {
+                $('#modalFilesToTransfer').modal('toggle');
+              });
+            }
+
             break;
         }
       });
@@ -210,6 +225,11 @@ function transferToStorage() {
     $(this).html('Transfering...');
     $(':checkbox:checked').each(function (i) {
       var checkBox = $(this);
+      var itemDiv = checkBox.parent().parent();
+      // this is basically a place holder
+      var tempId = btoa(checkBox.val()).replace('=','');
+      itemDiv.prepend('<div style="float: right;" id="' + tempId + '"><span class="glyphicon glyphicon-hourglass"  title="Preparing..."></span></div>');
+      // submit the request for transfer
       jQuery.ajax({
         url: '/api/storage/transferTo',
         contentType: 'application/json',
@@ -220,13 +240,11 @@ function transferToStorage() {
           'storageFolder': storageDestinationFolder.id
         }),
         success: function (res) {
-          var itemDiv = checkBox.parent().parent();
-          itemDiv.prepend('<div style="float: right; z-index: 10; background-color: #FFFFFF;" id="' + res.taskId + '"><img src="/css/libraries/jstree/throbber.gif" style="/css/libraries/jstree/throbber.gif" title="Preparing..."></div>');
-          // Refresh the storage tree
-          //storageTree.refresh(storageDestinationFolder);
+          _pendingTransfers.push(res.taskId);
+          $('#' + tempId).attr("id", res.taskId); // adjust the id to the taskId, for sockets
         },
         error: function (res) {
-
+          itemDiv.prepend('<div style="float: right;">Error! <span class="glyphicon glyphicon-alert" title="Error!"></span></div>');
         }
       });
     });
