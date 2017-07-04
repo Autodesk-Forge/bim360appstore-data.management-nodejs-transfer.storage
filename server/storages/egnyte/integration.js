@@ -28,11 +28,6 @@ var jsonParser = bodyParser.json();
 
 var request = require('request');
 
-var forgeSDK = require('forge-apis');
-
-// OneDrive SDK
-const msGraph = require("@microsoft/microsoft-graph-client").Client
-
 // web framework
 var express = require('express');
 var router = express.Router();
@@ -70,12 +65,11 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
       };
 
       // file IDs to transfer
-      var onedriveDriveId = storageFolder.split('!')[0]
       var fileName = version.attributes.name;
 
       var destination = {
-        url: 'https://graph.microsoft.com/v1.0/drives/' + onedriveDriveId + '/items/' + storageFolder + '/children/' + fileName + '/content',
-        method: 'PUT',
+        url: req.session.egnyteURL + '/pubapi/v1/fs-content/' + storageFolder + "/" + fileName,
+        method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
         }

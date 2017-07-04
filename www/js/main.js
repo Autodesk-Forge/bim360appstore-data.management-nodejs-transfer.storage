@@ -99,7 +99,7 @@ function prepareStorageSide() {
           $('#storageSigninButton').click(function () {
             _accountName = undefined
             if (_needsAccountName) {
-                _accountName = prompt("Please provide account name", "Harry Potter");
+                _accountName = prompt("Please provide account name", "autodesktesting");
             }
 
             if (_accountName || !_needsAccountName) {

@@ -25,7 +25,7 @@ module.exports = {
 
     request
       .get(source)
-      .pipe(request.put(destination))
+      .pipe(destination.method === 'PUT' ? request.put(destination) : request.post(destination))
       .on('response', function (r) {
         console.log(r);
       });
