@@ -39,7 +39,7 @@ var router = express.Router();
 
 function respondWithError(res, error) {
   if (error.statusCode) {
-    res.status(error.statusCode).end(error.statusMessage)
+    res.status(error.statusCode).end(error.statusMessage ? error.statusMessage : error.message)
   } else {
     res.status(500).end(error.message)
   }
