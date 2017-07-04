@@ -37,6 +37,8 @@ const msGraph = require("@microsoft/microsoft-graph-client").Client
 var express = require('express');
 var router = express.Router();
 
+var utility = require('./../utility');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage ? error.statusMessage : error.message)
@@ -46,6 +48,48 @@ function respondWithError(res, error) {
 }
 
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
+  var token = new Credentials(req.session);
+  var credentials = token.getStorageCredentials();
+  if (credentials === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
+    utility.getVersion(autodeskVersionId, req, function (version) {
+      var storageFolder = req.body.storageFolder;
+
+      // now with the file created, let's prepare the transfer job\
+      var source = {
+        url: version.relationships.storage.meta.link.href,
+        method: "GET",
+        headers: {
+          'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+        },
+        encoding: null
+      };
+
+      // file IDs to transfer
+      var onedriveDriveId = storageFolder.split('!')[0]
+      var fileName = version.attributes.name;
+
+      var destination = {
+        url: 'https://graph.microsoft.com/v1.0/drives/' + onedriveDriveId + '/items/' + storageFolder + '/children/' + fileName + '/content',
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+        }
+      };
+
+      // send Lambda job
+      utility.postLambdaJob(source, destination);
+
+      // ToDo
+      res.status(200).end();
+    });
+  });
+
+  /*
   var token = new Credentials(req.session);
   var credentials = token.getStorageCredentials();
 
@@ -131,6 +175,7 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
     .catch(function (err) {
       respondWithError(res, err);
     });
+    */
 });
 
 module.exports = router;

@@ -67,7 +67,7 @@ router.get('/api/storage/tree', function (req, res) {
       defaultVersion: 'v1.0',
       debugLogging: true,
       authProvider: function (done) {
-        done(null, credentials)
+        done(null, credentials.access_token)
       }
     })
 

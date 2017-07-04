@@ -82,7 +82,7 @@ router.get('/api/onedrive/callback/oauth', function (req, res) {
 
     var json = JSON.parse(body)
     var token = new Credentials(req.session);
-    token.setStorageCredentials(json.access_token);
+    token.setStorageCredentials(json);
 
     res.redirect('/')
   })
@@ -102,7 +102,7 @@ router.get('/api/storage/profile', function (req, res) {
     defaultVersion: 'v1.0',
     debugLogging: true,
     authProvider: function (done) {
-      done(null, credentials)
+      done(null, credentials.access_token)
     }
   })
 
