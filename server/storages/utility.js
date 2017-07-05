@@ -234,12 +234,13 @@ module.exports = {
   postLambdaJob: function (sourceReq, destinationReq, token, data) {
     var newTaskId = guid();
     var request = require('request');
+
     request({
       url: config.transfer.endpoint,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        //'Authorization': // lambda headers
+        'x-api-key': config.transfer.authorization
       },
       rejectUnhauthorized: false, // required on httpS://localhost
       body: JSON.stringify({
@@ -258,7 +259,7 @@ module.exports = {
         if (connectedUser != null)
           connectedUser.emit('taskStatus', {
             taskId: newTaskId,
-            status: 'started'
+            status: (response.statusCode == 200 ? 'started' : 'error')
           });
       }
     });

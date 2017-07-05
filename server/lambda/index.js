@@ -18,3 +18,13 @@
 
 
 // this file will expose the "transfer.js" as a AWS Lambda service
+
+var transfer = require('./transfer');
+
+exports.handler = (event, context, callback) => {
+  var body = JSON.parse(event.body);
+  if (body!== undefined) {
+    transfer.transferFile(body.autodeskId, body.taskId, body.source, body.destination, body.callbackData);
+  }
+  callback(null, { statusCode: 200});
+};

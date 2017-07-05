@@ -47,7 +47,7 @@ module.exports = {
   },
 
   transfer : {
-    endpoint: process.env.TRANSFER_ENDPOINT || 'https://localhost:3000/api/lambda/transfer'//,
-    //authorization:
+    endpoint: process.env.TRANSFER_ENDPOINT || 'https://localhost:3000/api/lambda/transfer',
+    authorization: process.env.TRANSFER_ENDPOINT_AUTHORIZATION || ''
   }
 };

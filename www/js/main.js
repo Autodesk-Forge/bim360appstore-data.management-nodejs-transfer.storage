@@ -69,6 +69,9 @@ function prepareAutodeskSide() {
         var taskLabel = $('#' + data.taskId);
         taskLabel.empty();
         switch (data.status) {
+          case 'error':
+            taskLabel.append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
+            break;
           case 'started':
             taskLabel.append('<span class="glyphicon glyphicon-transfer" title="Transfering..."></span>');
             break;
