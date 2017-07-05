@@ -37,8 +37,7 @@ var utility = require('./../utility');
 
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
-  var credentials = token.getStorageCredentials();
-  if (credentials === undefined) {
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
     res.status(401).end();
     return;
   }
@@ -83,6 +82,65 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
 
         // send Lambda job
         var id = utility.postLambdaJob(source, destination, token);
+
+        res.json({taskId: id, status: 'received'});
+      });
+    });
+  });
+});
+
+router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
+  // >>>
+  var token = new Credentials(req.session);
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  utility.assertIsFolder(req.body.autodeskFolder, req, function (autodeskProjectId, autodeskFolderId) {
+    //<<<
+
+    // for Google we receive the FileID, let's get info about the file
+    var googleFileId = req.body.storageItem;
+    var oauth2Client = new googleSdk.auth.OAuth2(
+      config.storage.credentials.client_id,
+      config.storage.credentials.client_secret,
+      config.storage.callbackURL);
+    oauth2Client.setCredentials(token.getStorageCredentials());
+    var drive = googleSdk.drive({version: 'v2', auth: oauth2Client});
+    drive.files.get({
+      fileId: googleFileId
+    }, function (err, fileInfo) {
+      var fileName = fileInfo.title; // name, that's all we need from Google
+
+      // >>>
+      utility.prepareAutodeskStorage(autodeskProjectId, autodeskFolderId, fileName, req, function (autodeskStorageUrl, skip, callbackData) {
+        if (skip) {
+          res.status(409).end(); // no action (server-side)
+          return;
+        }
+        //<<<
+
+        var source = {
+          url: 'https://www.googleapis.com/drive/v2/files/' + googleFileId + '?alt=media',
+          method: "GET",
+          headers: {
+            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+          },
+          encoding: null
+        };
+
+        var destination = {
+          url: autodeskStorageUrl,
+          method: "PUT",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
+
+        // send Lambda job
+        var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
 
         res.json({taskId: id, status: 'received'});
       });

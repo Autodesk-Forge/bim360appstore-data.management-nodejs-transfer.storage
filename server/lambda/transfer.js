@@ -21,12 +21,17 @@
 var request = require('request');
 
 module.exports = {
-  transferFile : function (autodeskId, taskId, source, destination) {
+  transferFile: function (autodeskId, taskId, source, destination, data) {
 
     request
       .get(source)
+      .on('response', function (rs) {
+        console.log('Download ' + source.url + ': '+ rs.statusCode);
+      })
       .pipe(destination.method === 'PUT' ? request.put(destination) : request.post(destination))
-      .on('response', function (r) {
+      .on('response', function (rc) {
+        console.log('Upload ' + destination.url + ': ' + rc.statusCode);
+        // send the callback
         request({
           url: process.env.STATUS_CALLBACK || 'https://localhost:3000/api/app/callback/transferStatus',
           method: 'POST',
@@ -34,7 +39,7 @@ module.exports = {
             'Content-Type': 'application/json'
           },
           rejectUnhauthorized: false, // required on httpS://localhost
-          body: JSON.stringify({autodeskId: autodeskId, taskId: taskId, status: 'complete'})
+          body: JSON.stringify({autodeskId: autodeskId, taskId: taskId, status: 'completed', data: data})
         }, function (error, response) {
           // do nothing
         });

@@ -27,6 +27,9 @@ var jsonParser = bodyParser.json();
 // app config settings
 var config = require('./config');
 
+// forge oAuth package
+var forgeSDK = require('forge-apis');
+
 router.get('/api/storageInfo', function (req, res) {
   res.json({
     'storageName': config.storage.name,
@@ -34,13 +37,39 @@ router.get('/api/storageInfo', function (req, res) {
   });
 });
 
+var utility = require('./storages/utility');
+
 router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) {
-  var connectedUser = io.sockets.in(req.body.autodeskId);
-  if (connectedUser != null)
-    connectedUser.emit('taskStatus', {
-      taskId: req.body.taskId,
-      status: 'completed'
+  if (req.body.data != null) {
+    // if the data param comes on the callback, it means we need to
+    // create the item or version as the files was trasnfered to Autodesk
+    var connectedUser = io.sockets.in(req.body.autodeskId);
+    if (connectedUser != null)
+      connectedUser.emit('taskStatus', {
+        taskId: req.body.taskId,
+        status: 'almost'
+      });
+
+    var data = req.body.data;
+    utility.createItemOrVersion(data.fileName, data.projectId, data.folderId, data.objectId, data.credentials, function(){
+      var connectedUser = io.sockets.in(req.body.autodeskId);
+      if (connectedUser != null)
+        connectedUser.emit('taskStatus', {
+          taskId: req.body.taskId,
+          status: 'completed',
+          tree: 'autodesk'
+        });
     });
+  }
+  else {
+    var connectedUser = io.sockets.in(req.body.autodeskId);
+    if (connectedUser != null)
+      connectedUser.emit('taskStatus', {
+        taskId: req.body.taskId,
+        status: req.body.status,
+        tree: 'storage'
+      });
+  }
 });
 
 module.exports = router;

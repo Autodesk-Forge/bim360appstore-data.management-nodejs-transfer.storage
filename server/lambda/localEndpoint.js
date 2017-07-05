@@ -29,7 +29,7 @@ var jsonParser = bodyParser.json();
 var transfer = require('./transfer');
 
 router.post('/api/lambda/transfer', jsonParser, function (req, res) {
-  transfer.transferFile(req.body.autodeskId, req.body.taskId, req.body.source, req.body.destination);
+  transfer.transferFile(req.body.autodeskId, req.body.taskId, req.body.source, req.body.destination, req.body.callbackData);
   res.end();
 });
 

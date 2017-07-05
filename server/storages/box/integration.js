@@ -36,7 +36,12 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
     var storageFolder = req.body.storageFolder;
 
     // ToDo
-    res.status(200).end();
+
+
+    // return should be like
+    var id = utility.postLambdaJob(source, destination, token);
+
+    res.json({taskId: id, status: 'received'});
   });
 });
 
