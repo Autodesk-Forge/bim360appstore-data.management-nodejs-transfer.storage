@@ -17,7 +17,8 @@ For localhost testing:
 
 Next define the storage that this sample will run:
 
-- STORAGE_NAME (can be: box, egnyte, gdrive, onedrive, dropbox). This variable defines from which folder to load the server-side files, see **/server/storage/** folder
+- STORAGE\_NAME (can be: box, egnyte, gdrive, onedrive, dropbox). This variable defines from which folder to load the server-side files, see **/server/storage/** folder
+- STORAGE\_NEEDS\_ACCOUNT\_NAME (some storage services like Egnyte require an account name which will be part of the URL of the API endpoints. If the storage service you are working with does not require it then you can either omit this parameter or set its value to false)
 
 And the respective client ID & secret
 
