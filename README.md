@@ -24,7 +24,7 @@ And the respective client ID & secret
 
 - STORAGE\_CLIENT\_ID
 - STORAGE\_CLIENT\_SECRET
-- STORAGE\_CALLBACK\_URL (optional on localhost, on the respective dev portal should be **http://localhost:3000/api/[STORAGE_NAME]/callback/oaut**
+- STORAGE\_CALLBACK\_URL (optional on localhost, on the respective dev portal should be **http://localhost:3000/api/[STORAGE_NAME]/callback/oauth**
 
 To run the sample:
 
