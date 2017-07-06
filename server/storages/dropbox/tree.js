@@ -69,7 +69,7 @@ router.get('/api/storage/tree', function (req, res) {
         for (var key in data.entries) {
           var item = data.entries[key]
           var treeItem = {
-            id: item.id,
+            id: item.path_display,
             text: item.name,
             type: item['.tag'] === 'folder' ? 'folders' : 'items',
             children: item['.tag'] === 'folder' ? true : false
