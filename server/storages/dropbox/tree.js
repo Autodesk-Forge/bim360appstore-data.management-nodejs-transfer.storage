@@ -27,8 +27,7 @@ var config = require('./../../config');
 var express = require('express');
 var router = express.Router();
 
-// OneDrive SDK
-const msGraph = require("@microsoft/microsoft-graph-client").Client
+var Dropbox = require('dropbox');
 
 function respondWithError(res, error) {
   if (error.statusCode) {
@@ -56,51 +55,36 @@ router.get('/api/storage/tree', function (req, res) {
 
   try {
     if (id === '#') {
-      path = '/drives'
-    } else if (id === driveId) {
-      path = '/drives/' + driveId + '/root/children'
+      path = ''
     } else {
-      path = '/drives/' + driveId + '/items/' + id + '/children'
+      path = id
     }
 
-    var msGraphClient = msGraph.init({
-      defaultVersion: 'v1.0',
-      debugLogging: true,
-      authProvider: function (done) {
-        done(null, credentials.access_token)
-      }
-    })
+    var dbx = new Dropbox({ accessToken: credentials.access_token })
 
-    msGraphClient
-      .api(path)
-      .get(function (error, data) {
-        if (error) {
-          console.log(error)
-          respondWithError(res, error)
-          return
-        }
+    dbx.filesListFolder({path: path})
+      .then(function (data) {
 
         var treeList = []
-        for (var key in data.value) {
-          var item = data.value[key]
+        for (var key in data.entries) {
+          var item = data.entries[key]
           var treeItem = {
             id: item.id,
             text: item.name,
-            type: item.folder ? 'folders' : 'items',
-            children: item.folder ? !!item.folder.childCount : false
+            type: item['.tag'] === 'folder' ? 'folders' : 'items',
+            children: item['.tag'] === 'folder' ? true : false
             // !! turns an object into boolean
           }
 
-          // In case we are listing the drives
-          if (id === '#') {
-            treeItem.text = item.id
-            treeItem.type = 'drives'
-            treeItem.children = true
-          }
           treeList.push(treeItem)
         }
 
         res.json(treeList)
+      })
+      .catch(function (error) {
+        console.log(error)
+        respondWithError(res, error)
+        return
       })
   } catch (err) {
     respondWithError(res, err)
