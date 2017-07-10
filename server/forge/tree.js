@@ -57,20 +57,26 @@ router.get('/api/forge/tree', function (req, res) {
       case 'projects':
         // for a project, first we need the top/root folder
         var hubId = params[params.length - 3];
-        var projects = new forgeSDK.ProjectsApi();
-        projects.getProject(hubId, resourceId/*project_id*/, forge3legged, token.getForgeCredentials())
-          .then(function (project) {
-            var rootFolderId = project.body.data.relationships.rootFolder.data.id;
-            getFolder(resourceId/*projectId*/, rootFolderId, forge3legged, token.getForgeCredentials(), res);
-          })
-          .catch(function (error) {
-            console.log(error);
-            res.status(500).end();
-          });
+
+        // We neesd to find the top folders instead of using the root folder
+        // otherwise non-administrators will have issues using the sample
+        //var projects = new forgeSDK.ProjectsApi();
+        //projects.getProject(hubId, resourceId/*project_id*/, forge3legged, token.getForgeCredentials())
+        //  .then(function (project) {
+        //    var rootFolderId = project.body.data.relationships.rootFolder.data.id;
+        //    getFolderContents(resourceId/*projectId*/, rootFolderId, forge3legged, token.getForgeCredentials(), res);
+        //  })
+        //  .catch(function (error) {
+        //    console.log(error);
+        //    res.status(500).end();
+        //  });
+
+        getFolders(hubId, resourceId/*project_id*/, forge3legged, token.getForgeCredentials(), res)
+
         break;
       case 'folders':
         var projectId = params[params.length - 3];
-        getFolder(projectId, resourceId, forge3legged, token.getForgeCredentials(), res);
+        getFolderContents(projectId, resourceId, forge3legged, token.getForgeCredentials(), res);
         break;
       case 'items':
         var projectId = params[params.length - 3];
@@ -84,6 +90,13 @@ function getHubs(oauthClient, credentials, res) {
   var hubs = new forgeSDK.HubsApi();
   hubs.getHubs({}, oauthClient, credentials)
     .then(function (data) {
+      if (data.body.meta.warnings) {
+        for (var key in data.body.meta.warnings) {
+          var warning = data.body.meta.warnings[key]
+          console.log(warning.HttpStatusCode + "/" + warning.ErrorCode + ":" + warning.Detail)
+        }
+      }
+
       var hubsForTree = [];
       data.body.data.forEach(function (hub) {
         var hubType;
@@ -147,7 +160,28 @@ function getProjects(hubId, oauthClient, credentials, res) {
     });
 }
 
-function getFolder(projectId, folderId, oauthClient, credentials, res) {
+function getFolders(hubId, projectId, oauthClient, credentials, res) {
+  var projects = new forgeSDK.ProjectsApi();
+  projects.getProjectTopFolders(hubId, projectId, oauthClient, credentials)
+    .then(function (topFolders) {
+      var folderItemsForTree = [];
+      topFolders.body.data.forEach(function (item) {
+        folderItemsForTree.push(prepareItemForTree(
+          item.links.self.href,
+          item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName,
+          item.type,
+          true
+        ))
+      });
+      res.json(folderItemsForTree);
+    })
+    .catch(function (error) {
+      console.log(error);
+      res.status(500).end();
+    });
+}
+
+function getFolderContents(projectId, folderId, oauthClient, credentials, res) {
   var folders = new forgeSDK.FoldersApi();
   folders.getFolderContents(projectId, folderId, {}, oauthClient, credentials)
     .then(function (folderContents) {
