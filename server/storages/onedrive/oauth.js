@@ -117,7 +117,7 @@ router.get('/api/storage/profile', function (req, res) {
       }
       var profile = {
         'name': data.displayName,
-        'picture': ""
+        'picture': 'https://apis.live.net/v5.0/' + data.id + '/picture?type=small'
       }
       res.json(profile)
     })

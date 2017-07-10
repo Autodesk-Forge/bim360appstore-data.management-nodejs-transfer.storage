@@ -57,22 +57,7 @@ router.get('/api/forge/tree', function (req, res) {
       case 'projects':
         // for a project, first we need the top/root folder
         var hubId = params[params.length - 3];
-
-        // We neesd to find the top folders instead of using the root folder
-        // otherwise non-administrators will have issues using the sample
-        //var projects = new forgeSDK.ProjectsApi();
-        //projects.getProject(hubId, resourceId/*project_id*/, forge3legged, token.getForgeCredentials())
-        //  .then(function (project) {
-        //    var rootFolderId = project.body.data.relationships.rootFolder.data.id;
-        //    getFolderContents(resourceId/*projectId*/, rootFolderId, forge3legged, token.getForgeCredentials(), res);
-        //  })
-        //  .catch(function (error) {
-        //    console.log(error);
-        //    res.status(500).end();
-        //  });
-
         getFolders(hubId, resourceId/*project_id*/, forge3legged, token.getForgeCredentials(), res)
-
         break;
       case 'folders':
         var projectId = params[params.length - 3];

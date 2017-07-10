@@ -40,7 +40,7 @@ module.exports = {
           var status = {
             autodeskId: autodeskId,
             taskId: taskId,
-            status: ((resDestination.statusCode != 200 || sourceStatusCode != 200) ? 'error' : 'completed'),
+            status: (!IsOk(resDestination.statusCode) || !IsOk(sourceStatusCode) ? 'error' : 'completed'),
             data: data
           };
 
@@ -55,10 +55,14 @@ module.exports = {
             rejectUnhauthorized: false, // required on httpS://localhost
             body: JSON.stringify(status)
           }, function (error, response) {
-            // do nothing
+            // do nothing?
           });
         }));
 
     return true;
   }
 };
+
+function IsOk(errorCode){
+  return (errorCode>=200 && errorCode<=201);
+}
