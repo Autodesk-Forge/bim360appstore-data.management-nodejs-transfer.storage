@@ -99,14 +99,14 @@ router.get('/api/storage/profile', function (req, res) {
     .then(function(response) {
       var profile = {
         'name': response.name.display_name,
-        'picture': ""
-      }
+        'picture': response.profile_photo_url
+      };
       res.json(profile)
     })
     .catch(function(error) {
       console.log(error)
       respondWithError(data, error)
-      return
+      return;
     });
 });
 

@@ -27,10 +27,10 @@ var config = require('./../../config');
 var express = require('express');
 var router = express.Router();
 
-var request = require('request')
+var request = require('request');
 
 // OneDrive SDK
-const msGraph = require("@microsoft/microsoft-graph-client").Client
+const msGraph = require("@microsoft/microsoft-graph-client").Client;
 
 function respondWithError(res, error) {
   if (error.statusCode) {
@@ -41,7 +41,7 @@ function respondWithError(res, error) {
 }
 
 router.get('/api/storage/signin', function (req, res) {
-  req.session.onedriveURL = "https://login.microsoftonline.com"
+  req.session.onedriveURL = "https://login.microsoftonline.com";
 
   var url =
     req.session.onedriveURL + '/common/oauth2/v2.0/authorize?' +

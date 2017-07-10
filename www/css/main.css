@@ -64,3 +64,9 @@ header {
     min-width: 100%;
     white-space: nowrap;
 }
+
+.profilePicture{
+    width:30px;
+    height:30px;
+    background: url(/img/avatar.png) no-repeat scroll;
+}

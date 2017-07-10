@@ -28,24 +28,11 @@ var jsonParser = bodyParser.json();
 
 var request = require('request');
 
-var forgeSDK = require('forge-apis');
-
-// OneDrive SDK
-const msGraph = require("@microsoft/microsoft-graph-client").Client
-
 // web framework
 var express = require('express');
 var router = express.Router();
 
 var utility = require('./../utility');
-
-function respondWithError(res, error) {
-  if (error.statusCode) {
-    res.status(error.statusCode).end(error.statusMessage ? error.statusMessage : error.message)
-  } else {
-    res.status(500).end(error.message)
-  }
-}
 
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   var token = new Credentials(req.session);

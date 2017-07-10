@@ -51,7 +51,7 @@ function prepareAutodeskSide() {
       autodeskSide.css("vertical-align", "top");
       autodeskSide.css('text-align', 'left');
       autodeskSide.append(
-        '<div class="treeTitle"><img src="" id="autodeskProfilePicture" height="30px"> <span id="autodeskProfileName"></span>' +
+        '<div class="treeTitle"><img src="" id="autodeskProfilePicture" height="30px" class="profilePicture"> <span id="autodeskProfileName"></span>' +
         '<span class="glyphicon glyphicon-refresh refreshIcon" id="refreshAutodeskTree" title="Refresh Autodesk files"/>' +
         '</div>' +
         '<div id="autodeskTree" class="tree"></div>');
@@ -71,6 +71,7 @@ function prepareAutodeskSide() {
         switch (data.status) {
           case 'error':
             taskLabel.append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
+            isDone(data);
             break;
           case 'started':
             taskLabel.append('<span class="glyphicon glyphicon-transfer" title="Transfering..."></span>');
@@ -80,20 +81,7 @@ function prepareAutodeskSide() {
             break;
           case 'completed':
             taskLabel.append('<span class="glyphicon glyphicon-ok" title="Completed!"></span>');
-            _pendingTransfers.splice(_pendingTransfers.indexOf(data.taskId), 1);
-            var tree = $('#' + data.tree + 'Tree').jstree(true);
-            tree.refresh_node(tree.get_selected(true)[0]);
-            if (_pendingTransfers.length == 0) {
-              // from now, the use can dismiss this dialog
-              var transferFilesButton = $("#transferFiles");
-              transferFilesButton.unbind('click');
-              transferFilesButton.html('Done');
-              transferFilesButton.prop('disabled', false);
-              transferFilesButton.click(function () {
-                $('#modalFilesToTransfer').modal('toggle');
-              });
-            }
-
+            isDone(data);
             break;
         }
       });
@@ -112,6 +100,22 @@ function prepareAutodeskSide() {
       }
     }
   });
+}
+
+function isDone(data){
+  _pendingTransfers.splice(_pendingTransfers.indexOf(data.taskId), 1);
+  var tree = $('#' + data.tree + 'Tree').jstree(true);
+  tree.refresh_node(tree.get_selected(true)[0]);
+  if (_pendingTransfers.length == 0) {
+    // from now, the use can dismiss this dialog
+    var transferFilesButton = $("#transferFiles");
+    transferFilesButton.unbind('click');
+    transferFilesButton.html('Done');
+    transferFilesButton.prop('disabled', false);
+    transferFilesButton.click(function () {
+      $('#modalFilesToTransfer').modal('toggle');
+    });
+  }
 }
 
 function prepareStorageSide() {
@@ -134,7 +138,7 @@ function prepareStorageSide() {
           storageSide.css("vertical-align", "top");
           storageSide.css('text-align', 'left');
           storageSide.append(
-            '<div class="treeTitle"><img src="" id="storageProfilePicture" height="30px"> <span id="storageProfileName"></span>' +
+            '<div class="treeTitle"><img src="" id="storageProfilePicture" height="30px" class="profilePicture"> <span id="storageProfileName"></span>' +
             '<span class="glyphicon glyphicon-refresh refreshIcon" id="refreshStorageTree" title="Refresh files"/>' +
             '</div>' +
             '<div id="storageTree" class="tree"></div>');

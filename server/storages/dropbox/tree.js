@@ -45,13 +45,13 @@ router.get('/api/storage/tree', function (req, res) {
     return;
   }
 
-  var id = decodeURIComponent(req.query.id)
+  var id = decodeURIComponent(req.query.id);
 
   // item id's look like this:
   // <drive id>!<file id>
   // e.g. BF0BDCFE22A2EFD6!161
-  var driveId = id.split('!')[0]
-  var path = ''
+  var driveId = id.split('!')[0];
+  var path = '';
 
   try {
     if (id === '#') {
@@ -65,7 +65,7 @@ router.get('/api/storage/tree', function (req, res) {
     dbx.filesListFolder({path: path})
       .then(function (data) {
 
-        var treeList = []
+        var treeList = [];
         for (var key in data.entries) {
           var item = data.entries[key]
           var treeItem = {
