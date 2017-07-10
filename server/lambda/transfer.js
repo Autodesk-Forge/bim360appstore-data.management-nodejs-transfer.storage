@@ -22,39 +22,42 @@ var request = require('request');
 
 module.exports = {
   transferFile: function (autodeskId, taskId, source, destination, data) {
-
+    var sourceStatusCode;
     request
       .get(source)
-      .on('response', function (rs) {
+      .on('response', function (resSource) {
         if (process.env.NODE_ENV != 'production')
-          console.log('Download ' + source.url + ': ' + rs.statusCode + ' > ' + rs.statusMessage);
+          console.log('Download ' + source.url + ': ' + resSource.statusCode + ' > ' + resSource.statusMessage);
+
+        sourceStatusCode = resSource.statusCode;
+        resSource.headers['content-type'] = undefined; // if the source response have this header, Dropbox may file for some types
       })
-      .pipe(destination.method === 'PUT' ? request.put(destination) : request.post(destination))
-      .on('response', function (rc) {
-        if (process.env.NODE_ENV != 'production')
-          console.log('Upload ' + destination.url + ': ' + rc.statusCode + ' > ' + rc.statusMessage);
+      .pipe((destination.method === 'PUT' ? request.put(destination) : request.post(destination))
+        .on('response', function (resDestination) {
+          if (process.env.NODE_ENV != 'production')
+            console.log('Upload ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);
 
-        var status = {
-          autodeskId: autodeskId,
-          taskId: taskId,
-          status: ((rc.statusCode != 200 || rs.statusCode != 200) ? 'error' : 'completed'),
-          data: data
-        };
+          var status = {
+            autodeskId: autodeskId,
+            taskId: taskId,
+            status: ((resDestination.statusCode != 200 || sourceStatusCode != 200) ? 'error' : 'completed'),
+            data: data
+          };
 
 
-        // send the callback
-        request({
-          url: process.env.STATUS_CALLBACK || 'https://localhost:3000/api/app/callback/transferStatus',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          rejectUnhauthorized: false, // required on httpS://localhost
-          body: JSON.stringify(status)
-        }, function (error, response) {
-          // do nothing
-        });
-      });
+          // send the callback
+          request({
+            url: process.env.STATUS_CALLBACK || 'https://localhost:3000/api/app/callback/transferStatus',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            rejectUnhauthorized: false, // required on httpS://localhost
+            body: JSON.stringify(status)
+          }, function (error, response) {
+            // do nothing
+          });
+        }));
 
     return true;
   }

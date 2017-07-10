@@ -93,7 +93,7 @@ function getHubs(oauthClient, credentials, res) {
       if (data.body.meta.warnings) {
         for (var key in data.body.meta.warnings) {
           var warning = data.body.meta.warnings[key]
-          console.log(warning.HttpStatusCode + "/" + warning.ErrorCode + ":" + warning.Detail)
+          console.log(warning.HttpStatusCode + "/" + warning.ErrorCode + ":" + warning.Detail + ' > ' + warning.Title)
         }
       }
 

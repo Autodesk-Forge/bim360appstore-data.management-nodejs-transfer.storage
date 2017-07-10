@@ -65,7 +65,13 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
         headers: {
           'Authorization': 'Bearer ' + token.getStorageCredentials().access_token,
           'Content-Type': 'application/octet-stream',
-          'Dropbox-API-Arg': '{ "path": "' + storageFolder + '/' + fileName + '"}'
+          'Dropbox-API-Arg': JSON.stringify(
+            {
+              path: storageFolder + '/' + fileName,
+              mode: "add",
+              autorename: true,
+              mute: false
+            })
         }
       };
 
