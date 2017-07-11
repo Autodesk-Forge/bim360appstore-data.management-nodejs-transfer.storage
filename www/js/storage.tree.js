@@ -25,6 +25,7 @@ function prepareStorageTree() {
         "dataType": "json",
         'multiple': false,
         'data': function (node) {
+          $('#storageTree').jstree(true).toggle_node(node);
           return {"id": node.id};
         }
       }

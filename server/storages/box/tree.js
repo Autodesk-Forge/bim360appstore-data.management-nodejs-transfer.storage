@@ -48,7 +48,6 @@ router.get('/api/storage/tree', function (req, res) {
   box.folders.getItems(id, {fields: 'name,shared_link,permissions,collections,sync_state'}, function (err, data) {
     if (data == null || data.entries == null) return '';
     var items = [];
-    if (item.type === 'folder') item.type = 'folders';// required for the common ground
     data.entries.forEach(function (item, index) {
       var item = {
         id: item.id,
@@ -56,6 +55,7 @@ router.get('/api/storage/tree', function (req, res) {
         type: item.type,
         children: (item.type === 'folder')
       };
+      if (item.type === 'folder') item.type = 'folders';// required for the common ground
       items.push(item);
     });
     res.json(items);

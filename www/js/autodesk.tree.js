@@ -26,6 +26,7 @@ function prepareAutodeskTree() {
         "dataType": "json",
         'multiple': true,
         'data': function (node) {
+          $('#autodeskTree').jstree(true).toggle_node(node);
           return {"id": node.id};
         }
       }
