@@ -81,26 +81,54 @@ router.get('/api/storage/tree', function (req, res) {
         }
 
         var treeList = []
-        for (var key in data.value) {
-          var item = data.value[key]
-          var treeItem = {
-            id: item.id,
-            text: item.name,
-            type: item.folder ? 'folders' : 'items',
-            children: item.folder ? !!item.folder.childCount : false
-            // !! turns an object into boolean
+        // If the user has only one drive then just list the content
+        if (id === '#' && data.value.length === 1) {
+          msGraphClient
+            .api('/drives/' + data.value[0].id + '/root/children')
+            .get(function (error, data) {
+              if (error) {
+                console.log(error)
+                respondWithError(res, error)
+                return
+              }
+
+              for (var key in data.value) {
+                var item = data.value[key]
+                var treeItem = {
+                  id: item.id,
+                  text: item.name,
+                  type: item.folder ? 'folders' : 'items',
+                  children: item.folder ? !!item.folder.childCount : false
+                  // !! turns an object into boolean
+                }
+
+                treeList.push(treeItem)
+              }
+
+              res.json(treeList)
+            })
+        } else {
+          for (var key in data.value) {
+            var item = data.value[key]
+            var treeItem = {
+              id: item.id,
+              text: item.name,
+              type: item.folder ? 'folders' : 'items',
+              children: item.folder ? !!item.folder.childCount : false
+              // !! turns an object into boolean
+            }
+
+            // In case we are listing the drives
+            if (id === '#') {
+              treeItem.text = item.id
+              treeItem.type = 'drives'
+              treeItem.children = true
+            }
+            treeList.push(treeItem)
           }
 
-          // In case we are listing the drives
-          if (id === '#') {
-            treeItem.text = item.id
-            treeItem.type = 'drives'
-            treeItem.children = true
-          }
-          treeList.push(treeItem)
+          res.json(treeList)
         }
-
-        res.json(treeList)
       })
   } catch (err) {
     respondWithError(res, err)
