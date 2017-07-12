@@ -95,7 +95,7 @@ Video explanation (ToDo)
 
 ### OAuth Redirect URLs
 
-On production, the Forge and respective storage callback URLs should use your application address instead **localhost:3000**, something like https://<span></span>serveraddress.com/api/[FORGE or STORAGE_NAME]/callback/oauth
+On production, the Forge and respective storage callback URLs should use your application address instead of **localhost:3000**, something like https://serveraddress.com/api/[FORGE&nbsp;or&nbsp;STORAGE_NAME]/callback/oauth
 
 ### AWS Lambda
 
