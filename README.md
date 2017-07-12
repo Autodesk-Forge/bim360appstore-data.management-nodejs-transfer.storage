@@ -42,16 +42,16 @@ The following topics describe the steps to generate the respective client ID and
 
 - STORAGE\_NAME: **box**
 
-Visit the [Box Developer](https://developer.box.com), Log in or Sign up, follow the steps to [Create a Box Application](https://app.box.com/developers/services/edit/). For this new app, use **https://<span></span>localhost:3000/api/box/callback/oauth** as redirect\_uri. Finally, take note of the **client_id** and **client_secret**.
+Visit the [Box Developer](https://developer.box.com), Log in or Sign up, follow the steps to [Create a Box Application](https://app.box.com/developers/services/edit/). For this new app, use **https://<span></span>localhost:3000/api/box/callback/oauth** as **redirect\_uri**. Finally, take note of the **client_id** and **client_secret**, which you'll need to use as **STORAGE\_CLIENT\_ID** and **STORAGE\_CLIENT\_SECRET** respectively.
 
 
 #### Egnyte
 
 - STORAGE\_NAME: **egnyte**
 
-Visit the [Egnyte Developer](https://developers.egnyte.com), Log in or Sign up, follow the steps to an Egnyte application. For this new app, use **https://<span></span>localhost:3000/api/egnyte/callback/oauth** as redirect\_uri. Finally, take note of the **client_id** and **client_secret**.
+Visit the [Egnyte Developer](https://developers.egnyte.com) site, Log in or Sign up, follow the steps to **Create a New Application**. For this new app, use **https://<span></span>localhost:3000/api/egnyte/callback/oauth** as **Registered OAuth Redirect URI**. Finally, take note of the Application's **Key** and **Shared Secret**, which you'll need to use as **STORAGE\_CLIENT\_ID** and **STORAGE\_CLIENT\_SECRET** respectively.
 
-Additionally, Egnyte needs a **account name**:
+Additionally, Egnyte needs an **account name**:
 
 - STORAGE\_NEEDS\_ACCOUNT\_NAME: some storage services like Egnyte require an account name which will be part of the URL of the API endpoints. If the storage service you are working with does not require it then you can either omit this parameter or set its value to false
 
@@ -60,19 +60,23 @@ Additionally, Egnyte needs a **account name**:
 
 - STORAGE\_NAME: **google**
 
-Visit the [Google APIs Console](https://console.developers.google.com), Log in or Sign up, follow the steps to Create a Credential. For this new app, use **https://<span></span>localhost:3000/api/google/callback/oauth** as redirect\_uri. Make sure you activate **Google Drive** & **Google People** APIs, this sample uses both scopes. Finally, take note of the **client_id** and **client_secret**.
+Visit the [Google APIs Console](https://console.developers.google.com), Log in or Sign up, follow the steps to Create a Credential. For this new app, use **https://<span></span>localhost:3000/api/google/callback/oauth** as **redirect\_uri**. Make sure you activate **Google Drive** & **Google People** APIs, this sample uses both scopes. Finally, take note of the **client_id** and **client_secret**, which you'll need to use as **STORAGE\_CLIENT\_ID** and **STORAGE\_CLIENT\_SECRET** respectively.
 
 Additionally, Google drive require the scope for the APIs activated. Define the following environment variable:
 
 - STORAGE_SCOPE: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/userinfo.profile
 
-#### Onedrive
+#### OneDrive
 
 - STORAGE\_NAME: **onedrive**
+
+Visit the [OneDrive Dev Center](https://dev.onedrive.com/app-registration.htm), Log in or Sign up, follow the steps to **Add an app**. For this new app, add a **Web** platform and use **https://<span></span>localhost:3000/api/onedrive/callback/oauth** as one of the **Redirect URLs**. Take note of the **Application Id** and **Application Secrets >> Password**, which you'll need to use as **STORAGE\_CLIENT\_ID** and **STORAGE\_CLIENT\_SECRET** respectively.
 
 #### Dropbox
 
 - STORAGE\_NAME: **dropbox**
+
+Visit the [Dropbox Developer](https://www.dropbox.com/developers) site, Log in or Sign up, follow the steps to **Create your app**. For this new app, use **https://<span></span>localhost:3000/api/dropbox/callback/oauth** as one of the **Redirect URIs**. Take note of the **App key** and **App secret**, which you'll need to use as **STORAGE\_CLIENT\_ID** and **STORAGE\_CLIENT\_SECRET** respectively.
 
 ### Running locally
 
