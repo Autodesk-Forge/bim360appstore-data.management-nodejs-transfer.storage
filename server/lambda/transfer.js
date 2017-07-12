@@ -20,20 +20,10 @@
 
 var request = require('request');
 
-function doGetPutPost(props) {
-  if (props.method === 'GET') {
-    return request.get(props)
-  } else if (props.method === 'POST'){
-    return request.post(props)
-  } else {
-    return request.put(props)
-  }
-}
-
 module.exports = {
-  transferFile: function (autodeskId, taskId, source, destination, data) {
+  transferFile: function (autodeskId, taskId, source, destination, data, callback) {
     var sourceStatusCode;
-    doGetPutPost(source)
+    request(source)
       .on('response', function (resSource) {
         if (process.env.NODE_ENV != 'production')
           console.log('Download ' + source.url + ': ' + resSource.statusCode + ' > ' + resSource.statusMessage);
@@ -41,7 +31,7 @@ module.exports = {
         sourceStatusCode = resSource.statusCode;
         resSource.headers['content-type'] = undefined; // if the source response have this header, Dropbox may file for some types
       })
-      .pipe(doGetPutPost(destination)
+      .pipe(request(destination)
         .on('response', function (resDestination) {
           if (process.env.NODE_ENV != 'production')
             console.log('Upload ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);
@@ -56,7 +46,7 @@ module.exports = {
 
           // send the callback
           request({
-            url: process.env.STATUS_CALLBACK || 'https://localhost:3000/api/app/callback/transferStatus',
+            url: callback,
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

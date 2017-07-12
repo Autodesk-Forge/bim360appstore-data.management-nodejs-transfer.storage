@@ -64,7 +64,7 @@ Visit the [Google APIs Console](https://console.developers.google.com), Log in o
 
 Additionally, Google drive require the scope for the APIs activated. Define the following environment variable:
 
-- STORAGE_SCOPE: **https://<span></span>www.googleapis.com/auth/drive, https://<span></span>www.googleapis.com/auth/userinfo.profile**
+- STORAGE_SCOPE: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/userinfo.profile
 
 #### Onedrive
 
@@ -102,11 +102,11 @@ This sample delegates the heavy work of transferring files to a AWS Lambda. To d
 
 When the job is complete, the lambda function need to notify the application. This will not work on localhost (as AWS cannot call localhost, except with a proxy app). Inside AWS Lambda settings, specify the following environment variable:
 
-- STATUS\_CALLBACK: e.g.: https://<span></span>serveradress<span></span>.com/api/app/callback/transferStatus
+- STATUS\_CALLBACK: e.g.: https://<span></span>serveradress/api/app/callback/transferStatus
 
 ## Usage statistics
 
-This sample can keep records all users (Name, email, first usage date) and which storages used. To setup, create a MongoDB instance (e.g. on [mLab](https://mlab.com)) with a **users** collection. Create the connection string and store as **MONGO_STATS** enviroment variable. For mLab, it should look like: **mongodb://usenamr:password@ds1234.mlab.com:5678/databaseName**
+This sample can keep records all users (Name, email, first usage date) and which storages used. To setup, create a MongoDB instance (e.g. on [mLab](https://mlab.com)) with a **users** collection. Create the connection string and store as **MONGO_STATS** enviroment variable. For mLab, it should look like: **mongodb://usename:password@ds1234.mlab.com:5678/databaseName**
 
 Usage report (ToDo)
 

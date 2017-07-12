@@ -250,7 +250,8 @@ module.exports = {
         taskId: newTaskId,
         source: sourceReq,
         destination: destinationReq,
-        callbackData: data
+        callbackData: data,
+        callbackURL: config.transfer.callbackURL
       })
     }, function (error, response) {
       // job received by Lambda

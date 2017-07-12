@@ -48,7 +48,8 @@ module.exports = {
 
   transfer : {
     endpoint: process.env.TRANSFER_ENDPOINT || 'https://localhost:3000/api/lambda/transfer',
-    authorization: process.env.TRANSFER_ENDPOINT_AUTHORIZATION || ''
+    authorization: process.env.TRANSFER_ENDPOINT_AUTHORIZATION || '',
+    callbackURL : process.env.TRANFER_CALLBACK_URL || 'https://localhost:3000/api/app/callback/transferStatus'
   },
 
   stats :{

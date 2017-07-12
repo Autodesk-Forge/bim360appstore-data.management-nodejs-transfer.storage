@@ -25,6 +25,10 @@ var cookieSession = require('cookie-session')
 
 var app = express();
 
+// favicon
+var favicon = require('serve-favicon');
+app.use(favicon(__dirname + '/../www/favicon.ico'));
+
 // this session will be used to save the oAuth token
 app.use(cookieParser());
 app.set('trust proxy', 1) // trust first proxy - HTTPS on Heroku
@@ -47,9 +51,6 @@ app.use(cookieSession({
   maxAge: 60 * 60 * 1000
 }));
 
-// favicon
-var favicon = require('serve-favicon');
-app.use(favicon(__dirname + '/../www/favicon.ico'));
 
 // prepare server routing
 app.use('/', express.static(__dirname + '/../www')); // redirect static calls
@@ -91,5 +92,17 @@ if (process.env.NODE_ENV != 'production') {
 }
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // for httpS://localhost
+
+if (process.env.MONGO_STATS) {
+  var mongodb = require('./stats/mongodb');
+  mongodb.connect(
+    function () {
+      console.log('Mongo connection live');
+    },
+    function (err) {
+      console.log('Could not connect to mongo');
+    }
+  );
+}
 
 module.exports = app;

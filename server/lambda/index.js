@@ -24,7 +24,7 @@ var transfer = require('./transfer');
 exports.handler = (event, context, callback) => {
   var body = JSON.parse(event.body);
   if (body!== undefined) {
-    transfer.transferFile(body.autodeskId, body.taskId, body.source, body.destination, body.callbackData);
+    transfer.transferFile(body.autodeskId, body.taskId, body.source, body.destination, body.callbackData, body.callbackURL);
   }
   callback(null, { statusCode: 200});
 };
