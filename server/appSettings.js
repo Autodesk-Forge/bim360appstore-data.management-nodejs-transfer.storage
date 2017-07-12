@@ -37,6 +37,12 @@ router.get('/api/storageInfo', function (req, res) {
   });
 });
 
+router.get('/api/forge/clientID', function (req, res) {
+  res.json({
+    'ForgeClientId': config.forge.credentials.client_id
+  });
+});
+
 var utility = require('./storages/utility');
 
 router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) {

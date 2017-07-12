@@ -16,6 +16,8 @@
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
 
+var haveBIM360Hub = false;
+
 function prepareAutodeskTree() {
   $('#autodeskTree').jstree({
     'core': {
@@ -28,6 +30,24 @@ function prepareAutodeskTree() {
         'data': function (node) {
           $('#autodeskTree').jstree(true).toggle_node(node);
           return {"id": node.id};
+        },
+        "success": function (nodes) {
+          nodes.forEach(function (n) {
+            if (n.type === 'bim360Hubs' && n.id.indexOf('b.') > 0)
+              haveBIM360Hub = true;
+          });
+
+          if (!haveBIM360Hub) {
+            $.getJSON("/api/forge/clientID", function (res) {
+              $("#ClientID").val(res.ForgeClientId);
+              $("#provisionAccountModal").modal();
+              $("#provisionAccountSave").click(function () {
+                $('#provisionAccountModal').modal('toggle');
+                $('#autodeskTree').jstree(true).refresh();
+              });
+              haveBIM360Hub = true;
+            });
+          }
         }
       }
     },
@@ -39,7 +59,7 @@ function prepareAutodeskTree() {
         'icon': 'glyphicon glyphicon-user'
       },
       'hubs': {
-        'icon': '/img/a360Hub.png' // should have a better icon
+        'icon': '/img/a360Hub.png'
       },
       'personalHub': {
         'icon': '/img/a360Hub.png'
@@ -63,9 +83,8 @@ function prepareAutodeskTree() {
         'icon': 'glyphicon glyphicon-time'
       }
     },
-    "plugins": ["types", "state", "sort"/*, "contextmenu"*/],
+    "plugins": ["types", "state", "sort"],
     "state" : { "key" : "autodeskTree" }
-    //contextmenu: {items: autodeskCustomMenu}
   });
 
   $('#refreshAutodeskTree').click(function () {

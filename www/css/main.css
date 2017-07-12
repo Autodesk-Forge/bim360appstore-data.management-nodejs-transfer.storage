@@ -70,3 +70,7 @@ header {
     height:30px;
     background: url(/img/avatar.png) no-repeat scroll;
 }
+
+.modal-dialog {
+    min-width: 800px;
+}

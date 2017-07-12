@@ -11,6 +11,7 @@
   <script language="JavaScript" src="/js/libraries/jstree.min.js"></script>
   <script language="JavaScript" src="/js/libraries/moment.min.js"></script>
   <script language="JavaScript" src="/js/libraries/notify.min.js"></script>
+  <script language="JavaScript" src="/js/libraries/clipboard.min.js"></script>
   <script language="JavaScript" src="/socket.io/socket.io.js"></script>
   <!-- favicon -->
   <link rel="shortcut icon" href=/img/favicon.ico type=image/x-icon>
@@ -65,5 +66,76 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Provision BIM360  -->
+<div class="modal fade" id="provisionAccountModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cancel"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Thanks for using BIM 360 File Sharing!</h4>
+      </div>
+      <div class="modal-body">
+        <p>To view your BIM 360 Docs files on this app please authorize my Forge Client ID with your BIM 360 Docs Account.</p>
+        <p>
+          <button type="button" class="btn btn-info" data-toggle="modal" data-target="#provisionAccountStepsModal">Show me the steps <span class="glyphicon glyphicon-new-window"></span></button>
+        </p>
+        Use this as Forge Client ID:
+        <div class="input-group">
+          <input type="text" readonly="true" aria-describedby="CopyClientID" id="ClientID" class="form-control" value="" />
+          <span class="input-group-addon" style="cursor: pointer" data-clipboard-target="#ClientID" id="CopyClientID">Copy to clipboard</span>
+        </div>
+        And this App Name:
+        <div class="input-group">
+          <input type="text" readonly="true" aria-describedby="CopyAppName" id="AppName" class="form-control" value="BIM 360 File Sharing" />
+          <span class="input-group-addon" style="cursor: pointer" data-clipboard-target="#AppName" id="CopyAppName">Copy to clipboard</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="provisionAccountSave">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal Provision BIM360 Help  -->
+<div class="modal fade" id="provisionAccountStepsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cancel"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel1">Step-by-step guide</h4>
+      </div>
+      <div class="modal-body">
+        <p>To access your BIM 360 Docs files with this app, you need to connect your BIM 360 account with the app.</p>
+        <ol>
+          <li>Log in to <a href="https://bim360enterprise.autodesk.com/" target="_blank">BIM 360 Account Administration</a>. Note that you need account administrator permissions.</li>
+          <li>If you have more than one account, select the account you want to integrate with the app.</li>
+          <li>From the toolbar, select <strong>SETTING &gt; Apps & Integrations</strong>.<br/>
+            <img src="/img/provisioning/Step1.png" width="500" /></li>
+          <li>Click the <strong>Add Integration</strong> button.<br />
+            <img src="/img/provisioning/Step2.png" />
+          </li>
+          <li>Select <strong>BIM 360 Account Administration</strong> and <strong>BIM 360 Docs</strong>, and click <strong>Next</strong>.</li>
+          <li>Select <strong>I’m the developer</strong>, and click <strong>Next</strong>.</li>
+          <li>In the <strong>Forge Client ID</strong> and <strong>App Name</strong> fields, enter the Forge client ID and app name provided by the app retailer.</li>
+          <li>Select the <strong>I have saved the Account ID information securely</strong> checkbox.</li>
+          <li>Click <strong>Save</strong>.</br>
+            <img src="/img/provisioning/Step3.png" width="500" />
+          </li>
+          <p></p>
+          <p>Congratulations! You can now access your BIM 360 Docs files.</p>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Understood, thanks!</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  new Clipboard('.input-group-addon');
+</script>
+
 </body>
 </html>
