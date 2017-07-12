@@ -10,7 +10,7 @@ Work in progress, not ready. Use carefully.
 
 Live (ToDo)
 
-Video (ToDo)
+Short [video demonstration](https://twitter.com/augustomaia/status/882671822394753025)
 
 ## Setup
 
@@ -18,7 +18,7 @@ This samples requires Forge and respective storage credentials.
 
 ### Forge
 
-For using this sample, you need an Autodesk developer credentials. Visit the [Forge Developer Portal](https://developer.autodesk.com), sign up for an account, then [create an app](https://developer.autodesk.com/myapps/create). For this new app, use http://localhost:3000/api/forge/callback/oauth as Callback URL. Finally take note of the **Client ID** and **Client Secret**. For localhost testing:
+For using this sample, you need an Autodesk developer credentials. Visit the [Forge Developer Portal](https://developer.autodesk.com), sign up for an account, then [create an app](https://developer.autodesk.com/myapps/create). For this new app, use https://<span></span>localhost:3000/api/forge/callback/oauth as Callback URL. Finally take note of the **Client ID** and **Client Secret**. For localhost testing:
 
 - FORGE\_CLIENT\_ID
 - FORGE\_CLIENT\_SECRET
@@ -34,7 +34,7 @@ For each storage, define the following variables:
 
 - STORAGE\_CLIENT\_ID
 - STORAGE\_CLIENT\_SECRET
-- STORAGE\_CALLBACK\_URL (optional on localhost, on the respective dev portal should be **https://<span></span>localhost:3000/api/[STORAGE_NAME]/callback/oauth**)
+- STORAGE\_CALLBACK\_URL: optional on localhost, on the respective dev portal should be **https://<span></span>localhost:3000/api/[STORAGE_NAME]/callback/oauth**
 
 The following topics describe the steps to generate the respective client ID and client secret for each storage provider:
 
@@ -64,7 +64,7 @@ Visit the [Google APIs Console](https://console.developers.google.com), Log in o
 
 Additionally, Google drive require the scope for the APIs activated. Define the following environment variable:
 
-- STORAGE_SCOPE: **https://<span></span>www.googleapis.com/auth/drive,https://<span></span>www.googleapis.com/auth/userinfo.profile**
+- STORAGE_SCOPE: **https://<span></span>www.googleapis.com/auth/drive, https://<span></span>www.googleapis.com/auth/userinfo.profile**
 
 #### Onedrive
 
@@ -87,6 +87,8 @@ Open the browser with SSL on [https://localhost:3000](https://localhost:3000)
 
 ## Deployment
 
+Video explanation (ToDo)
+
 ### OAuth Redirect URLs
 
 On production, the Forge and respective storage callback URLs should use your application address instead **localhost:3000**, something like https://<span></span>serveraddress.com/api/[FORGE or STORAGE_NAME]/callback/oauth
@@ -100,7 +102,13 @@ This sample delegates the heavy work of transferring files to a AWS Lambda. To d
 
 When the job is complete, the lambda function need to notify the application. This will not work on localhost (as AWS cannot call localhost, except with a proxy app). Inside AWS Lambda settings, specify the following environment variable:
 
-- STATUS\_CALLBACK: e.g.: https://<span></span>serveradress.com/api/app/callback/transferStatus
+- STATUS\_CALLBACK: e.g.: https://<span></span>serveradress<span></span>.com/api/app/callback/transferStatus
+
+## Usage statistics
+
+This sample can keep records all users (Name, email, first usage date) and which storages used. To setup, create a MongoDB instance (e.g. on [mLab](https://mlab.com)) with a **users** collection. Create the connection string and store as **MONGO_STATS** enviroment variable. For mLab, it should look like: **mongodb://usenamr:password@ds1234.mlab.com:5678/databaseName**
+
+Usage report (ToDo)
 
 ## Authors
 

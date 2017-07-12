@@ -234,6 +234,8 @@ module.exports = {
   postLambdaJob: function (sourceReq, destinationReq, token, data) {
     var newTaskId = guid();
     var request = require('request');
+    var stats = require('./../stats/stats');
+    stats.usage(token.getAutodeskId, config.storage.name);
 
     request({
       url: config.transfer.endpoint,

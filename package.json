@@ -34,6 +34,7 @@
     "jquery": "^3.2.1",
     "jstree": "^3.3.4",
     "moment": "^2.18.1",
+    "mongodb": "^2.2.30",
     "serve-favicon": "^2.4.3",
     "socket.io": "^2.0.3"
   }

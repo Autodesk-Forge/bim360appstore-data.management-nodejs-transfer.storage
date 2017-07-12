@@ -49,5 +49,10 @@ module.exports = {
   transfer : {
     endpoint: process.env.TRANSFER_ENDPOINT || 'https://localhost:3000/api/lambda/transfer',
     authorization: process.env.TRANSFER_ENDPOINT_AUTHORIZATION || ''
+  },
+
+  stats :{
+    // Mongo URL to keep usage stats, can be shared with all storages instances
+    mongo : process.env.MONGO_STATS
   }
 };
