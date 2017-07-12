@@ -34,6 +34,8 @@ var router = express.Router();
 
 var utility = require('./../utility');
 
+var egnyteSDK = require('egnyte-js-sdk');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage ? error.statusMessage : error.message)
@@ -81,94 +83,62 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
       res.json({taskId: id, status: 'received'});
     });
   });
+});
 
-  /*
+router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
+  // >>>
   var token = new Credentials(req.session);
   var credentials = token.getStorageCredentials();
-
-  if (credentials === undefined) {
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
     res.status(401).end();
     return;
   }
 
-  // file IDs to transfer
-  var autodeskFileId = decodeURIComponent(req.body.autodeskItem);
-  var onedriveFolderId = req.body.storageFolder;
-  var onedriveDriveId = onedriveFolderId.split('!')[0]
+  utility.assertIsFolder(req.body.autodeskFolder, req, function (autodeskProjectId, autodeskFolderId) {
+    //<<<
 
-  // the autodesk file id parameters should be in the form of
-  // /data/v1/projects/::project_id::/versions/::version_id::
-  var params = autodeskFileId.split('/');
-  var projectId = params[params.length - 3];
-  var versionId = params[params.length - 1];
+    var egnyte = egnyteSDK.init(req.session.egnyteURL, {
+      token: credentials.access_token
+    });
 
-  var forge3legged = new forgeSDK.AuthClientThreeLegged(
-    config.forge.credentials.client_id,
-    config.forge.credentials.client_secret,
-    config.forge.callbackURL,
-    config.forge.scope,
-    true);
+    var pathInfo = egnyte.API.storage.path(req.body.storageItem);
+    pathInfo.get()
+      .then(function (fileInfo) {
+      var fileName = fileInfo.name; // name, that's all we need from Google
 
-  var versions = new forgeSDK.VersionsApi();
-  versions.getVersion(projectId, versionId, forge3legged, token.getForgeCredentials())
-    .then(function (version) {
-      if (!version.body.data.relationships.storage || !version.body.data.relationships.storage.meta.link.href) {
-        res.status(500).json({error: 'No storage defined, cannot transfer.'});
-        return;
-      }
-      var storageLocation = version.body.data.relationships.storage.meta.link.href;
-      // the storage location should be in the form of
-      // /oss/v2/buckets/::bucketKey::/objects/::objectName::
-      params = storageLocation.split('/');
-      var bucketKey = params[params.length - 3];
-      var objectName = params[params.length - 1];
-
-      //var objects = new forgeOSS.ObjectsApi();
-      // npm forge-oss call to download not working
-      //objects.getObject(bucketKey, objectName).then(function (file) {
-
-      // workaround to download
-      request({
-        url: storageLocation,
-        method: "GET",
-        headers: {
-          'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
-        },
-        encoding: null
-      }, function (error, response, file) {
-        if (error) {
-          console.log(error);
-          respondWithError(res, error);
+      // >>>
+      utility.prepareAutodeskStorage(autodeskProjectId, autodeskFolderId, fileName, req, function (autodeskStorageUrl, skip, callbackData) {
+        if (skip) {
+          res.status(409).end(); // no action (server-side)
           return;
         }
-        // end of workaround
+        //<<<
 
-        var fileName = version.body.data.attributes.name;
+        var source = {
+          url: req.session.egnyteURL + '/pubapi/v1/fs-content/' + req.body.storageItem,
+          method: "GET",
+          headers: {
+            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+          },
+          encoding: null
+        };
 
-        var msGraphClient = msGraph.init({
-          defaultVersion: 'v1.0',
-          debugLogging: true,
-          authProvider: function (done) {
-            done(null, credentials)
-          }
-        })
+        var destination = {
+          url: autodeskStorageUrl,
+          method: "PUT",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
 
-        msGraphClient
-          .api('/drives/' + onedriveDriveId + '/items/' + onedriveFolderId + '/children/' + fileName + '/content')
-          .put(file, function (error, data) {
-            if (error) {
-              console.log(error)
-              respondWithError(data, error)
-              return
-            }
-            res.status(200).end()
-          })
+        // send Lambda job
+        var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
+
+        res.json({taskId: id, status: 'received'});
       });
-    })
-    .catch(function (err) {
-      respondWithError(res, err);
     });
-    */
+  });
 });
 
 module.exports = router;
