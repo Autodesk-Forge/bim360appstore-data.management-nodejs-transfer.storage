@@ -89,4 +89,65 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   });
 });
 
+router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
+  // >>>
+  var token = new Credentials(req.session);
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  utility.assertIsFolder(req.body.autodeskFolder, req, function (autodeskProjectId, autodeskFolderId) {
+    //<<<
+    var storageId = req.body.storageItem;
+    var driveId = storageId.split('!')[0]
+    var path = '/drives/' + driveId + '/items/' + storageId
+    var msGraphClient = msGraph.init({
+      defaultVersion: 'v1.0',
+      debugLogging: true,
+      authProvider: function (done) {
+        done(null, token.getStorageCredentials().access_token)
+      }
+    })
+
+    msGraphClient
+      .api(path)
+      .get(function (err, fileInfo) {
+          var fileName = fileInfo.name; // name, that's all we need from Google
+
+      // >>>
+      utility.prepareAutodeskStorage(autodeskProjectId, autodeskFolderId, fileName, req, function (autodeskStorageUrl, skip, callbackData) {
+        if (skip) {
+          res.status(409).end(); // no action (server-side)
+          return;
+        }
+        //<<<
+
+        var source = {
+          url: 'https://graph.microsoft.com/v1.0/drives/' + driveId + '/items/' + storageId + '/content',
+          method: "GET",
+          headers: {
+            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+          },
+          encoding: null
+        };
+
+        var destination = {
+          url: autodeskStorageUrl,
+          method: "PUT",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
+
+        // send Lambda job
+        var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
+
+        res.json({taskId: id, status: 'received'});
+      });
+    });
+  });
+});
+
 module.exports = router;
