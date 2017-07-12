@@ -51,13 +51,17 @@ function prepareAutodeskSide() {
       autodeskSide.css("vertical-align", "top");
       autodeskSide.css('text-align', 'left');
       autodeskSide.append(
-        '<div class="treeTitle"><img src="" id="autodeskProfilePicture" height="30px" class="profilePicture"> <span id="autodeskProfileName"></span>' +
-        '<span class="glyphicon glyphicon-refresh refreshIcon" id="refreshAutodeskTree" title="Refresh Autodesk files"/>' +
+        '<div class="treeTitle"><img src="" id="autodeskProfilePicture" height="30px" class="profilePicture"> <span id="autodeskProfileName"></span> ' +
+        '<span class="glyphicon glyphicon-log-out mlink" title="Logoff" id="autodeskLogoff"> </span>' +
+        '<span class="glyphicon glyphicon-refresh refreshIcon mlink" id="refreshAutodeskTree" title="Refresh Autodesk files"/>' +
         '</div>' +
         '<div id="autodeskTree" class="tree"></div>');
 
-      $('#autodeskProfileName').text(profile.name)
+      $('#autodeskProfileName').text(profile.name);
       $('#autodeskProfilePicture').attr('src', profile.picture);
+      $('#autodeskLogoff').click(function () {
+        location.href = '/api/app/logoff';
+      });
 
       prepareAutodeskTree('autodeskTree');
 
@@ -102,7 +106,7 @@ function prepareAutodeskSide() {
   });
 }
 
-function isDone(data){
+function isDone(data) {
   _pendingTransfers.splice(_pendingTransfers.indexOf(data.taskId), 1);
   var tree = $('#' + data.tree + 'Tree').jstree(true);
   tree.refresh_node(tree.get_selected(true)[0]);
@@ -127,7 +131,7 @@ function prepareStorageSide() {
 
       // preparing icons and titles
       $('#storageSigninIcon').attr("src", 'img/' + _storageName + '/icon.png');
-      $('#tranferToStorageButton').attr("title", 'Transfer selected BIM 360 files to ' + _storageName);
+      $('#transferToStorageButton').attr("title", 'Transfer selected BIM 360 files to ' + _storageName);
       $('#transferFromStorageButton').attr("title", 'Transfer selected ' + _storageName + ' files to BIM 360');
 
       jQuery.ajax({
@@ -138,13 +142,17 @@ function prepareStorageSide() {
           storageSide.css("vertical-align", "top");
           storageSide.css('text-align', 'left');
           storageSide.append(
-            '<div class="treeTitle"><img src="" id="storageProfilePicture" height="30px" class="profilePicture"> <span id="storageProfileName"></span>' +
-            '<span class="glyphicon glyphicon-refresh refreshIcon" id="refreshStorageTree" title="Refresh files"/>' +
+            '<div class="treeTitle"><img src="" id="storageProfilePicture" height="30px" class="profilePicture"> <span id="storageProfileName"></span> ' +
+            '<span class="glyphicon glyphicon-log-out mlink" title="Logoff" id="storageLogoff"> </span>' +
+            '<span class="glyphicon glyphicon-refresh refreshIcon mlink" id="refreshStorageTree" title="Refresh files"/>' +
             '</div>' +
             '<div id="storageTree" class="tree"></div>');
 
           $('#storageProfileName').text(profile.name)
           $('#storageProfilePicture').attr('src', profile.picture);
+          $('#storageLogoff').click(function () {
+            location.href = '/api/app/logoff';
+          });
 
           prepareStorageTree();
         },
@@ -258,7 +266,7 @@ function transferToAutodesk() {
           $('#' + tempId).attr("id", res.taskId); // adjust the id to the taskId, for sockets
         },
         statusCode: {
-          409 : function () {
+          409: function () {
             $('#' + tempId).empty();
             $('#' + tempId).append('<span class="glyphicon glyphicon-ban-circle" title="Duplicated, skip"></span>');
           }

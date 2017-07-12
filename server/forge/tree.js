@@ -61,11 +61,11 @@ router.get('/api/forge/tree', function (req, res) {
         break;
       case 'folders':
         var projectId = params[params.length - 3];
-        getFolderContents(projectId, resourceId, forge3legged, token.getForgeCredentials(), res);
+        getFolderContents(projectId, resourceId/*folder_id*/, forge3legged, token.getForgeCredentials(), res);
         break;
       case 'items':
         var projectId = params[params.length - 3];
-        getVersions(projectId, resourceId, forge3legged, token.getForgeCredentials(), res);
+        getVersions(projectId, resourceId/*item_id*/, forge3legged, token.getForgeCredentials(), res);
         break;
     }
   }
@@ -75,12 +75,12 @@ function getHubs(oauthClient, credentials, res) {
   var hubs = new forgeSDK.HubsApi();
   hubs.getHubs({}, oauthClient, credentials)
     .then(function (data) {
-      if (data.body.meta.warnings) {
+      /*if (data.body.meta.warnings) {
         for (var key in data.body.meta.warnings) {
-          var warning = data.body.meta.warnings[key]
+          var warning = data.body.meta.warnings[key];
           console.log(warning.HttpStatusCode + "/" + warning.ErrorCode + ":" + warning.Detail + ' > ' + warning.Title)
         }
-      }
+      }*/
 
       var hubsForTree = [];
       data.body.data.forEach(function (hub) {

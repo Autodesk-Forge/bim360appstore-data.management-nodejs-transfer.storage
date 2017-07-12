@@ -53,9 +53,12 @@ header {
     padding-bottom: 3px
 }
 
+.mlink {
+    cursor: pointer;
+}
+
 .refreshIcon{
     vertical-align: top;
-    cursor: pointer;
     float: right;
     margin-top: 9px;
 }
@@ -73,4 +76,9 @@ header {
 
 .modal-dialog {
     min-width: 800px;
+}
+
+.storageIcon{
+    padding-right: 5px;
+    vertical-align: text-top;
 }

@@ -43,6 +43,12 @@ router.get('/api/forge/clientID', function (req, res) {
   });
 });
 
+router.get('/api/app/logoff', function (req, res) {
+  req.session = null;
+  res.writeHead(301, {Location: '/'});
+  res.end();
+});
+
 var utility = require('./storages/utility');
 
 router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) {
@@ -57,7 +63,7 @@ router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) 
       });
 
     var data = req.body.data;
-    utility.createItemOrVersion(data.fileName, data.projectId, data.folderId, data.objectId, data.credentials, function(){
+    utility.createItemOrVersion(data.fileName, data.projectId, data.folderId, data.objectId, data.credentials, function () {
       var connectedUser = io.sockets.in(req.body.autodeskId);
       if (connectedUser != null)
         connectedUser.emit('taskStatus', {

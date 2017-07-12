@@ -84,7 +84,7 @@ function prepareAutodeskTree() {
       }
     },
     "plugins": ["types", "state", "sort"],
-    "state" : { "key" : "autodeskTree" }
+    "state": {"key": "autodeskTree"}
   });
 
   $('#refreshAutodeskTree').click(function () {
