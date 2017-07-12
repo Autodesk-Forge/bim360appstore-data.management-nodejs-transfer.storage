@@ -18,6 +18,9 @@
 
 'use strict'; // http://www.w3schools.com/js/js_strict.asp
 
+// app config settings
+var config = require('./config');
+
 function Credentials(session) {
   this._session = session;
 }
@@ -39,11 +42,17 @@ Credentials.prototype.getAutodeskId = function () {
 };
 
 Credentials.prototype.setStorageCredentials = function (accessToken) {
+  // Just to make switching between storage services work better
+  // This way we can avoid trying to use credentials of one storage service
+  // to get access to another service and fail "misteriously" :)
+  this._session.StorageName = config.storage.name
   this._session.StorageCredentials = accessToken;
 };
 
 Credentials.prototype.getStorageCredentials = function () {
-  return this._session.StorageCredentials;
+  if (this._session.StorageName === config.storage.name) {
+    return this._session.StorageCredentials;
+  }
 };
 
 module.exports = Credentials;
