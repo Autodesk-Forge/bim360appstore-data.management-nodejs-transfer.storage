@@ -20,11 +20,20 @@
 
 var request = require('request');
 
+function doGetPutPost(props) {
+  if (props.method === 'GET') {
+    return request.get(props)
+  } else if (props.method === 'POST'){
+    return request.post(props)
+  } else {
+    return request.put(props)
+  }
+}
+
 module.exports = {
   transferFile: function (autodeskId, taskId, source, destination, data) {
     var sourceStatusCode;
-    request
-      .get(source)
+    doGetPutPost(source)
       .on('response', function (resSource) {
         if (process.env.NODE_ENV != 'production')
           console.log('Download ' + source.url + ': ' + resSource.statusCode + ' > ' + resSource.statusMessage);
@@ -32,7 +41,7 @@ module.exports = {
         sourceStatusCode = resSource.statusCode;
         resSource.headers['content-type'] = undefined; // if the source response have this header, Dropbox may file for some types
       })
-      .pipe((destination.method === 'PUT' ? request.put(destination) : request.post(destination))
+      .pipe(doGetPutPost(destination)
         .on('response', function (resDestination) {
           if (process.env.NODE_ENV != 'production')
             console.log('Upload ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);

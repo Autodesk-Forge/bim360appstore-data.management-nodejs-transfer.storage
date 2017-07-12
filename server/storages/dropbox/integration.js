@@ -34,6 +34,8 @@ var router = express.Router();
 
 var utility = require('./../utility');
 
+var Dropbox = require('dropbox');
+
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
   var credentials = token.getStorageCredentials();
@@ -79,6 +81,64 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
       var id = utility.postLambdaJob(source, destination, token);
 
       res.json({taskId: id, status: 'received'});
+    });
+  });
+});
+
+
+router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
+  // >>>
+  var token = new Credentials(req.session);
+  var credentials = token.getStorageCredentials();
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  utility.assertIsFolder(req.body.autodeskFolder, req, function (autodeskProjectId, autodeskFolderId) {
+    //<<<
+
+    var dbx = new Dropbox({ accessToken: credentials.access_token })
+
+    dbx.filesGetMetadata({path: req.body.storageItem})
+      .then( function (fileInfo) {
+      var fileName = fileInfo.name; // name, that's all we need from Google
+
+      // >>>
+      utility.prepareAutodeskStorage(autodeskProjectId, autodeskFolderId, fileName, req, function (autodeskStorageUrl, skip, callbackData) {
+        if (skip) {
+          res.status(409).end(); // no action (server-side)
+          return;
+        }
+        //<<<
+
+        var source = {
+          url: 'https://content.dropboxapi.com/2/files/download',
+          method: "POST",
+          headers: {
+            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token,
+            'Dropbox-API-Arg': JSON.stringify(
+              {
+                path: fileInfo.path_display
+              })
+          },
+          encoding: null
+        };
+
+        var destination = {
+          url: autodeskStorageUrl,
+          method: "PUT",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
+
+        // send Lambda job
+        var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
+
+        res.json({taskId: id, status: 'received'});
+      });
     });
   });
 });
