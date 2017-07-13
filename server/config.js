@@ -38,7 +38,6 @@ module.exports = {
     // box, google (drive), dropbox, onedrive, egnyte
     name: process.env.STORAGE_NAME,
     needsAccountName: process.env.STORAGE_NEEDS_ACCOUNT_NAME || false,
-    scope: process.env.STORAGE_SCOPE,
     callbackURL: process.env.STORAGE_CALLBACK_URL || 'https://localhost:3000/api/' + process.env.STORAGE_NAME + '/callback/oauth',
     credentials: {
       client_id: process.env.STORAGE_CLIENT_ID || '<replace with your storage client id',

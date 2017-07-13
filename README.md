@@ -62,10 +62,6 @@ Additionally, Egnyte needs an **account name**:
 
 Visit the [Google APIs Console](https://console.developers.google.com), Log in or Sign up, follow the steps to Create a Credential. For this new app, use **https://<span></span>localhost:3000/api/google/callback/oauth** as **redirect\_uri**. Make sure you activate **Google Drive** & **Google People** APIs, this sample uses both scopes. Finally, take note of the **client_id** and **client_secret**, which you'll need to use as **STORAGE\_CLIENT\_ID** and **STORAGE\_CLIENT\_SECRET** respectively.
 
-Additionally, Google drive require the scope for the APIs activated. Define the following environment variable:
-
-- STORAGE_SCOPE: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/userinfo.profile
-
 #### OneDrive
 
 - STORAGE\_NAME: **onedrive**
@@ -93,6 +89,14 @@ Open the browser with SSL on [https://localhost:3000](https://localhost:3000)
 
 Video explanation (ToDo)
 
+### Deploy on Heroku
+
+To deploy this application to Heroku, the <b>Callback URL</b> & <b>redirect_uri</b> must use your .herokuapp.com address. After clicking on the button below, at the Heroku Create New App page, set your Client ID & Secret and the correct callback URL for Forge and respective storage.
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+Watch [this video](https://www.youtube.com/watch?v=Oqa9O20Gj0c) on how deploy this sample to Heroku.
+
 ### OAuth Redirect URLs
 
 On production, the Forge and respective storage callback URLs should use your application address instead of **localhost:3000**, something like `https://serveraddress.com/api/[FORGE or STORAGE_NAME]/callback/oauth`
@@ -110,7 +114,7 @@ When the job is complete, the lambda function need to notify the application. Th
 
 ## Usage statistics
 
-This sample can keep records all users (Name, email, first usage date) and which storages used. To setup, create a MongoDB instance (e.g. on [mLab](https://mlab.com)) with a **users** collection. Create the connection string and store as **MONGO_STATS** enviroment variable. For mLab, it should look like: **mongodb://usename:password@ds1234.mlab.com:5678/databaseName**
+This sample can keep records all users (Name, email, first usage date) and which storages used. To setup, create a MongoDB instance (e.g. on [mLab](https://mlab.com)) with a **users** collection. Create the connection string and store as **MONGO_STATS** enviroment variable. For mLab, it should look like: **mongodb://usename:password<span></span>@<span></span>ds1234.mlab.com:5678/databaseName**
 
 Usage report (ToDo)
 

@@ -41,7 +41,7 @@ router.get('/api/storage/signin', function (req, res) {
   ];
   var url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // 'online' (default) or 'offline' (gets refresh_token)
-    scope: config.storage.scope.split(',')  // If you only need one scope you can pass it as string
+    scope: scopes  // If you only need one scope you can pass it as string
   });
   res.end(url);
 });

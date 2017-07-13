@@ -126,8 +126,8 @@ function prepareStorageSide() {
   jQuery.ajax({
     url: '/api/storageInfo',
     success: function (storageInfo) {
-      _storageName = storageInfo.storageName
-      _needsAccountName = storageInfo.needsAccountName
+      _storageName = storageInfo.storageName;
+      _needsAccountName = storageInfo.needsAccountName;
 
       // preparing icons and titles
       $('#storageSigninIcon').attr("src", 'img/' + _storageName + '/icon.png');
@@ -160,7 +160,7 @@ function prepareStorageSide() {
           $('#storageSigninButton').click(function () {
             _accountName = undefined;
             if (_needsAccountName) {
-              _accountName = prompt("Please provide account name", "autodesktesting");
+              _accountName = prompt("Please provide account name", _needsAccountName);
             }
 
             if (_accountName || !_needsAccountName) {
