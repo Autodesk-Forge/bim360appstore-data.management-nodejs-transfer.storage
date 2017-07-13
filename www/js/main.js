@@ -108,8 +108,10 @@ function prepareAutodeskSide() {
 
 function isDone(data) {
   _pendingTransfers.splice(_pendingTransfers.indexOf(data.taskId), 1);
-  var tree = $('#' + data.tree + 'Tree').jstree(true);
-  tree.refresh_node(tree.get_selected(true)[0]);
+  if (data.tree) {
+    var tree = $('#' + data.tree + 'Tree').jstree(true);
+    tree.refresh_node(tree.get_selected(true)[0]);
+  }
   if (_pendingTransfers.length == 0) {
     // from now, the use can dismiss this dialog
     var transferFilesButton = $("#transferFiles");

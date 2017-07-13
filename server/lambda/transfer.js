@@ -25,7 +25,7 @@ module.exports = {
     var sourceStatusCode;
     request(source)
       .on('response', function (resSource) {
-        if (process.env.NODE_ENV != 'production')
+        if (process.env.CONSOLELOG)
           console.log('Download ' + source.url + ': ' + resSource.statusCode + ' > ' + resSource.statusMessage);
 
         sourceStatusCode = resSource.statusCode;
@@ -33,7 +33,7 @@ module.exports = {
       })
       .pipe(request(destination)
         .on('response', function (resDestination) {
-          if (process.env.NODE_ENV != 'production')
+          if (process.env.CONSOLELOG)
             console.log('Upload ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);
 
           var status = {

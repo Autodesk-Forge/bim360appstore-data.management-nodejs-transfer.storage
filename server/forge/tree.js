@@ -75,12 +75,13 @@ function getHubs(oauthClient, credentials, res) {
   var hubs = new forgeSDK.HubsApi();
   hubs.getHubs({}, oauthClient, credentials)
     .then(function (data) {
-      /*if (data.body.meta.warnings) {
-        for (var key in data.body.meta.warnings) {
-          var warning = data.body.meta.warnings[key];
-          console.log(warning.HttpStatusCode + "/" + warning.ErrorCode + ":" + warning.Detail + ' > ' + warning.Title)
-        }
-      }*/
+      if (process.env.CONSOLELOG)
+        if (data.body.meta.warnings)
+          for (var key in data.body.meta.warnings) {
+            var warning = data.body.meta.warnings[key];
+            console.log(warning.HttpStatusCode + "/" + warning.ErrorCode + ":" + warning.Detail + ' > ' + warning.Title)
+          }
+
 
       var hubsForTree = [];
       data.body.data.forEach(function (hub) {
