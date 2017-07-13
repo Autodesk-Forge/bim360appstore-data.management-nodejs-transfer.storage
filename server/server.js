@@ -27,7 +27,7 @@ var app = express();
 
 // favicon
 var favicon = require('serve-favicon');
-app.use(favicon(__dirname + '/../www/favicon.ico'));
+app.use(favicon(__dirname + '/../www/img/autodesk.png'));
 
 // this session will be used to save the oAuth token
 app.use(cookieParser());
@@ -77,7 +77,7 @@ app.use('/', dataManagement); // redirect our custom API calls
 //app.use('/', modelDerivative); // redirect our custom API calls
 
 var config = require('./config');
-var storageName = config.storage.name;
+var storageName = config.storage.name.toLowerCase();
 var storateOAuth = require('./storages/' + storageName + '/oauth.js');
 var storateTree = require('./storages/' + storageName + '/tree.js');
 var storageIntegration = require('./storages/' + storageName + '/integration.js');

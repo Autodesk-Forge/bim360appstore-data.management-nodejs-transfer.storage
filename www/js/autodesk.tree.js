@@ -59,13 +59,13 @@ function prepareAutodeskTree() {
         'icon': 'glyphicon glyphicon-user'
       },
       'hubs': {
-        'icon': '/img/a360Hub.png'
+        'icon': '/img/a360hub.png'
       },
       'personalHub': {
-        'icon': '/img/a360Hub.png'
+        'icon': '/img/a360hub.png'
       },
       'bim360Hubs': {
-        'icon': '/img/bim360Hub.png'
+        'icon': '/img/bim360hub.png'
       },
       'bim360projects': {
         'icon': '/img/bim360project.png'

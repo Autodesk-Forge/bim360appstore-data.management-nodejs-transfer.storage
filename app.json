@@ -32,25 +32,27 @@
     },
     "STORAGE_CALLBACK_URL": {
       "description": "Redirect URI of your storage app, required for 3-legged OAuth",
-      "value": "https://<<YOUR HEROKU APP NAME HERE>>.herokuapp.com/api/<<STORAGENAME>>/callback/oauth"
+      "value": "https://<<YOUR HEROKU APP NAME HERE>>.herokuapp.com/api/<<STORAGE NAME>>/callback/oauth"
     },
     "STORAGE_NEEDS_ACCOUNT_NAME":{
       "description": "Default account name (Egnyte only)",
-      "value": false
+      "required": false
     },
     "TRANSFER_ENDPOINT" : {
-      "description": "AWS Gateway endpoint that triggers the AWS Lambda. For same-server transfer, use the suggested value",
+      "description": "AWS Gateway endpoint that triggers the AWS Lambda. For same-server transfer, use the suggested value.",
       "value": "https://<<YOUR HEROKU APP NAME HERE>>.herokuapp.com/api/lambda/transfer"
     },
     "TRANSFER_ENDPOINT_AUTHORIZATION" : {
-      "description" : "AWS Gateway x-api-key authorization"
+      "description" : "AWS Gateway x-api-key authorization",
+      "required": false
     },
-    "TRANFER_CALLBACK_URL" :{
-      "description": "When AWS Lambda is done, it will callback using this address",
+    "TRANSFER_CALLBACK_URL" :{
+      "description": "When AWS Lambda is done, it will callback using this address. For same-server transfer, use the suggested value.",
       "value": "https://<<YOUR HEROKU APP NAME HERE>>.herokuapp.com/api/app/callback/transferStatus"
     },
     "MONGO_STATS":{
-      "description": "Mongo DB instance for usage stats data"
+      "description": "Mongo DB instance for usage stats data",
+      "required": false
     }
   },
   "website": "https://developer.autodesk.com/",
