@@ -1,8 +1,6 @@
 # bim360appstore-data.management-nodejs-transfer.storage
 
-This sample application demonstrate how to transfer files from **BIM 360 Docs**, **BIM 360 Team** (formerly A360) and **Fusion 360** to a series of storages: Box, Egnyte, Google Drive, Onedrive and Dropbox. It uses Forge [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/). As of now, BIM 360 Field and Glue **are NOT supported**.
-
-This sample show a transfer of files from Autodesk using [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/) and other storages providers: Box, Dropbox, Egnyte, Google and Onedrive. The front-end will look like:
+This sample application demonstrate how to transfer files from **BIM 360 Docs**, **BIM 360 Team** (formerly A360) and **Fusion 360** to a series of storages: Box, Egnyte, Google Drive, Onedrive and Dropbox. It uses Forge [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/). As of now, BIM 360 Field and Glue **are NOT supported**. The front-end will look like (e.g. Google):
   
 ![](www/img/readme/indexpage.png)
 
@@ -13,6 +11,8 @@ This sample show a transfer of files from Autodesk using [Data Management API](h
 - Egnyte
 - [Google](https://bim360google.herokuapp.com)
 - Onedrive
+
+**Usage**: select **files** (or specific version) on Autodesk side (left), select one **folder** on storage side (right). Click on the right-pointing-arrow (at the center) to start transferring. The opposite is also supported, use the left-pointing-arrow. When transferring **from** storage **to** Autodesk, a new version is created if file name already exists. As of now, transfer of an entire folder **is NOT** supported (either way).
 
 Short [video demonstration](https://twitter.com/augustomaia/status/882671822394753025)
 
@@ -149,7 +149,7 @@ This sample can keep records all users (Name, email, first usage date) and which
 
 - MONGO_STATS: connection string and store as enviroment variable. For mLab, it should look like: `mongodb://username:password@ds1234.mlab.com:5678/databaseName`
 
-Usage report (ToDo v2)
+Usage report (ToDo)
 
 ## Tips & tricks
 
@@ -165,7 +165,7 @@ Which executes <b>nodemon server.js --ignore www/</b>, where the <b>--ignore</b>
 
 ## Troubleshooting
 
-After installing Github desktop for Windows, on the Git Shell, if you see a <b>*error setting certificate verify locations*</b> error, use the following:
+After installing Github desktop for Windows, on the Git Shell, if you see a ***error setting certificate verify locations*** error, use the following:
 
     git config --global http.sslverify "false"
 
