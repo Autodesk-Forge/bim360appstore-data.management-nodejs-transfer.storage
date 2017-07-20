@@ -257,6 +257,9 @@ module.exports = {
       // job received by Lambda
       // any error?
       // if a token is available, then notify caller
+      if (process.env.CONSOLELOG && response.statusCode!=200){
+        console.log(config.transfer.endpoint + ': ' + response.body);
+      }
       if (token) {
         var connectedUser = io.sockets.in(token.getAutodeskId());
         if (connectedUser != null)

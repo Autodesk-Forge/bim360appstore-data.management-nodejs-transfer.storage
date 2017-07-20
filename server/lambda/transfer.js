@@ -27,9 +27,6 @@ module.exports = {
     // as of now adding an exception for BOX UPLOAD
     if (destination.url.indexOf('upload.box.com') > 0) {
       request(source, function (error, sourceRes, file) {
-
-
-
         var sdk = new BoxSDK({
           clientID: destination.credentials.ClientID, // required
           clientSecret: destination.credentials.ClientSecret // required
@@ -70,7 +67,6 @@ function MakeCallback(autodeskId, taskId, destinationStatusCode, sourceStatusCod
     status: (!IsOk(destinationStatusCode) || !IsOk(sourceStatusCode) ? 'error' : 'completed'),
     data: data
   };
-
 
   // send the callback
   request({
