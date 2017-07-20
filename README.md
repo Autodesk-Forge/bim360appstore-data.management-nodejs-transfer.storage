@@ -151,6 +151,10 @@ This sample can keep records all users (Name, email, first usage date) and which
 
 Usage report (ToDo)
 
+## Known issues
+
+The AWS Lambda function have an exception for [Box Upload](https://developer.box.com/v2.0/reference#upload-a-file), which requires multipart post. This require a future improvement. 
+
 ## Tips & tricks
 
 For local development/testing, consider use [nodemon](https://www.npmjs.com/package/nodemon) package, which auto restart your node application after any modification on your code. To install it, use:

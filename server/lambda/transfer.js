@@ -56,7 +56,7 @@ module.exports = {
             if (process.env.CONSOLELOG)
               console.log('Upload ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);
 
-            MakeCallback(autodeskId, taskId, destination.statusCode, sourceStatusCode, data, callback);
+            MakeCallback(autodeskId, taskId, resDestination.statusCode, sourceStatusCode, data, callback);
           }));
     }
     return true;
