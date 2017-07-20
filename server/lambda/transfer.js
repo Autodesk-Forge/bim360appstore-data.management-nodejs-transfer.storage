@@ -19,49 +19,73 @@
 'use strict'; // http://www.w3schools.com/js/js_strict.asp
 
 var request = require('request');
+var BoxSDK = require('box-node-sdk');
 
 module.exports = {
   transferFile: function (autodeskId, taskId, source, destination, data, callback) {
-    var sourceStatusCode;
-    request(source)
-      .on('response', function (resSource) {
-        if (process.env.CONSOLELOG)
-          console.log('Download ' + source.url + ': ' + resSource.statusCode + ' > ' + resSource.statusMessage);
 
-        sourceStatusCode = resSource.statusCode;
-        resSource.headers['content-type'] = undefined; // if the source response have this header, Dropbox may file for some types
-      })
-      .pipe(request(destination)
-        .on('response', function (resDestination) {
+    // as of now adding an exception for BOX UPLOAD
+    if (destination.url.indexOf('upload.box.com') > 0) {
+      request(source, function (error, sourceRes, file) {
+
+
+
+        var sdk = new BoxSDK({
+          clientID: destination.credentials.ClientID, // required
+          clientSecret: destination.credentials.ClientSecret // required
+        });
+
+        var box = sdk.getBasicClient(destination.credentials.Authorization);
+        box.files.uploadFile(destination.file.attributes.parent.id, destination.file.attributes.name, file, function (err, boxdata) {
+          MakeCallback(autodeskId, taskId, sourceRes.statusCode, (err ? 500 : 200), data, callback);
+        });
+      });
+    }
+    else {
+      var sourceStatusCode;
+      request(source)
+        .on('response', function (resSource) {
           if (process.env.CONSOLELOG)
-            console.log('Upload ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);
+            console.log('Download ' + source.url + ': ' + resSource.statusCode + ' > ' + resSource.statusMessage);
 
-          var status = {
-            autodeskId: autodeskId,
-            taskId: taskId,
-            status: (!IsOk(resDestination.statusCode) || !IsOk(sourceStatusCode) ? 'error' : 'completed'),
-            data: data
-          };
+          sourceStatusCode = resSource.statusCode;
+          resSource.headers['content-type'] = undefined; // if the source response have this header, Dropbox may file for some types
+        })
+        .pipe(request(destination)
+          .on('response', function (resDestination) {
+            if (process.env.CONSOLELOG)
+              console.log('Upload ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);
 
-
-          // send the callback
-          request({
-            url: callback,
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            rejectUnhauthorized: false, // required on httpS://localhost
-            body: JSON.stringify(status)
-          }, function (error, response) {
-            // do nothing?
-          });
-        }));
-
+            MakeCallback(autodeskId, taskId, destination.statusCode, sourceStatusCode, data, callback);
+          }));
+    }
     return true;
   }
 };
 
-function IsOk(errorCode){
-  return (errorCode>=200 && errorCode<=201);
+function MakeCallback(autodeskId, taskId, destinationStatusCode, sourceStatusCode, data, callback) {
+  var status = {
+    autodeskId: autodeskId,
+    taskId: taskId,
+    status: (!IsOk(destinationStatusCode) || !IsOk(sourceStatusCode) ? 'error' : 'completed'),
+    data: data
+  };
+
+
+  // send the callback
+  request({
+    url: callback,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    rejectUnhauthorized: false, // required on httpS://localhost
+    body: JSON.stringify(status)
+  }, function (error, response) {
+    // do nothing?
+  });
+}
+
+function IsOk(errorCode) {
+  return (errorCode >= 200 && errorCode <= 201);
 }

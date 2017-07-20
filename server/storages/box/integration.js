@@ -61,30 +61,26 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
         encoding: null
       };
 
+
       var destination = {
         url: 'https://upload.box.com/api/2.0/files/content',
         method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token.getStorageCredentials().accessToken,
+        credentials: {
+          'ClientID': config.storage.credentials.client_id,
+          'ClientSecret': config.storage.credentials.client_secret,
+          'Authorization': token.getStorageCredentials().accessToken
         },
-        formData: JSON.stringify({
-          attributes: {
-            name: version.attributes.displayName,
-            parent: {
-              id: storageFolder
-            }
+        file: {
+          'attributes': {
+            'name': version.attributes.displayName,
+            'parent': { id: storageFolder }
           }
-        }),
+        },
         encoding: null
       };
 
-      //var request = require('request');
-      request(source).pipe(request(destination).on('response', function (resDestination) {
-        console.log(destination.method + ' ' + destination.url + ': ' + resDestination.statusCode + ' > ' + resDestination.statusMessage);
-      }));
-
       // send Lambda job
-      //var id = utility.postLambdaJob(source, destination, token);
+      var id = utility.postLambdaJob(source, destination, token);
 
 
       res.json({taskId: id, status: 'received'});

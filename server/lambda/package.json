@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "request": "^2.81.0"
+    "box-sdk": "0.0.6",
+    "request": "2.81.0"
   }
 }

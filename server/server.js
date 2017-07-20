@@ -33,15 +33,15 @@ app.use(favicon(__dirname + '/../www/img/autodesk.png'));
 app.use(cookieParser());
 app.set('trust proxy', 1) // trust first proxy - HTTPS on Heroku
 /*app.use(session({
-  secret: 'autodeskforge',
-  cookie: {
-    httpOnly: true,
-    secure: (process.env.NODE_ENV === 'production'),
-    maxAge: 1000 * 60 * 60 // 1 hours to expire the session and avoid memory leak
-  },
-  resave: false,
-  saveUninitialized: true
-}));*/
+ secret: 'autodeskforge',
+ cookie: {
+ httpOnly: true,
+ secure: (process.env.NODE_ENV === 'production'),
+ maxAge: 1000 * 60 * 60 // 1 hours to expire the session and avoid memory leak
+ },
+ resave: false,
+ saveUninitialized: true
+ }));*/
 
 app.use(cookieSession({
   name: 'session',
@@ -86,11 +86,11 @@ app.use('/', storateTree); // redirect oauth API calls
 app.use('/', storageIntegration); // redirect oauth API calls
 
 // this condition should allow the local transfer if on localhost heroku
-if (process.env.TRANSFER_ENDPOINT && (process.env.TRANSFER_ENDPOINT.indexOf('localhost') > -1 || process.env.TRANSFER_ENDPOINT.indexOf('herokuapp') > -1)) {
-  // define a local testing that transfer the files
-  var localTransfer = require('./lambda/localEndpoint');
-  app.use('/', localTransfer);
-}
+//if (process.env.TRANSFER_ENDPOINT && (process.env.TRANSFER_ENDPOINT.indexOf('localhost') > -1 || process.env.TRANSFER_ENDPOINT.indexOf('herokuapp') > -1)) {
+// define a local testing that transfer the files
+var localTransfer = require('./lambda/localEndpoint');
+app.use('/', localTransfer);
+//}
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // for httpS://localhost
 
