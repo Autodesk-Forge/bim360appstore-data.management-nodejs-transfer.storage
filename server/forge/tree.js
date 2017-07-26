@@ -173,12 +173,16 @@ function getFolderContents(projectId, folderId, oauthClient, credentials, res) {
     .then(function (folderContents) {
       var folderItemsForTree = [];
       folderContents.body.data.forEach(function (item) {
-        folderItemsForTree.push(prepareItemForTree(
-          item.links.self.href,
-          item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName,
-          item.type,
-          true
-        ))
+
+        var displayName = item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName;
+        if (displayName !== '') { // BIM 360 Items with no displayName also don't have storage, so not file to transfer
+          folderItemsForTree.push(prepareItemForTree(
+            item.links.self.href,
+            displayName,
+            item.type,
+            true
+          ));
+        }
       });
       res.json(folderItemsForTree);
     })
