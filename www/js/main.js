@@ -414,7 +414,7 @@ function transferToStorage() {
       listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" checked> ' + parent.text + ' (' + item.text + ')</label></div>');
     }
     else if (item.type === 'folders') {
-      autodeskTree.open_all(item);
+      //autodeskTree.open_all(item);
       listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not yet supported, coming soon.</span></label></div>');
     }
   });

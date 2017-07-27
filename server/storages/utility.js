@@ -235,7 +235,7 @@ module.exports = {
     var newTaskId = guid();
     var request = require('request');
     var stats = require('./../stats/stats');
-    stats.usage(token.getAutodeskId, config.storage.name);
+    stats.usage(token.getAutodeskId(), config.storage.name);
 
     request({
       url: config.transfer.endpoint,
