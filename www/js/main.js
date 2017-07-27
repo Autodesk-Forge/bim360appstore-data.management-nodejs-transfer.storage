@@ -355,7 +355,7 @@ $.notify.addStyle('newFolderNotify', {
   "</div>" +
   "</div>"
 });
-$(document).on('click', '.notifyjs-foo-base .createStorageFolder', function () {
+$(document).on('click', '.notifyjs-newFolderNotify-base .createStorageFolder', function () {
   createStorageFolder();
 });
 
