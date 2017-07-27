@@ -52,7 +52,7 @@ function prepareAutodeskSide() {
       autodeskSide.css('text-align', 'left');
       autodeskSide.append(
         '<div class="treeTitle"><img src="" id="autodeskProfilePicture" height="30px" class="profilePicture"> <span id="autodeskProfileName"></span> ' +
-        '<span class="glyphicon glyphicon-log-out mlink" title="Logoff" id="autodeskLogoff"> </span>' +
+        '<span class="glyphicon glyphicon-log-out mlink" title="Sign out" id="autodeskLogoff"> </span>' +
         '<span class="glyphicon glyphicon-refresh refreshIcon mlink" id="refreshAutodeskTree" title="Refresh Autodesk files"/>' +
         '</div>' +
         '<div id="autodeskTree" class="tree"></div>');
@@ -144,9 +144,10 @@ function prepareStorageSide() {
           storageSide.css("vertical-align", "top");
           storageSide.css('text-align', 'left');
           storageSide.append(
-            '<div class="treeTitle"><img src="" id="storageProfilePicture" height="30px" class="profilePicture"> <span id="storageProfileName"></span> ' +
-            '<span class="glyphicon glyphicon-log-out mlink" title="Logoff" id="storageLogoff"> </span>' +
-            '<span class="glyphicon glyphicon-refresh refreshIcon mlink" id="refreshStorageTree" title="Refresh files"/>' +
+            '<div class="treeTitle" style="display: block"><img src="" id="storageProfilePicture" height="30px" class="profilePicture"> <span id="storageProfileName"></span> ' +
+            '<span class="glyphicon glyphicon-log-out mlink" title="Sign Out" id="storageLogoff"> </span>' +
+            '<div style="float: right"><button class="btn btn-default btn-xs" id="createStorageFolder"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;New folder</button>' +
+            '<span class="glyphicon glyphicon-refresh refreshIcon mlink" id="refreshStorageTree" title="Refresh files"/></div>' +
             '</div>' +
             '<div id="storageTree" class="tree"></div>');
 
@@ -155,6 +156,7 @@ function prepareStorageSide() {
           $('#storageLogoff').click(function () {
             location.href = '/api/app/logoff';
           });
+          $('#createStorageFolder').click(createStorageFolder);
 
           prepareStorageTree();
         },
@@ -229,7 +231,7 @@ function transferToAutodesk() {
   storageNodes.forEach(function (item) {
     var extension = (re.exec(item.text)[1]);
     if (item.type === 'folders')
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not supported</span></label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not yet supported, coming soon</span></label></div>');
     else if (!extension)
       listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">File without extension is not supported</span></label></div>');
     else {
@@ -292,6 +294,71 @@ function transferToAutodesk() {
   });
 }
 
+function createStorageFolder() {
+  var date = new Date();
+
+  var suggestedFolderName = 'Backup_' + zeroPad(date.getMonth() + 1, 2) + '_' + date.getFullYear();
+  var folderName = prompt('Enter new folder name:', suggestedFolderName);
+  if (folderName === null)return;
+
+  var storageTree = $('#storageTree').jstree(true);
+  var storageNodes = storageTree.get_selected(true);
+  var parentFolder;
+  if (storageNodes.length == 0)
+    parentFolder = '#';
+  else if (storageNodes[0].type === 'folders')
+    parentFolder = storageNodes[0].id;
+  else
+    parentFolder = storageNodes[0].parents[0];
+
+  jQuery.ajax({
+    url: '/api/storage/createFolder',
+    contentType: 'application/json',
+    type: 'POST',
+    //dataType: 'json', comment this to avoid parsing the response which would result in an error
+    data: JSON.stringify({
+      'parentFolder': parentFolder,
+      'folderName': folderName
+    }),
+    success: function (res) {
+      $('#storageTree').bind('refresh_node.jstree refresh.jstree', function (e, data) {
+        storageTree.deselect_all();
+        storageTree.select_node(res.folderId);
+        $('#storageTree').unbind('refresh_node.jstree refresh.jstree');
+      });
+
+      if (parentFolder === '#')
+        storageTree.refresh();
+      else
+        storageTree.refresh_node(storageNodes[0]);
+
+
+    },
+    error: function (res) {
+      storageTree
+    }
+  });
+}
+
+function zeroPad(num, places) {
+  var zero = places - num.toString().length + 1;
+  return Array(+(zero > 0 && zero)).join("0") + num;
+}
+
+$.notify.addStyle('newFolderNotify', {
+  html: "<div>" +
+  "<div class='clearfix'>" +
+  "<div class='title' data-notify-html='title'/>" +
+  "<div class='buttons'>" +
+  "<button class='btn btn-default btn-xs createStorageFolder'><span class='glyphicon glyphicon-folder-open'></span>&nbsp;&nbsp;New folder</button>" +
+  "</div>" +
+  "</div>" +
+  "</div>"
+});
+$(document).on('click', '.notifyjs-foo-base .createStorageFolder', function () {
+  createStorageFolder();
+});
+
 function transferToStorage() {
   var autodeskTree = $('#autodeskTree').jstree(true);
   var storageTree = $('#storageTree').jstree(true);
@@ -315,18 +382,20 @@ function transferToStorage() {
 
   var storageNodes = storageTree.get_selected(true);
   if (storageNodes === undefined || storageNodes.length != 1) {
-    $("#transferToStorageButton").notify(
-      "Please select one destination folder",
-      {position: "bottom", className: 'warn'}
+    $("#transferToStorageButton").notify({
+        title: "Please select one destination folder"
+      },
+      {position: "bottom", style: 'newFolderNotify'}
     );
     return;
   }
 
   var storageDestinationFolder = storageNodes[0];
   if (storageDestinationFolder.type != 'folders') {
-    $("#transferToStorageButton").notify(
-      "The destination must be a folder",
-      {position: "bottom", className: 'error'}
+    $("#transferToStorageButton").notify({
+        title: "The destination must be a folder"
+      },
+      {position: "bottom", style: 'newFolderNotify'}
     );
     return;
   }
@@ -344,8 +413,10 @@ function transferToStorage() {
       var parent = $("#autodeskTree").jstree().get_node('#' + item.parent);
       listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" checked> ' + parent.text + ' (' + item.text + ')</label></div>');
     }
-    else if (item.type === 'folders')
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not supported</span></label></div>');
+    else if (item.type === 'folders') {
+      autodeskTree.open_all(item);
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not yet supported, coming soon.</span></label></div>');
+    }
   });
 
   listOfFiles.append('<div>Destination folder: <strong>' + storageDestinationFolder.text + '</strong></div>')

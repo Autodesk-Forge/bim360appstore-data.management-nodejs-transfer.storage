@@ -1,18 +1,20 @@
-html,body,.container {
-    height:100%;
+html, body, .container {
+    height: 100%;
+    overflow: hidden;
 }
+
 .container {
-    display:table;
+    display: table;
     width: 100%;
     margin-top: -50px;
-    padding: 50px 0 0 0; /*set left/right padding according to needs*/
+    padding:20px 0 0 0; /*set left/right padding according to needs*/
     box-sizing: border-box;
 }
 
 header {
     background: #F1FAFD;
     height: 50px;
-    padding: 12px;
+    padding: 5px;
     border-bottom: solid 1px #C0C0C0;
 }
 
@@ -34,6 +36,7 @@ header {
     border-left: solid 1px #C0C0C0;
     border-right: solid 1px #C0C0C0;
 }
+
 .cell-side {
     background: white;
     width: 50%;
@@ -48,7 +51,7 @@ header {
     position: absolute;
 }
 
-.treeTitle{
+.treeTitle {
     border-bottom: 1px solid #C0C0C0;
     padding-bottom: 3px
 }
@@ -57,20 +60,21 @@ header {
     cursor: pointer;
 }
 
-.refreshIcon{
+.refreshIcon {
     vertical-align: top;
     float: right;
-    margin-top: 9px;
+    margin-top: 5px;
+    margin-left: 10px;
 }
 
-.transferItem{
+.transferItem {
     min-width: 100%;
     white-space: nowrap;
 }
 
-.profilePicture{
-    width:30px;
-    height:30px;
+.profilePicture {
+    width: 30px;
+    height: 30px;
     background: url(/img/avatar.png) no-repeat scroll;
 }
 
@@ -78,7 +82,42 @@ header {
     min-width: 800px;
 }
 
-.storageIcon{
+.storageIcon {
     padding-right: 5px;
     vertical-align: text-top;
+}
+
+.glyphiconTop {
+    font-size: 1.5em;
+    color: #a0a0a0;
+}
+
+.notifyjs-newFolderNotify-base {
+    opacity: 1;
+    width: 270px;
+    background: #FCF8E3;
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid #FBEED5;
+    color: #C09853;
+}
+
+.notifyjs-newFolderNotify-base .title {
+    width: 100px;
+    float: left;
+    margin: 10px 0 0 10px;
+}
+
+.notifyjs-newFolderNotify-base .buttons {
+    width: 110px;
+    float: right;
+    font-size: 9px;
+    padding: 5px;
+    margin: 2px;
+}
+
+.notifyjs-newFolderNotify-base button {
+    padding: 5px;
+    margin: 2px;
+    width: 100px;
 }

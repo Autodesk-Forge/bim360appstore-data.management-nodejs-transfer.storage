@@ -21,13 +21,10 @@
 var express = require('express');
 var cookieParser = require('cookie-parser');
 //var session = require('express-session');
-var cookieSession = require('cookie-session')
+var cookieSession = require('cookie-session');
 
 var app = express();
 
-// favicon
-var favicon = require('serve-favicon');
-app.use(favicon(__dirname + '/../www/img/autodesk.png'));
 
 // this session will be used to save the oAuth token
 app.use(cookieParser());
