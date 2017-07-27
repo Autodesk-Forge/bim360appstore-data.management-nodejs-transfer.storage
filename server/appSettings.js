@@ -82,6 +82,7 @@ router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) 
         tree: 'storage'
       });
   }
+  res.status(200).end();
 });
 
 module.exports = router;
