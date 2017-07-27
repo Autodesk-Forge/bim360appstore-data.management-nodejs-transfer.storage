@@ -200,8 +200,8 @@ module.exports = {
         }
 
       })
-      .catch(function () {
-
+      .catch(function (error) {
+        console.log(error);
       });
   },
 
