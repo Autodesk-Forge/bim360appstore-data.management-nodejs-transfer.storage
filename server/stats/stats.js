@@ -27,8 +27,10 @@ var mongodb = require('./mongodb');
 module.exports = {
   userProfile: function (profile) {
     if (!config.stats.mongo) return;
+    if (!mongodb) return;
     var today = parseInt((new Date()).getTime());
     var users = mongodb.db.collection('users');
+    if (!users) return;
     users.count({
         _id: profile.userId
       }, function (err, count) {
@@ -46,7 +48,9 @@ module.exports = {
 
   usage: function (userId, storage) {
     if (!config.stats.mongo) return;
+    if (!mongodb) return;
     var users = mongodb.db.collection('users');
+    if (!users) return;
     users.count({
       _id: userId
     }, function (err, count) {

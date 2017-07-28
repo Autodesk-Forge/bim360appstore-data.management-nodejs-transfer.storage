@@ -403,19 +403,36 @@ function transferToStorage() {
   $("#modalFilesToTransfer").modal();
 
   // list files to transfer
+  var foldersToCreate = [];
   var listOfFiles = $('#divListFilesToTransfer');
   listOfFiles.empty();
   autodeskNodes.forEach(function (item) {
     if (item.type === 'items') {
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" checked>' + item.text + ' (last version)</label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + storageDestinationFolder.id + '|' + item.id + '" checked>' + item.text + ' (last version)</label></div>');
     }
     else if (item.type === 'versions') {
       var parent = $("#autodeskTree").jstree().get_node('#' + item.parent);
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" checked> ' + parent.text + ' (' + item.text + ')</label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + storageDestinationFolder.id + '|' + item.id + '" checked> ' + parent.text + ' (' + item.text + ')</label></div>');
     }
     else if (item.type === 'folders') {
-      //autodeskTree.open_all(item);
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not yet supported, coming soon.</span></label></div>');
+      foldersToCreate.push({href: item.id, node: item, parentFolderStorageId: storageDestinationFolder.id});
+      $('#autodeskTree').unbind('open_all.jstree').bind('open_all.jstree', function (e, data) {
+        for (var n = 0; n < data.node.children_d.length; n++) {
+          var href = data.node.children_d[n];
+
+          var node = autodeskTree.get_node('#' + href);
+          if (href.indexOf('/folders/') > 0)
+            foldersToCreate.push({href: href, node: node});
+
+          if (href.indexOf('/versions/') > 0 || href.indexOf('/folders/') > 0) continue;
+          if ($(":checkbox[value='|" + href + "']").length > 0) continue;
+
+          var parent = autodeskTree.get_node('#' + node.parent);
+          listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="|' + href + '" checked>' + parent.text + '/' + node.text + ' (last version)</label></div>');
+        }
+        //console.log(foldersToCreate);
+      });
+      autodeskTree.open_all(item);
     }
   });
 
@@ -424,7 +441,51 @@ function transferToStorage() {
   // on button click, start transfering
   $("#transferFiles").click(function () {
     var count = 0;
-    $(':checkbox:checked').each(function (i) {
+
+    var checkBoxes = $(':checkbox:checked');
+    if (checkBoxes.length == 0) {
+      $(this).notify(
+        "Nothing selected",
+        {position: "bottom", className: 'error'}
+      );
+      return;
+    }
+
+    $(this).prop('disabled', true);
+    $(this).html('Preparing folders...');
+
+    // first let' make sure the Folder structure is ready
+    var calls = [];
+    for (var f in foldersToCreate) {
+      var folderToCreate = foldersToCreate[f];
+      $.ajax({
+        url: '/api/storage/createFolder',
+        contentType: 'application/json',
+        type: 'POST',
+        async: false, // need all folder to be ready before transferring
+        //dataType: 'json', comment this to avoid parsing the response which would result in an error
+        data: JSON.stringify({
+          'parentFolder': folderToCreate.parentFolderStorageId,
+          'folderName': folderToCreate.node.text
+        }),
+        success: function (res) {
+          $(this).html('Preparing folders...');
+          console.log('Folder' + folderToCreate.href + ' (' + folderToCreate.node.text + ') >> created as ' + res.folderId);
+          folderToCreate.folderStorageId = res.folderId;
+          for (var f1 in foldersToCreate) {
+            var folderToCreateUpdate = foldersToCreate[f1];
+            if (folderToCreateUpdate.node.parent == folderToCreate.href)
+              folderToCreateUpdate.parentFolderStorageId = res.folderId;
+          }
+        },
+        error: function (res) {
+        }
+      });
+    }
+
+    $(this).html('Transfering...');
+
+    checkBoxes.each(function (i) {
       var checkBox = $(this);
       var itemDiv = checkBox.parent().parent();
       // this is basically a place holder
@@ -432,35 +493,83 @@ function transferToStorage() {
       itemDiv.prepend('<div style="float: right;" id="' + tempId + '"><span class="glyphicon glyphicon-hourglass"  title="Preparing..."></span></div>');
       count++;
       // submit the request for transfer
-      jQuery.ajax({
-        url: '/api/storage/transferTo',
-        contentType: 'application/json',
-        type: 'POST',
-        //dataType: 'json', comment this to avoid parsing the response which would result in an error
-        data: JSON.stringify({
-          'autodeskItem': checkBox.val(),
-          'storageFolder': storageDestinationFolder.id
-        }),
-        success: function (res) {
-          _pendingTransfers.push(res.taskId);
-          $('#' + tempId).attr("id", res.taskId); // adjust the id to the taskId, for sockets
-        },
-        error: function (res) {
-          $('#' + tempId).empty();
-          $('#' + tempId).append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
-        }
-      });
-    });
+      var params = checkBox.val().split('|');
 
-    if (count > 0) {
-      $(this).prop('disabled', true);
-      $(this).html('Working...');
-    }
-    else {
-      $(this).notify(
-        "Nothing selected",
-        {position: "bottom", className: 'error'}
-      );
-    }
+      function sendRequest(storageFolder, autodeskItem) {
+        jQuery.ajax({
+          url: '/api/storage/transferTo',
+          contentType: 'application/json',
+          type: 'POST',
+          //dataType: 'json', comment this to avoid parsing the response which would result in an error
+          data: JSON.stringify({
+            'autodeskItem': autodeskItem,
+            'storageFolder': storageFolder
+          }),
+          success: function (res) {
+            _pendingTransfers.push(res.taskId);
+            $('#' + tempId).attr("id", res.taskId); // adjust the id to the taskId, for sockets
+          },
+          error: function (res) {
+            $('#' + tempId).empty();
+            $('#' + tempId).append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
+          }
+        });
+      }
+
+
+      if (params[0] === '') { // need to recheck the newly created folder
+        var autodeskTreeNodeToTransfer = autodeskTree.get_node('#' + params[1]);
+        var parentFolder = autodeskTreeNodeToTransfer.parent;
+        for (var f in foldersToCreate) {
+          var newFolder = foldersToCreate[f];
+          if (newFolder.node.id == parentFolder) {
+            sendRequest(newFolder.folderStorageId, params[1]);
+          }
+        }
+      }
+      else {
+        sendRequest(params[0], params[1]);
+      }
+      /*
+       var autodeskTreeNodeToTransfer = autodeskTree.get_node('#' + params[1]);
+       //if (foldersToCreate[n.parent].folderStorageId != undefined ) {
+       //sendRequest(foldersToCreate[n.parent].folderStorageId, params[1])
+       //}
+       //else
+       {
+       for (var f in foldersToCreate) {
+       var folderToCreate = foldersToCreate[f];
+       if (folderToCreate.node.children.indexOf(params[1]) > -1) {
+       console.log(folderToCreate.href + ': ' + folderToCreate.node.text);
+
+
+       jQuery.ajax({
+       url: '/api/storage/createFolder',
+       contentType: 'application/json',
+       type: 'POST',
+       async: false, // need all folder to be ready before transfering
+       //dataType: 'json', comment this to avoid parsing the response which would result in an error
+       data: JSON.stringify({
+       'parentFolder': folderToCreate.node.parentFolderStorageId,
+       'folderName': folderToCreate.node.text
+       }),
+       success: function (res) {
+       folderToCreate.folderStorageId = res.folderId;
+       for (var subfolder in foldersToCreate) {
+       //if (foldersToCreate[subfolder].parent === href)
+       //  foldersToCreate[subfolder].parentFolderStorageId = res.folderId;
+       }
+       //sendRequest(res.folderId, params[1])
+       },
+       error: function (res) {
+       }
+       });
+
+       }
+       }
+       }
+       */
+
+    });
   });
 }

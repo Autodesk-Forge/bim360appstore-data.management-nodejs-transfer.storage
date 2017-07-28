@@ -197,8 +197,8 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
   items.getItemVersions(projectId, itemId, {}, oauthClient, credentials)
     .then(function (versions) {
       var versionsForTree = [];
+      var moment = require('moment');
       versions.body.data.forEach(function (version) {
-        var moment = require('moment');
         var lastModifiedTime = moment(version.attributes.lastModifiedTime);
         var days = moment().diff(lastModifiedTime, 'days')
         var dateFormated = (versions.body.data.length > 1 || days > 7 ? lastModifiedTime.format('MMM D, YYYY, h:mm a') : lastModifiedTime.fromNow());

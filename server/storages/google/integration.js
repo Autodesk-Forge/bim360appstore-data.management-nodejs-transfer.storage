@@ -35,6 +35,7 @@ var request = require('request');
 
 var utility = require('./../utility');
 
+/// create a folder at the parent folder if it doesn't exist
 router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
   if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
@@ -47,31 +48,48 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
     config.storage.credentials.client_secret,
     config.storage.callbackURL);
   oauth2Client.setCredentials(token.getStorageCredentials());
-  var drive = googleSdk.drive({version: 'v3', auth: oauth2Client});
+  var drive = googleSdk.drive({version: 'v2', auth: oauth2Client}); // not sure why, v2 works for list, not for create
 
   var parentFolder = req.body.parentFolder;
   var folderName = req.body.folderName;
 
-  var fileMetadata = {
-    'name' : folderName,
-    'mimeType' : 'application/vnd.google-apps.folder',
-    'parents': null
-  };
+  if (parentFolder === '' || folderName === '') {
+    res.status(500).end('Invalid parentId or folderName');
+    return;
+  }
 
-  if (parentFolder!='#')
-    fileMetadata.parents = [parentFolder]
+  drive.files.list({
+    q: '\''+ parentFolder +'\' in parents and title = \''+ folderName + '\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false',
+    fields: 'nextPageToken, items(id,mimeType,title, iconLink)'
+  }, function (err, lst) {
+    if (err) console.log(err);
+    if (lst.items!=null && lst.items.length==1){
+      res.json({folderId: lst.items[0].id});
+      return;
+    };
 
-  drive.files.create({
-    resource: fileMetadata,
-    fields: 'id'
-  }, function(err, file) {
-    if(err) {
-      // Handle errorjstree
-      console.log(err);
-      res.status(500).end();
-    } else {
-      res.json({folderId: file.id});
-    }
+    var fileMetadata = {
+      'name': folderName,
+      'mimeType': 'application/vnd.google-apps.folder',
+      'parents': null
+    };
+
+    if (parentFolder != '#')
+      fileMetadata.parents = [parentFolder]
+
+    drive = googleSdk.drive({version: 'v3', auth: oauth2Client}); // not sure why, v3 works for create, not for list
+    drive.files.create({
+      resource: fileMetadata,
+      fields: 'id'
+    }, function (err, file) {
+      if (err) {
+        // Handle errorjstree
+        console.log(err.message);
+        res.status(500).end();
+      } else {
+        res.json({folderId: file.id});
+      }
+    });
   });
 });
 
