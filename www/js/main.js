@@ -421,8 +421,16 @@ function transferToStorage() {
           var href = data.node.children_d[n];
 
           var node = autodeskTree.get_node('#' + href);
-          if (href.indexOf('/folders/') > 0)
-            foldersToCreate.push({href: href, node: node});
+          if (href.indexOf('/folders/') > 0) {
+            var contains = false;
+            for (var f in foldersToCreate) {
+              if (foldersToCreate[f].href === href)
+                contains = true;
+            }
+            if (!contains)
+              foldersToCreate.push({href: href, node: node});
+          }
+
 
           if (href.indexOf('/versions/') > 0 || href.indexOf('/folders/') > 0) continue;
           if ($(":checkbox[value='|" + href + "']").length > 0) continue;
@@ -436,10 +444,12 @@ function transferToStorage() {
     }
   });
 
-  listOfFiles.append('<div>Destination folder: <strong>' + storageDestinationFolder.text + '</strong></div>')
+
+  $('#divListFilesFooter').empty().append('<div>Destination folder: <strong>' + storageDestinationFolder.text + '</strong></div>')
 
   // on button click, start transfering
   $("#transferFiles").click(function () {
+    $(this).unbind('click');
     var count = 0;
 
     var checkBoxes = $(':checkbox:checked');
@@ -454,8 +464,8 @@ function transferToStorage() {
     $(this).prop('disabled', true);
     $(this).html('Preparing folders...');
 
-    // first let' make sure the Folder structure is ready
-    var calls = [];
+    //the Folder structure is ready
+    console.log('Folders: ' + foldersToCreate.length);
     for (var f in foldersToCreate) {
       var folderToCreate = foldersToCreate[f];
       $.ajax({
@@ -470,7 +480,6 @@ function transferToStorage() {
         }),
         success: function (res) {
           $(this).html('Preparing folders...');
-          console.log('Folder' + folderToCreate.href + ' (' + folderToCreate.node.text + ') >> created as ' + res.folderId);
           folderToCreate.folderStorageId = res.folderId;
           for (var f1 in foldersToCreate) {
             var folderToCreateUpdate = foldersToCreate[f1];
@@ -485,6 +494,7 @@ function transferToStorage() {
 
     $(this).html('Transfering...');
 
+    console.log('Files: ' + checkBoxes.length);
     checkBoxes.each(function (i) {
       var checkBox = $(this);
       var itemDiv = checkBox.parent().parent();
@@ -496,6 +506,7 @@ function transferToStorage() {
       var params = checkBox.val().split('|');
 
       function sendRequest(storageFolder, autodeskItem) {
+        console.log('Transfer ' + autodeskItem + ' to ' + storageFolder);
         jQuery.ajax({
           url: '/api/storage/transferTo',
           contentType: 'application/json',
@@ -530,46 +541,6 @@ function transferToStorage() {
       else {
         sendRequest(params[0], params[1]);
       }
-      /*
-       var autodeskTreeNodeToTransfer = autodeskTree.get_node('#' + params[1]);
-       //if (foldersToCreate[n.parent].folderStorageId != undefined ) {
-       //sendRequest(foldersToCreate[n.parent].folderStorageId, params[1])
-       //}
-       //else
-       {
-       for (var f in foldersToCreate) {
-       var folderToCreate = foldersToCreate[f];
-       if (folderToCreate.node.children.indexOf(params[1]) > -1) {
-       console.log(folderToCreate.href + ': ' + folderToCreate.node.text);
-
-
-       jQuery.ajax({
-       url: '/api/storage/createFolder',
-       contentType: 'application/json',
-       type: 'POST',
-       async: false, // need all folder to be ready before transfering
-       //dataType: 'json', comment this to avoid parsing the response which would result in an error
-       data: JSON.stringify({
-       'parentFolder': folderToCreate.node.parentFolderStorageId,
-       'folderName': folderToCreate.node.text
-       }),
-       success: function (res) {
-       folderToCreate.folderStorageId = res.folderId;
-       for (var subfolder in foldersToCreate) {
-       //if (foldersToCreate[subfolder].parent === href)
-       //  foldersToCreate[subfolder].parentFolderStorageId = res.folderId;
-       }
-       //sendRequest(res.folderId, params[1])
-       },
-       error: function (res) {
-       }
-       });
-
-       }
-       }
-       }
-       */
-
     });
   });
 }
