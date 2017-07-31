@@ -69,22 +69,35 @@ function prepareAutodeskSide() {
         autodeskId: profile.id
       });
 
+
+      //var TRANSFER_STATUS = {
+      //  RECEIVED: 0,
+      //  STARTED: 1,
+      //  TRANSFERRING: 2,
+      //  ALMOST: 3,
+      //  COMPLETED: 4,
+      //  ERROR: 10
+      //};
+
       socket.on('taskStatus', function (data) {
         var taskLabel = $('#' + data.taskId);
+        console.log('Task ' + data.taskId + ': ' + taskLabel.children(0)[0].id + '>' + data.status);
+        // avoid messages out of order
+        if (!taskLabel.children(0) || !taskLabel.children(0)[0] ||  parseInt(taskLabel.children(0)[0].id) > data.status) return;
         taskLabel.empty();
         switch (data.status) {
-          case 'error':
-            taskLabel.append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
+          case 10:
+            taskLabel.append('<span class="glyphicon glyphicon-alert" title="Error!" id="10"></span>');
             isDone(data);
             break;
-          case 'started':
-            taskLabel.append('<span class="glyphicon glyphicon-transfer" title="Transfering..."></span>');
+          case 1: case 2:
+            taskLabel.append('<span class="glyphicon glyphicon-transfer" title="Transfering..." id="2"></span>');
             break;
-          case 'almost':
-            taskLabel.append('<span class="glyphicon glyphicon-cog" title="Finalizing..."></span>');
+          case 3:
+            taskLabel.append('<span class="glyphicon glyphicon-cog" title="Finalizing..." id="3"></span>');
             break;
-          case 'completed':
-            taskLabel.append('<span class="glyphicon glyphicon-ok" title="Completed!"></span>');
+          case 4:
+            taskLabel.append('<span class="glyphicon glyphicon-ok" title="Completed!" id="4"></span>');
             isDone(data);
             break;
         }
@@ -252,7 +265,7 @@ function transferToAutodesk() {
       var itemDiv = checkBox.parent().parent();
       // this is basically a place holder
       var tempId = btoa(checkBox.val()).replace(/=/g, '');
-      itemDiv.prepend('<div style="float: right;" id="' + tempId + '"><span class="glyphicon glyphicon-hourglass"  title="Preparing..."></span></div>');
+      itemDiv.prepend('<div style="float: right;" id="' + tempId + '"><span class="glyphicon glyphicon-hourglass"  title="Preparing..." id="0"></span></div>');
       count++;
       // submit the request for transfer
       jQuery.ajax({
@@ -500,7 +513,7 @@ function transferToStorage() {
       var itemDiv = checkBox.parent().parent();
       // this is basically a place holder
       var tempId = btoa(checkBox.val()).replace(/=/g, '');
-      itemDiv.prepend('<div style="float: right;" id="' + tempId + '"><span class="glyphicon glyphicon-hourglass"  title="Preparing..."></span></div>');
+      itemDiv.prepend('<div style="float: right;" id="' + tempId + '"><span class="glyphicon glyphicon-hourglass"  title="Preparing..." id="0"></span></div>');
       count++;
       // submit the request for transfer
       var params = checkBox.val().split('|');

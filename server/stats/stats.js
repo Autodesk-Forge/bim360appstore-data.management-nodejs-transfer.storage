@@ -28,6 +28,7 @@ module.exports = {
   userProfile: function (profile) {
     if (!config.stats.mongo) return;
     if (!mongodb) return;
+    if (!mongodb.db) return;
     var today = parseInt((new Date()).getTime());
     var users = mongodb.db.collection('users');
     if (!users) return;
@@ -49,6 +50,7 @@ module.exports = {
   usage: function (userId, storage) {
     if (!config.stats.mongo) return;
     if (!mongodb) return;
+    if (!mongodb.db) return;
     var users = mongodb.db.collection('users');
     if (!users) return;
     users.count({

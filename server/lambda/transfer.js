@@ -64,7 +64,7 @@ function MakeCallback(autodeskId, taskId, destinationStatusCode, sourceStatusCod
   var status = {
     autodeskId: autodeskId,
     taskId: taskId,
-    status: (!IsOk(destinationStatusCode) || !IsOk(sourceStatusCode) ? 'error' : 'completed'),
+    status: (!IsOk(destinationStatusCode) || !IsOk(sourceStatusCode) ? 10 /*error*/ : 4/*completed*/),
     data: data
   };
 

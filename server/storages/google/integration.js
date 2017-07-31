@@ -59,14 +59,14 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   }
 
   drive.files.list({
-    q: '\''+ parentFolder +'\' in parents and title = \''+ folderName + '\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false',
+    q: '\''+ (parentFolder==='#' ? 'root' : parentFolder ) +'\' in parents and title = \''+ folderName + '\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false',
     fields: 'nextPageToken, items(id,mimeType,title, iconLink)'
   }, function (err, lst) {
     if (err) console.log(err);
     if (lst.items!=null && lst.items.length==1){
       res.json({folderId: lst.items[0].id});
       return;
-    };
+    }
 
     var fileMetadata = {
       'name': folderName,
@@ -75,7 +75,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
     };
 
     if (parentFolder != '#')
-      fileMetadata.parents = [parentFolder]
+      fileMetadata.parents = [parentFolder];
 
     drive = googleSdk.drive({version: 'v3', auth: oauth2Client}); // not sure why, v3 works for create, not for list
     drive.files.create({
@@ -141,7 +141,7 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
         // send Lambda job
         var id = utility.postLambdaJob(source, destination, token);
 
-        res.json({taskId: id, status: 'received'});
+        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
       });
     });
   });
@@ -200,7 +200,7 @@ router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
         // send Lambda job
         var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
 
-        res.json({taskId: id, status: 'received'});
+        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED });
       });
     });
   });

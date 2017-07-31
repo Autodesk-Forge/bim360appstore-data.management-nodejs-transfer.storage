@@ -80,7 +80,7 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
       // send Lambda job
       var id = utility.postLambdaJob(source, destination, token);
 
-      res.json({taskId: id, status: 'received'});
+      res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
     });
   });
 });
@@ -135,7 +135,7 @@ router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
         // send Lambda job
         var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
 
-        res.json({taskId: id, status: 'received'});
+        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
       });
     });
   });

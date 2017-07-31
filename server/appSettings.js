@@ -59,7 +59,7 @@ router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) 
     if (connectedUser != null)
       connectedUser.emit('taskStatus', {
         taskId: req.body.taskId,
-        status: 'almost'
+        status: utility.TRANSFER_STAGES.ALMOST
       });
 
     var data = req.body.data;
@@ -68,7 +68,7 @@ router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) 
       if (connectedUser != null)
         connectedUser.emit('taskStatus', {
           taskId: req.body.taskId,
-          status: 'completed',
+          status: utility.TRANSFER_STAGES.COMPLETED,
           tree: 'autodesk'
         });
     });
@@ -78,7 +78,7 @@ router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) 
     if (connectedUser != null)
       connectedUser.emit('taskStatus', {
         taskId: req.body.taskId,
-        status: req.body.status,
+        status: req.body.status, // number comming from LAMBDA
         tree: 'storage'
       });
   }

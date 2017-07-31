@@ -29,6 +29,15 @@ var forgeSDK = require('forge-apis');
 var request = require('request');
 
 module.exports = {
+  TRANSFER_STATUS: {
+    RECEIVED: 0,
+    STARTED: 1,
+    TRANSFERRING: 2,
+    ALMOST: 3,
+    COMPLETED: 4,
+    ERROR: 10
+  },
+
   assertIsVersion: function (autodeskItem, req, callback) {
     if (autodeskItem.indexOf('/versions/') > -1) {
       // already a version, just return
@@ -257,7 +266,7 @@ module.exports = {
       // job received by Lambda
       // any error?
       // if a token is available, then notify caller
-      if (process.env.CONSOLELOG && response.statusCode!=200){
+      if (process.env.CONSOLELOG && response.statusCode != 200) {
         console.log('postLambdaJob>' + config.transfer.endpoint + ': ' + response.body);
       }
       if (token) {
@@ -265,7 +274,7 @@ module.exports = {
         if (connectedUser != null)
           connectedUser.emit('taskStatus', {
             taskId: newTaskId,
-            status: (response.statusCode == 200 ? 'started' : 'error')
+            status: (response.statusCode == 200 ? module.exports.TRANSFER_STATUS.STARTED : module.exports.TRANSFER_STATUS.ERROR),
           });
       }
     });
