@@ -47,6 +47,81 @@ function respondWithError(res, error) {
   }
 }
 
+router.post('/api/storage/createFolder', jsonParser, function (req, res) {
+  var token = new Credentials(req.session);
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  var parentFolder = req.body.parentFolder;
+  var folderName = req.body.folderName;
+
+  if (parentFolder === '' || folderName === '') {
+    res.status(500).end('Invalid parentId or folderName');
+    return;
+  }
+
+  var msGraphClient = msGraph.init({
+    defaultVersion: 'v1.0',
+    debugLogging: true,
+    authProvider: function (done) {
+      done(null, token.getStorageCredentials().access_token)
+    }
+  })
+
+  var path = ''
+  if (parentFolder === '#') {
+    path = '/drive/root/children'
+  } else {
+    var onedriveDriveId = parentFolder.split('!')[0]
+    path = '/drives/' + onedriveDriveId + '/items/' + parentFolder + '/children'
+  }
+
+  // Get children of the parent folder to see if it exists already
+  msGraphClient
+    .api(path)
+    .get(function (err, fileInfo) {
+      if (err) {
+        // Handle errorjstree
+        console.log(err.message);
+        res.status(500).end();
+        return;
+      }
+
+      var fileName = fileInfo.name;
+
+      for (var key in fileInfo.value) {
+        var child = fileInfo.value[key]
+        if (child.folder && child.name === folderName) {
+          res.json({folderId: child.id});
+          return;
+        }
+      }
+
+      // If we did not find the folder then lets create it
+      // Note: if folder name only differs in lower/upper characters
+      // then the existing fodler will get renamed: e.g. if there is a folder named "backup"
+      // and we now create "Backup", then the original folder will be renamed "Backup"
+      msGraphClient
+        .api(path)
+        .post({
+          "name": folderName,
+          "folder": { }
+        }, function (err, fileInfo) {
+          if (err) {
+            // Handle errorjstree
+            console.log(err.message);
+            res.status(500).end();
+            return;
+          }
+          
+          res.json({folderId: fileInfo.id});
+          return
+        })
+    })
+});
+
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
   var credentials = token.getStorageCredentials();
