@@ -73,6 +73,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
       return
     })
     .catch(function (error) {
+      console.log(error.message);
       // The folder does not exist so let's create it
       pathInfo.createFolder()
         .then(function (folderInfo) {
@@ -80,8 +81,8 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
           return
         })
         .catch(function (error) {
-          console.log(err.message);
-          res.status(500).end();
+          console.log(error.message);
+          res.status(403).end();
           return;
         })
     })

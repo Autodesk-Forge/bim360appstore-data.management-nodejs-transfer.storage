@@ -36,6 +36,46 @@ var utility = require('./../utility');
 
 var Dropbox = require('dropbox');
 
+router.post('/api/storage/createFolder', jsonParser, function (req, res) {
+  var token = new Credentials(req.session);
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  if (parentFolder === '' || folderName === '') {
+    res.status(500).end('Invalid parentId or folderName');
+    return;
+  }
+
+  var parentFolder = req.body.parentFolder;
+  var folderName = req.body.folderName;
+  var parentPath = parentFolder === '#' ? '' : parentFolder;
+  var path = parentPath + "/" + folderName;
+
+  var dbx = new Dropbox({ accessToken: token.getStorageCredentials().access_token })
+
+  dbx.filesGetMetadata({path: path})
+    .then(function (folderInfo) {
+      res.json({folderId: folderInfo.path_display});
+      return
+    })
+    .catch(function (error) {
+      console.log(error.error.error_summary);
+      // If the folder does not exist then let's create it
+      dbx.filesCreateFolder({path: path})
+        .then(function (folderInfo) {
+          res.json({folderId: folderInfo.path_display});
+          return
+        })
+        .catch(function (error) {
+          console.log(error.error.error_summary);
+          res.status(500).end();
+          return;
+        })
+    })
+});
+
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
   var credentials = token.getStorageCredentials();
