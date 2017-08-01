@@ -44,6 +44,49 @@ function respondWithError(res, error) {
   }
 }
 
+router.post('/api/storage/createFolder', jsonParser, function (req, res) {
+  var token = new Credentials(req.session);
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  var parentFolder = req.body.parentFolder;
+  var folderName = req.body.folderName;
+
+  if (parentFolder === '' || folderName === '') {
+    res.status(500).end('Invalid parentId or folderName');
+    return;
+  }
+
+  var egnyte = egnyteSDK.init(req.session.egnyteURL, {
+    token: token.getStorageCredentials().access_token
+  });
+
+  // Try to get the subfolder
+  var parentPath = parentFolder === '#' ? '/' : parentFolder;
+  var path = parentPath + '/' + folderName;
+  var pathInfo = egnyte.API.storage.path(path);
+  pathInfo.get()
+    .then(function (folderInfo) {
+      res.json({folderId: folderInfo.path});
+      return
+    })
+    .catch(function (error) {
+      // The folder does not exist so let's create it
+      pathInfo.createFolder()
+        .then(function (folderInfo) {
+          res.json({folderId: folderInfo.path});
+          return
+        })
+        .catch(function (error) {
+          console.log(err.message);
+          res.status(500).end();
+          return;
+        })
+    })
+});
+
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
   var credentials = token.getStorageCredentials();
