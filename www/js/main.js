@@ -279,9 +279,10 @@ function transferToAutodesk() {
     }
   });
 
-  listOfFiles.append('<div>Destination ' + autodeskDestinationFolder.type.replace('a360', '').slice(0, -1) + ': <strong>' + autodeskDestinationFolder.text + '</strong></div>');
-
-  listOfFiles.append('<div><br/>Name conflict resolution: <label class="radio-inline"><input type="radio" name="ConflictResolution" value="newVersion" checked>Create new version</label><label class="radio-inline"><input type="radio" name="ConflictResolution"  value="skip">Skip</label></div>');
+  $('#divListFilesFooter')
+    .empty()
+    .append('<div>Destination ' + autodeskDestinationFolder.type.replace('a360', '').slice(0, -1) + ': <strong>' + autodeskDestinationFolder.text + '</strong></div>')
+    .append('<div><br/>Name conflict resolution: <label class="radio-inline"><input type="radio" name="ConflictResolution" value="newVersion" checked>Create new version</label><label class="radio-inline"><input type="radio" name="ConflictResolution"  value="skip">Skip</label></div>');
 
   // on button click, start transfering
   $("#transferFiles").click(function () {
