@@ -29,7 +29,7 @@
     "egnyte-js-sdk": "2.7.0",
     "express": "4.15.3",
     "express-session": "1.15.3",
-    "forge-apis": "0.4.0",
+    "forge-apis": "0.4.1",
     "googleapis": "19.0.0",
     "jquery": "3.2.1",
     "jstree": "3.3.4",

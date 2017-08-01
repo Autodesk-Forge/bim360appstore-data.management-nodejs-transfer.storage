@@ -59,7 +59,7 @@ router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) 
     if (connectedUser != null)
       connectedUser.emit('taskStatus', {
         taskId: req.body.taskId,
-        status: utility.TRANSFER_STAGES.ALMOST
+        status: utility.TRANSFER_STATUS.ALMOST
       });
 
     var data = req.body.data;
@@ -68,7 +68,7 @@ router.post('/api/app/callback/transferStatus', jsonParser, function (req, res) 
       if (connectedUser != null)
         connectedUser.emit('taskStatus', {
           taskId: req.body.taskId,
-          status: utility.TRANSFER_STAGES.COMPLETED,
+          status: utility.TRANSFER_STATUS.COMPLETED,
           tree: 'autodesk'
         });
     });

@@ -20,7 +20,7 @@
 
 var express = require('express');
 var cookieParser = require('cookie-parser');
-//var session = require('express-session');
+var session = require('express-session');
 var cookieSession = require('cookie-session');
 
 var app = express();
@@ -28,7 +28,7 @@ var app = express();
 
 // this session will be used to save the oAuth token
 app.use(cookieParser());
-app.set('trust proxy', 1) // trust first proxy - HTTPS on Heroku
+app.set('trust proxy', 1); // trust first proxy - HTTPS on Heroku
 /*app.use(session({
  secret: 'autodeskforge',
  cookie: {
@@ -66,12 +66,12 @@ app.use('/', appSettings);
 
 
 // prepare our API endpoint routing
-var oauth = require('./forge/oauth.js');
-var dataManagement = require('./forge/tree.js');
-//var modelDerivative = require('./forge/model.derivative.js');
-app.use('/', oauth); // redirect oauth API calls
-app.use('/', dataManagement); // redirect our custom API calls
-//app.use('/', modelDerivative); // redirect our custom API calls
+var forgeOAuth = require('./forge/oauth.js');
+var forgeTree = require('./forge/tree.js');
+var forgeIntegration = require('./forge/integration.js');
+app.use('/', forgeOAuth); // redirect oauth API calls
+app.use('/', forgeTree); // redirect our custom API calls
+app.use('/', forgeIntegration); // redirect our custom API calls
 
 var config = require('./config');
 var storageName = config.storage.name.toLowerCase();

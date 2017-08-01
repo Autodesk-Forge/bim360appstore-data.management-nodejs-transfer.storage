@@ -176,6 +176,7 @@ module.exports = {
     var folders = new forgeSDK.FoldersApi();
     folders.getFolderContents(projectId, folderId, {}, forge3legged, credentials)
       .then(function (folderData) {
+        var item = null;
         for (var key in folderData.body.data) {
           item = folderData.body.data[key];
           if (item.attributes.displayName === fileName || item.attributes.displayName === withoutExtension(fileName)) {
@@ -184,7 +185,6 @@ module.exports = {
             item = null;
           }
         }
-
 
         if (item) {
           // We found it so we should create a new version

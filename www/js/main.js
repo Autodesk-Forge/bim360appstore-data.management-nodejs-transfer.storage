@@ -238,13 +238,39 @@ function transferToAutodesk() {
   $("#modalFilesToTransfer").modal();
 
   // list files to transfer
+  var foldersToCreate = [];
   var listOfFiles = $('#divListFilesToTransfer');
   listOfFiles.empty();
   var re = /(?:\.([^.]+))?$/; // regex to extract file extension
   storageNodes.forEach(function (item) {
     var extension = (re.exec(item.text)[1]);
-    if (item.type === 'folders')
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">Folders are not yet supported, coming soon</span></label></div>');
+    if (item.type === 'folders') {
+      foldersToCreate.push({id: item.id, node: item, parentFolderAutodeskId: autodeskDestinationFolder.id});
+      $('#storageTree').unbind('open_all.jstree').bind('open_all.jstree', function (e, data) {
+        for (var n = 0; n < data.node.children_d.length; n++) {
+          var itemId = data.node.children_d[n];
+
+          var node = storageTree.get_node('#' + itemId);
+          if (node.type === 'folders') {
+            var contains = false;
+            for (var f in foldersToCreate) {
+              if (foldersToCreate[f].id === itemId)
+                contains = true;
+            }
+            if (!contains)
+              foldersToCreate.push({id: itemId, node: node});
+          }
+
+
+          if (node.type === 'folders') continue;
+          if ($(":checkbox[value='|" + itemId + "']").length > 0) continue;
+
+          var parent = storageTree.get_node('#' + node.parent);
+          listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="|' + itemId + '" checked>' + parent.text + '/' + node.text + '</label></div>');
+        }
+      });
+      storageTree.open_all(item);
+    }
     else if (!extension)
       listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">File without extension is not supported</span></label></div>');
     else {
@@ -259,51 +285,103 @@ function transferToAutodesk() {
 
   // on button click, start transfering
   $("#transferFiles").click(function () {
+    $(this).unbind('click');
     var count = 0;
-    $(':checkbox:checked').each(function (i) {
+
+    var checkBoxes = $(':checkbox:checked');
+    if (checkBoxes.length == 0) {
+      $(this).notify(
+        "Nothing selected",
+        {position: "bottom", className: 'error'}
+      );
+      return;
+    }
+
+    $(this).prop('disabled', true);
+    $(this).html('Preparing folders...');
+
+    console.log('Folders: ' + foldersToCreate.length);
+    for (var f in foldersToCreate) {
+      var folderToCreate = foldersToCreate[f];
+      $.ajax({
+        url: '/api/forge/createFolder',
+        contentType: 'application/json',
+        type: 'POST',
+        async: false, // need all folder to be ready before transferring
+        //dataType: 'json', comment this to avoid parsing the response which would result in an error
+        data: JSON.stringify({
+          'parentFolder': folderToCreate.parentFolderAutodeskId,
+          'folderName': folderToCreate.node.text
+        }),
+        success: function (res) {
+          $(this).html('Preparing folders...');
+          folderToCreate.folderAutodeskId = res.folderId;
+          for (var f1 in foldersToCreate) {
+            var folderToCreateUpdate = foldersToCreate[f1];
+            if (folderToCreateUpdate.node.parent == folderToCreate.id)
+              folderToCreateUpdate.parentFolderAutodeskId = res.folderId;
+          }
+        },
+        error: function (res) {
+        }
+      });
+    }
+
+    $(this).html('Transfering...');
+    console.log('Files: ' + checkBoxes.length);
+    checkBoxes.each(function (i) {
       var checkBox = $(this);
       var itemDiv = checkBox.parent().parent();
       // this is basically a place holder
       var tempId = btoa(checkBox.val()).replace(/=/g, '');
       itemDiv.prepend('<div style="float: right;" id="' + tempId + '"><span class="glyphicon glyphicon-hourglass"  title="Preparing..." id="0"></span></div>');
       count++;
-      // submit the request for transfer
-      jQuery.ajax({
-        url: '/api/storage/transferFrom',
-        contentType: 'application/json',
-        type: 'POST',
-        //dataType: 'json', comment this to avoid parsing the response which would result in an error
-        data: JSON.stringify({
-          'storageItem': checkBox.val(),
-          'autodeskFolder': autodeskDestinationFolder.id,
-          'conflict': $("input[name='ConflictResolution']:checked").val()
-        }),
-        success: function (res) {
-          _pendingTransfers.push(res.taskId);
-          $('#' + tempId).attr("id", res.taskId); // adjust the id to the taskId, for sockets
-        },
-        statusCode: {
-          409: function () {
+
+      function sendRequest(autodeskFolder, storageItem) {
+        console.log('Transfer ' + storageItem + ' to ' + autodeskFolder);
+        // submit the request for transfer
+        jQuery.ajax({
+          url: '/api/storage/transferFrom',
+          contentType: 'application/json',
+          type: 'POST',
+          //dataType: 'json', comment this to avoid parsing the response which would result in an error
+          data: JSON.stringify({
+            'storageItem': storageItem,
+            'autodeskFolder': autodeskFolder,
+            'conflict': $("input[name='ConflictResolution']:checked").val()
+          }),
+          success: function (res) {
+            _pendingTransfers.push(res.taskId);
+            $('#' + tempId).attr("id", res.taskId); // adjust the id to the taskId, for sockets
+          },
+          statusCode: {
+            409: function () {
+              $('#' + tempId).empty();
+              $('#' + tempId).append('<span class="glyphicon glyphicon-ban-circle" title="Duplicated, skip"></span>');
+            }
+          },
+          error: function (res) {
             $('#' + tempId).empty();
-            $('#' + tempId).append('<span class="glyphicon glyphicon-ban-circle" title="Duplicated, skip"></span>');
+            $('#' + tempId).append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
           }
-        },
-        error: function (res) {
-          $('#' + tempId).empty();
-          $('#' + tempId).append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
+        });
+      }
+
+      var params = checkBox.val().split('|');
+      if (params[0] === '') { // need to recheck the newly created folder
+        var storageTreeNodeToTransfer = storageTree.get_node('#' + params[1]);
+        var parentFolder = storageTreeNodeToTransfer.parent;
+        for (var f in foldersToCreate) {
+          var newFolder = foldersToCreate[f];
+          if (newFolder.node.id == parentFolder) {
+            sendRequest(newFolder.folderAutodeskId, params[1]);
+          }
         }
-      });
+      }
+      else {
+        sendRequest(params[0], params[1]);
+      }
     });
-    if (count > 0) {
-      $(this).prop('disabled', true);
-      $(this).html('Working...');
-    }
-    else {
-      $(this).notify(
-        "Nothing selected",
-        {position: "bottom", className: 'error'}
-      );
-    }
   });
 }
 
@@ -458,7 +536,7 @@ function transferToStorage() {
   });
 
 
-  $('#divListFilesFooter').empty().append('<div>Destination folder: <strong>' + storageDestinationFolder.text + '</strong></div>')
+  $('#divListFilesFooter').empty().append('<div>Destination folder: <strong>' + storageDestinationFolder.text + '</strong></div>');
 
   // on button click, start transfering
   $("#transferFiles").click(function () {
@@ -505,7 +583,7 @@ function transferToStorage() {
       });
     }
 
-    $(this).html('Transfering...');
+    $(this).html('Transferring...');
 
     console.log('Files: ' + checkBoxes.length);
     checkBoxes.each(function (i) {

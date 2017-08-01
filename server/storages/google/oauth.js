@@ -84,7 +84,7 @@ router.get('/api/storage/profile', function (req, res) {
   var plus = googleSdk.plus('v1');
   plus.people.get({userId: 'me', auth: oauth2Client}, function (err, user) {
     if (err) {
-      console.log(err);
+      console.log(err.message);
       res.status(500);
       return;
     }
