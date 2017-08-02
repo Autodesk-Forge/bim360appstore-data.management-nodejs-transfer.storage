@@ -26,9 +26,9 @@
   <img alt="Autodesk Forge" src="/img/bim360.png" height="40">
   BIM 360 File Sharing
   <div style="float: right">
-    <span class="glyphicon glyphicon-info-sign glyphiconTop mlink" title="About"></span>
-    <span class="glyphicon glyphicon-question-sign glyphiconTop mlink" title="Help"></span>
-    <span class="glyphicon glyphicon-envelope glyphiconTop mlink" title="Contact us"></span>
+    <span class="glyphicon glyphicon-info-sign glyphiconTop mlink" title="About" data-toggle="modal" data-target="#about"></span>
+    <span class="glyphicon glyphicon-envelope glyphiconTop mlink" title="Contact us" data-toggle="modal" data-target="#about"></span>
+    <span class="glyphicon glyphicon-question-sign glyphiconTop mlink" title="Instructions" data-toggle="modal" data-target="#about"></span>
   </div>
 </header>
 <div class="container">
@@ -158,6 +158,40 @@
 <script>
   new Clipboard('.input-group-addon');
 </script>
+
+
+<!-- About  -->
+<div class="modal fade" id="about" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cancel"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">About, Contact and Instructions</h4>
+      </div>
+      <div class="modal-body">
+        <h4>About</h4>
+        <p>Developed by <a href="http://developer.autodesk.com">Forge Partner Development</a> team at Autodesk, Inc.</p>
+        <p>Get the <a href="https://github.com/autodesk-forge/bim360appstore-data.management-nodejs-transfer.storage" target="_blank">source code</a>.</p>
+        <h4>Contact us</h4>
+        <p>Question? <a href="mailto:bim360apps@autodesk.com">Contact us</a> directly or see our <a href="https://github.com/autodesk-forge/bim360appstore-data.management-nodejs-transfer.storage/issues" target="_blank">open issues</a>.</p>
+        <h4>Instructions</h4>
+        <ol>
+          <li>You need accounts on both <img src="/img/autodesk_text.png" height="15"> and <img id="storageLogoHelp" height="15"></li>
+          <li><strong>Sign in</strong> using the buttons on each side.</li>
+          <li>Select <strong>files</strong> or <strong>folders</strong> you want to transfer, on either side, then select a destination <strong>folder</strong> on the opposite side.</li>
+          <li>Click on the arrow indicating the direction of transfer: <button type="button" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-left"></span></button> or <button type="button" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-right"></span></button></li>
+          <li>Confirm the list of files to transfer, use checkboxes to unselect a file, if needed. It may take a few moments to populate, depending on how many files on selected folders. Be patient.</li>
+          <li>Click <strong>Start transfer</strong> and wait until is <strong>Done</strong>. Transferring happens on the background.</li>
+          <li>The list of files at destination will refresh when completed.</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
