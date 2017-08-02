@@ -246,6 +246,15 @@ module.exports = {
     var stats = require('./../stats/stats');
     stats.usage(token.getAutodeskId(), config.storage.name);
 
+    if (token) {
+      var connectedUser = io.sockets.in(token.getAutodeskId());
+      if (connectedUser != null)
+        connectedUser.emit('taskStatus', {
+          taskId: newTaskId,
+          status: module.exports.TRANSFER_STATUS.STARTED,
+        });
+    }
+
     request({
       url: config.transfer.endpoint,
       method: 'POST',
