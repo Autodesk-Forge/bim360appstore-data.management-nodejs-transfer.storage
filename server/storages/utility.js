@@ -282,15 +282,17 @@ module.exports = {
   }
 };
 
-//as per https://stackoverflow.com/a/105074/4838205
 function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
+  var d = new Date().getTime();
+  var guid = 'xxxxxxxxxxxxxxxxxxxx'.replace(
+    /[xy]/g,
+    function (c) {
+      var r = (d + Math.random() * 16) % 16 | 0;
+      d = Math.floor(d / 16);
+      return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
+    });
 
-  return s4() + s4() + s4() + +s4() + s4() + s4() + s4() + s4();
+  return guid;
 }
 
 function getBucketKeyObjectName(objectId) {
