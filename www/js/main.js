@@ -218,9 +218,9 @@ function transferToAutodesk() {
   }
 
   var autodeskDestinationFolder = autodeskNodes[0];
-  if (autodeskDestinationFolder.type != 'folders' && autodeskDestinationFolder.type != 'a360projects') {
+  if (autodeskDestinationFolder.type != 'folders') {
     $("#transferFromStorageButton").notify(
-      "The destination must be a folder or A360 project\n(BIM 360 project is not supported)",
+      "The destination must be a folder",
       {position: "bottom", className: 'error'}
     );
     return;

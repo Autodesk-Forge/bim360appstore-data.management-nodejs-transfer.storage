@@ -35,6 +35,49 @@ var request = require('request');
 
 var utility = require('./../utility');
 
+router.post('/api/storage/createFolder', jsonParser, function (req, res) {
+  var token = new Credentials(req.session);
+  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+    res.status(401).end();
+    return;
+  }
+
+  var parentFolder = req.body.parentFolder;
+  var folderName = req.body.folderName;
+
+  if (parentFolder === '' || folderName === '') {
+    res.status(500).end('Invalid parentId or folderName');
+    return;
+  }
+
+  var sdk = new BoxSDK({
+    clientID: config.storage.credentials.client_id, // required
+    clientSecret: config.storage.credentials.client_secret // required
+  });
+  var box = sdk.getBasicClient(token.getStorageCredentials().accessToken);
+
+  box.folders.getItems(parentFolder, {fields: 'name,shared_link,permissions,collections,sync_state'}, function (err, data) {
+    if (data == null || data.entries == null) return '';
+    var items = [];
+    for (var f  in data.entries) {
+      var item = data.entries[f];
+      if (item.type!=='folder') continue;
+      if (item.name===folderName){
+        // folder already exists, just return the ID
+        res.json({folderId: item.id});
+        return;
+      }
+    }
+
+    // create folder
+    box.folders.create(parentFolder, folderName, function(err, data){
+      res.json({folderId: data.id});
+      return;
+    });
+  });
+
+});
+
 router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
   if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
@@ -45,12 +88,6 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
     utility.getVersion(autodeskVersionId, req, function (version) {
       var storageFolder = req.body.storageFolder;
-
-      /*var sdk = new BoxSDK({
-       clientID: config.storage.credentials.client_id, // required
-       clientSecret: config.storage.credentials.client_secret // required
-       });
-       var box = sdk.getBasicClient(token.getStorageCredentials().accessToken);*/
 
       var source = {
         url: version.relationships.storage.meta.link.href,
@@ -73,7 +110,7 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
         file: {
           'attributes': {
             'name': version.attributes.displayName,
-            'parent': { id: storageFolder }
+            'parent': {id: storageFolder}
           }
         },
         encoding: null
