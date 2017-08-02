@@ -81,7 +81,7 @@ function prepareAutodeskSide() {
 
       socket.on('taskStatus', function (data) {
         var taskLabel = $('#' + data.taskId);
-        console.log('Task ' + data.taskId + ': ' + taskLabel.children(0)[0].id + '>' + data.status);
+        console.log('Task ' + data.taskId + ': ' + (taskLabel.children(0)[0] ? taskLabel.children(0)[0].id : '[]') + '>' + data.status);
         // avoid messages out of order
         if (!taskLabel.children(0) || !taskLabel.children(0)[0] ||  parseInt(taskLabel.children(0)[0].id) > data.status) return;
         taskLabel.empty();
