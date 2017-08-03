@@ -1,16 +1,16 @@
 # bim360appstore-data.management-nodejs-transfer.storage
 
-This sample application demonstrate how to transfer files from **BIM 360 Docs**, **BIM 360 Team** (formerly A360) and **Fusion 360** to a series of storages: Box, Egnyte, Google Drive, Onedrive and Dropbox. It uses Forge [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/). As of now, BIM 360 Field and Glue **are NOT supported**. The front-end will look like (e.g. Google):
+This sample application demonstrate how to transfer files from **BIM 360 Docs**, **BIM 360 Team** (formerly A360) and **Fusion 360** to a series of storages: Box, Egnyte, Google Drive, OneDrive and Dropbox. It uses Forge [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/). As of now, BIM 360 Field and Glue **are NOT supported**. The front-end will look like (e.g. Google):
   
 ![](www/img/readme/indexpage.png)
 
 ## Demonstration
 
-- Box
-- Dropbox
-- Egnyte
+- Box: [STG](https://bim360box.herokuapp.com) | [PROD](https://bim360box.autodesk.io/)
+- Dropbox: [STG](https://bim360dropbox.herokuapp.com) | [PROD](https://bim360dropbox.autodesk.io/)
+- Egnyte: [STG](https://bim360egnyte.herokuapp.com) | [PROD](https://bim360egnyte.autodesk.io/)
 - Google: [STG](https://bim360google.herokuapp.com) | [PROD](https://bim360google.autodesk.io/)
-- Onedrive
+- OneDrive: [STG](https://bim360onedrive.herokuapp.com) | [PROD](https://bim360onedrive.autodesk.io/)
 
 See [video demonstration](https://www.youtube.com/watch?v=zD1gFELz-2E)
 
@@ -32,7 +32,7 @@ For using this sample, you need an Autodesk developer credentials. Visit the [Fo
 
 Define the storage that this sample will run:
 
-- STORAGE\_NAME (can be: box, egnyte, google, onedrive, dropbox). This variable defines from which folder to load the server-side files: oauth, tree and integration (see **/server/storage/** folder). 
+- STORAGE\_NAME (can be: Box, Egnyte, Google, OneDrive, Dropbox). This variable defines from which folder to load the server-side files: oauth, tree and integration (see **/server/storage/** folder). 
 
 For each storage, define the following variables:
 
