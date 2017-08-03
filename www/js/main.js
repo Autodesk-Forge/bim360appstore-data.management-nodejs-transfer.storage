@@ -83,14 +83,15 @@ function prepareAutodeskSide() {
         var taskLabel = $('#' + data.taskId);
         console.log('Task ' + data.taskId + ': ' + (taskLabel.children(0)[0] ? taskLabel.children(0)[0].id : '[]') + '>' + data.status);
         // avoid messages out of order
-        if (!taskLabel.children(0) || !taskLabel.children(0)[0] ||  parseInt(taskLabel.children(0)[0].id) > data.status) return;
+        if (!taskLabel.children(0) || !taskLabel.children(0)[0] || parseInt(taskLabel.children(0)[0].id) > data.status) return;
         taskLabel.empty();
         switch (data.status) {
           case 10:
             taskLabel.append('<span class="glyphicon glyphicon-alert" title="Error!" id="10"></span>');
             isDone(data);
             break;
-          case 1: case 2:
+          case 1:
+          case 2:
             taskLabel.append('<span class="glyphicon glyphicon-transfer" title="Transfering..." id="2"></span>');
             break;
           case 3:
@@ -273,10 +274,10 @@ function transferToAutodesk() {
       storageTree.open_all(item);
     }
     else if (!extension)
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">File without extension is not supported</span></label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + autodeskDestinationFolder.id + '|' + item.id + '" disabled>' + item.text + ' <span class="label label-danger">File without extension is not supported</span></label></div>');
     else {
       var parent = $("#autodeskTree").jstree().get_node('#' + item.parent);
-      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + item.id + '" checked> ' + item.text + '</label></div>');
+      listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" value="' + autodeskDestinationFolder.id + '|' + item.id + '" checked> ' + item.text + '</label></div>');
     }
   });
 
