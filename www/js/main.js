@@ -146,8 +146,9 @@ function prepareStorageSide() {
       _needsAccountName = storageInfo.needsAccountName;
 
       // preparing icons and titles
-      $('#storageSigninIcon').attr("src", 'img/' + _storageName + '/icon.png');
-      $('#storageLogoHelp').attr("src", 'img/' + _storageName + '/icon.png');
+      $('#storageLogoHelp').attr("src", 'img/' + _storageName + '/signin.png');
+      $('#storageSigninIcon').attr("src", 'img/' + _storageName + '/signin.png');
+      $('#storageIcon').attr("src", 'img/' + _storageName + '/logo.png');
       $('#transferToStorageButton').attr("title", 'Transfer selected BIM 360 files to ' + _storageName);
       $('#transferFromStorageButton').attr("title", 'Transfer selected ' + _storageName + ' files to BIM 360');
 

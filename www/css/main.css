@@ -88,8 +88,9 @@ header {
 }
 
 .glyphiconTop {
-    font-size: 1.5em;
+    /*font-size: 1.5em;*/
     color: #a0a0a0;
+    padding-top: 6px;
 }
 
 .notifyjs-newFolderNotify-base {
