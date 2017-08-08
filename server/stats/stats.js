@@ -33,11 +33,11 @@ module.exports = {
     var users = mongodb.db.collection('users');
     if (!users) return;
     users.count({
-        _id: profile.userId
+        autodeskId: profile.userId
       }, function (err, count) {
         if (count == 0) {
           users.insert({
-            _id: profile.userId,
+            autodeskId: profile.userId,
             email: profile.emailId,
             firstName: profile.firstName,
             lastName: profile.lastName,
@@ -54,11 +54,11 @@ module.exports = {
     var users = mongodb.db.collection('users');
     if (!users) return;
     users.count({
-      _id: userId
+      autodeskId: userId
     }, function (err, count) {
       if (count == 1) {
         users.update({
-            _id: userId
+            autodeskId: userId
           }, {
             $addToSet: {
               'usage': {

@@ -53,6 +53,7 @@ function prepareAutodeskSide() {
       autodeskSide.append(
         '<div class="treeTitle"><img src="" id="autodeskProfilePicture" height="30px" class="profilePicture"> <span id="autodeskProfileName"></span> ' +
         '<span class="glyphicon glyphicon-log-out mlink" title="Sign out" id="autodeskLogoff"> </span>' +
+        '<div style="float: right"><button class="btn btn-default btn-xs" id="createAutodeskFolder"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;New folder</button>' +
         '<span class="glyphicon glyphicon-refresh refreshIcon mlink" id="refreshAutodeskTree" title="Refresh Autodesk files"/>' +
         '</div>' +
         '<div id="autodeskTree" class="tree"></div>');
@@ -62,6 +63,7 @@ function prepareAutodeskSide() {
       $('#autodeskLogoff').click(function () {
         location.href = '/api/app/logoff';
       });
+      $('#createAutodeskFolder').click(createAutodeskFolder);
 
       prepareAutodeskTree('autodeskTree');
 
@@ -430,7 +432,53 @@ function createStorageFolder() {
 
     },
     error: function (res) {
-      storageTree
+
+    }
+  });
+}
+
+function createAutodeskFolder() {
+  var date = new Date();
+
+  var suggestedFolderName = 'Sync_' + zeroPad(date.getMonth() + 1, 2) + '_' + date.getFullYear();
+  var folderName = prompt('Enter new folder name:', suggestedFolderName);
+  if (folderName === null)return;
+
+  var autodeskTree = $('#autodeskTree').jstree(true);
+  var autodeskNodes = autodeskTree.get_selected(true);
+  var parentFolder;
+  if (autodeskNodes.length == 0)
+    parentFolder = '#';
+  else if (autodeskNodes[0].type === 'folders')
+    parentFolder = autodeskNodes[0].id;
+  else
+    parentFolder = autodeskNodes[0].parents[0];
+
+  jQuery.ajax({
+    url: '/api/forge/createFolder',
+    contentType: 'application/json',
+    type: 'POST',
+    //dataType: 'json', comment this to avoid parsing the response which would result in an error
+    data: JSON.stringify({
+      'parentFolder': parentFolder,
+      'folderName': folderName
+    }),
+    success: function (res) {
+      $('#autodeskTree').bind('refresh_node.jstree refresh.jstree', function (e, data) {
+        autodeskTree.deselect_all();
+        autodeskTree.select_node(res.folderId);
+        $('#autodeskTree').unbind('refresh_node.jstree refresh.jstree');
+      });
+
+      if (parentFolder === '#')
+        autodeskTree.refresh();
+      else
+        autodeskTree.refresh_node(autodeskNodes[0]);
+
+
+    },
+    error: function (res) {
+
     }
   });
 }
