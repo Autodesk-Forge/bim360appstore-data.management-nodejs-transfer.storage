@@ -202,9 +202,10 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
         var lastModifiedTime = moment(version.attributes.lastModifiedTime);
         var days = moment().diff(lastModifiedTime, 'days')
         var dateFormated = (versions.body.data.length > 1 || days > 7 ? lastModifiedTime.format('MMM D, YYYY, h:mm a') : lastModifiedTime.fromNow());
+        var versionst =version.id.match (/^(.*)\?version=(\d+)$/) [2] ;
         versionsForTree.push(prepareItemForTree(
           version.links.self.href,
-          dateFormated + ' by ' + version.attributes.lastModifiedUserName,
+          decodeURI ('v' + versionst + ': ' + dateFormated + ' by ' + version.attributes.lastModifiedUserName),
           'versions',
           false
         ));
