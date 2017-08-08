@@ -45,7 +45,7 @@ router.get('/api/storage/tree', function (req, res) {
   var box = sdk.getBasicClient(credentials.accessToken);
   var id = (req.query.id === '#' ? '0' : req.query.id);
 
-  box.folders.getItems(id, {fields: 'name,shared_link,permissions,collections,sync_state'}, function (err, data) {
+  box.folders.getItems(id, {fields: 'name,shared_link,permissions,collections,sync_state', limit: 1000}, function (err, data) {
     if (data == null || data.entries == null) return '';
     var items = [];
     data.entries.forEach(function (item, index) {
