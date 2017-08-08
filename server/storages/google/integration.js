@@ -38,7 +38,7 @@ var utility = require('./../utility');
 /// create a folder at the parent folder if it doesn't exist
 router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   var token = new Credentials(req.session);
-  if (token.getStorageCredentials() === undefined || token.getForgeCredentials() === undefined) {
+  if (token.getStorageCredentials() === undefined) {
     res.status(401).end();
     return;
   }
