@@ -179,7 +179,7 @@ function getFolderContents(projectId, folderId, oauthClient, credentials, res) {
       folderContents.body.data.forEach(function (item) {
 
         var displayName = item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName;
-        var itemType = (unsupported.indexOf(item.attributes.createUsername) == -1 ? 'unsupported' : item.type);
+        var itemType = (unsupported.indexOf(item.attributes.createUserName) == -1 ? item.type : 'unsupported');
         if (displayName !== '') { // BIM 360 Items with no displayName also don't have storage, so not file to transfer
           folderItemsForTree.push(prepareItemForTree(
             item.links.self.href,
