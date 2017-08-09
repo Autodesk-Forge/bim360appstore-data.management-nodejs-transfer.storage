@@ -167,6 +167,10 @@ function getFolders(hubId, projectId, oauthClient, credentials, res) {
     });
 }
 
+var unsupported = [
+  'bot@autodesk360.com'
+];
+
 function getFolderContents(projectId, folderId, oauthClient, credentials, res) {
   var folders = new forgeSDK.FoldersApi();
   folders.getFolderContents(projectId, folderId, {}, oauthClient, credentials)
@@ -175,12 +179,13 @@ function getFolderContents(projectId, folderId, oauthClient, credentials, res) {
       folderContents.body.data.forEach(function (item) {
 
         var displayName = item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName;
+        var itemType = (unsupported.indexOf(item.attributes.createUsername) == -1 ? 'unsupported' : item.type);
         if (displayName !== '') { // BIM 360 Items with no displayName also don't have storage, so not file to transfer
           folderItemsForTree.push(prepareItemForTree(
             item.links.self.href,
             displayName,
-            item.type,
-            true
+            itemType,
+            (itemType !== 'unsupported')
           ));
         }
       });
@@ -202,11 +207,11 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
         var lastModifiedTime = moment(version.attributes.lastModifiedTime);
         var days = moment().diff(lastModifiedTime, 'days')
         var dateFormated = (versions.body.data.length > 1 || days > 7 ? lastModifiedTime.format('MMM D, YYYY, h:mm a') : lastModifiedTime.fromNow());
-        var versionst =version.id.match (/^(.*)\?version=(\d+)$/) [2] ;
+        var versionst = version.id.match(/^(.*)\?version=(\d+)$/) [2];
         versionsForTree.push(prepareItemForTree(
           version.links.self.href,
-          decodeURI ('v' + versionst + ': ' + dateFormated + ' by ' + version.attributes.lastModifiedUserName),
-          'versions',
+          decodeURI('v' + versionst + ': ' + dateFormated + ' by ' + version.attributes.lastModifiedUserName),
+          (item.attributes.createUsername === 'bot@autodesk360.com' ? 'versions' : 'unsupported'),
           false
         ));
       });

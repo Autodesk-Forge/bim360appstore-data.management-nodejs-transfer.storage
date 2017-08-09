@@ -81,7 +81,11 @@ function prepareAutodeskTree() {
       },
       'versions': {
         'icon': 'glyphicon glyphicon-time'
+      },
+      'unsupported': {
+        'icon': 'glyphicon glyphicon-ban-circle'
       }
+
     },
     "plugins": ["types", "state", "sort"],
     "state": {"key": "autodeskTree"}
