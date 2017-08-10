@@ -99,6 +99,9 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
     utility.getVersion(autodeskVersionId, req, function (version) {
       var storageFolder = req.body.storageFolder;
+      // removing first '/' from path
+      // i.e. "/Private/adam.nagy..." to "Private/adam.nagy..."
+      storageFolder = storageFolder.replace(/^\//, '');
 
       // now with the file created, let's prepare the transfer job\
       var source = {
