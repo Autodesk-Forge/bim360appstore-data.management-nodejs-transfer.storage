@@ -45,7 +45,6 @@ router.get('/api/storage/signin', function (req, res) {
   var url =
     req.session.egnyteURL + '/puboauth/token?' +
     'client_id=' + config.storage.credentials.client_id +
-    '&client_secret=' + config.storage.credentials.client_secret +
     '&redirect_uri=' + config.storage.callbackURL +
     '&scope=Egnyte.filesystem' +
     '&state=uptomewhatIpasshere' +
