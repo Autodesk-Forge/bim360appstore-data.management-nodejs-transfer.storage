@@ -46,7 +46,6 @@ router.get('/api/storage/signin', function (req, res) {
   var url =
     req.session.onedriveURL + '/common/oauth2/v2.0/authorize?' +
     'client_id=' + config.storage.credentials.client_id +
-    '&client_secret=' + config.storage.credentials.client_secret +
     '&redirect_uri=' + config.storage.callbackURL +
     '&scope=user.read%20files.readwrite%20files.readwrite.all%20sites.read.all' +
     '&response_type=code'
