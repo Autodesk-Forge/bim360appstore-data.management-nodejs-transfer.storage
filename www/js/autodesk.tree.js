@@ -31,6 +31,7 @@ function prepareAutodeskTree() {
           $('#autodeskTree').jstree(true).toggle_node(node);
           return {"id": node.id};
         },
+        "cache" : false,
         "success": function (nodes) {
           nodes.forEach(function (n) {
             if (n.type === 'bim360Hubs' && n.id.indexOf('b.') > 0)

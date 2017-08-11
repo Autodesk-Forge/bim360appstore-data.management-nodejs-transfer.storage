@@ -27,7 +27,8 @@ function prepareStorageTree() {
         'data': function (node) {
           $('#storageTree').jstree(true).toggle_node(node);
           return {"id": node.id};
-        }
+        },
+        "cache" : false
       }
     },
     'types': {
