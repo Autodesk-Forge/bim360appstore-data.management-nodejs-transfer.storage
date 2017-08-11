@@ -1,6 +1,6 @@
 # bim360appstore-data.management-nodejs-transfer.storage
 
-This sample application demonstrate how to transfer files from **BIM 360 Docs**, **BIM 360 Team** (formerly A360) and **Fusion 360** to a series of storages: Box, Egnyte, Google Drive, OneDrive and Dropbox. It uses Forge [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/). As of now, BIM 360 Field and Glue **are NOT supported**. The front-end will look like (e.g. Google):
+This sample application demonstrate how to transfer files from **BIM 360 Docs**, **BIM 360 Team** (formerly A360) and **Fusion 360** to a series of storages: Box, Egnyte, Google Drive, OneDrive and Dropbox. It uses Forge [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/). As of now, BIM 360 Field and Glue **are NOT supported**. The front-end will look like (e.g. Google Drive):
   
 ![](www/img/readme/indexpage.png)
 
@@ -15,6 +15,16 @@ This sample application demonstrate how to transfer files from **BIM 360 Docs**,
 See [video demonstration](https://www.youtube.com/watch?v=zD1gFELz-2E)
 
 **Usage**: select **folders** or **files** (or specific version) on Autodesk side (left), select one **folder** on storage side (right). Click on the right-pointing-arrow (at the center) to start transferring. The opposite is also supported, use the left-pointing-arrow. When transferring **from** storage **to** Autodesk, a new version is created if file name already exists. 
+
+## Architecture
+
+The app was designed to communicate with Autodesk and respective storage to prepare the transfer. Once the `source` and `destination` requests are ready, it delegates to AWS Lambda. The following image describes the steps to transfer from Autodesk to storage. 
+
+![](www/img/readme/adsk_storage.png)
+
+The next image describes the inverse flow, from storage to Autodesk. See **Setup** and **AWS Gateway & AWS Lambda** sections for deployment details. This [blog post](https://forge.autodesk.com/blog/transfer-storages-sample) include more details.
+
+![](www/img/readme/storage_adsk.png)
 
 ## Setup
 
@@ -132,7 +142,7 @@ On live applications, the Forge and respective storage callback URLs should use 
 
 ### AWS Gateway & AWS Lambda
 
-This sample delegates the heavy work of transferring files to a **AWS Lambda**. To deploy it, ZIP the contents of **/server/lambda/** and upload to a Lambda function. Then create an **API Gateway**. The following environment variables should be adjusted:
+This sample delegates the heavy work of transferring files to a **AWS Lambda**. See this [blog post](https://forge.autodesk.com/blog/transferring-files-aws-lambda) for more information. To deploy it, ZIP the contents of **/server/lambda/** and upload to a Lambda function. See this [step-by-step setup](https://forge.autodesk.com/blog/running-forge-viewer-aws-lambda-server-and-api-gateway). Then create an **API Gateway**. The following environment variables should be adjusted:
 
 - TRANSFER\_ENDPOINT: the AWS API Gateway address
 - TRANSFER\_ENDPOINT\_AUTHORIZATION: the **x-api-key** for the API Gateway
