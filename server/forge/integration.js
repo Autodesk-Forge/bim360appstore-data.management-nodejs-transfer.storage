@@ -79,10 +79,17 @@ router.post('/api/forge/createFolder', jsonParser, function (req, res) {
 
         request(createFolder, function (error, response) {
           if (error) {
-            console.log(err);
+            if (process.env.CONSOLELOG) console.log(error);
             res.status(500).end();
+            return;
           }
           var body = JSON.parse(response.body);
+
+          if (body.errors && body.errors.length > 0) {
+            if (process.env.CONSOLELOG) console.log(body.errors);
+            res.status(500).end();
+            return;
+          }
 
           // create folder for BIM 360 Docs returns ONLY the folder ID, but our UI uses the full Href
           res.json({folderId: 'https://developer.api.autodesk.com/data/v1/projects/' + projectId + '/folders/' + body.data.relationships.created.data[0].id});
@@ -143,9 +150,6 @@ function createBIM360FolderSpecData(folderName, parentFolderId) {
         extension: {
           type: "commands:autodesk.core:CreateFolder",
           version: "1.0.0",
-          data: {
-            requiredAction: "create"
-          }
         }
       },
       relationships: {
@@ -166,7 +170,7 @@ function createBIM360FolderSpecData(folderName, parentFolderId) {
         name: folderName,
         extension: {
           type: "folders:autodesk.bim360:Folder",
-          version: "1.0.0"
+          version: "1.0"
         }
       },
       relationships: {
