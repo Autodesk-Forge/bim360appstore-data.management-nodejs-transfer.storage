@@ -71,11 +71,12 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   })
 
   var path = ''
+  var onedriveDriveId = ''
   if (parentFolder === '#') {
     path = '/drive/root/children'
   } else {
     var idParts = parentFolder.split(':')
-    var onedriveDriveId = idParts[0]
+    onedriveDriveId = idParts[0]
     parentFolder = idParts[1]
     path = '/drives/' + onedriveDriveId + '/items/' + parentFolder + '/children'
   }
@@ -96,7 +97,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
       for (var key in fileInfo.value) {
         var child = fileInfo.value[key]
         if (child.folder && child.name === folderName) {
-          res.json({folderId: child.id});
+          res.json({folderId: onedriveDriveId + ":" + child.id});
           return;
         }
       }
@@ -118,7 +119,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
             return;
           }
           
-          res.json({folderId: fileInfo.id});
+          res.json({folderId: onedriveDriveId + ":" + fileInfo.id});
           return
         })
     })

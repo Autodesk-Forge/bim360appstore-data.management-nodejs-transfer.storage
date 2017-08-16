@@ -88,8 +88,9 @@ router.get('/api/storage/tree', function (req, res) {
         var treeList = []
         // If the user has only one drive then just list the content
         if (driveId === '#' && data.value.length === 1) {
+          driveId = data.value[0].id
           msGraphClient
-            .api('/drives/' + data.value[0].id + '/root/children')
+            .api('/drives/' + driveId + '/root/children')
             .get(function (error, data) {
               if (error) {
                 console.log(error)
@@ -100,7 +101,7 @@ router.get('/api/storage/tree', function (req, res) {
               for (var key in data.value) {
                 var item = data.value[key]
                 var treeItem = {
-                  id: data.value[0].id + ":" + item.id,
+                  id: driveId + ":" + item.id,
                   text: item.name,
                   type: item.folder ? 'folders' : 'items',
                   children: item.folder ? !!item.folder.childCount : false

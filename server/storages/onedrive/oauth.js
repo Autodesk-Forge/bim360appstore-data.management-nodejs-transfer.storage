@@ -107,7 +107,7 @@ router.get('/api/storage/profile', function (req, res) {
 
   msGraphClient
     .api('/me')
-    .select("displayName")
+    //.select("displayName")
     .get(function (error, data) {
       if (error) {
         console.log(error)
