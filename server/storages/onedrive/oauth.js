@@ -114,6 +114,8 @@ router.get('/api/storage/profile', function (req, res) {
         respondWithError(data, error)
         return
       }
+
+      // This works for personal accounts
       var profile = {
         'name': data.displayName,
         'picture': 'https://apis.live.net/v5.0/' + data.id + '/picture?type=small'

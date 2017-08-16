@@ -49,15 +49,20 @@ router.get('/api/storage/tree', function (req, res) {
   var id = decodeURIComponent(req.query.id)
 
   // item id's look like this:
-  // <drive id>!<file id>
+  // <drive id>!<file id> in case of a "personal" drive
   // e.g. BF0BDCFE22A2EFD6!161
-  var driveId = id.split('!')[0]
+  // however the "documentLibrary" drive is different
+  // so let's store the drive id in each item's id like this
+  // driveId:itemId
+  var idParts = id.split(':')
+  var driveId = idParts[0]
+  var id = idParts[1]
   var path = ''
 
   try {
-    if (id === '#') {
+    if (driveId === '#') {
       path = '/drives'
-    } else if (id === driveId) {
+    } else if (!id) {
       path = '/drives/' + driveId + '/root/children'
     } else {
       path = '/drives/' + driveId + '/items/' + id + '/children'
@@ -82,7 +87,7 @@ router.get('/api/storage/tree', function (req, res) {
 
         var treeList = []
         // If the user has only one drive then just list the content
-        if (id === '#' && data.value.length === 1) {
+        if (driveId === '#' && data.value.length === 1) {
           msGraphClient
             .api('/drives/' + data.value[0].id + '/root/children')
             .get(function (error, data) {
@@ -95,7 +100,7 @@ router.get('/api/storage/tree', function (req, res) {
               for (var key in data.value) {
                 var item = data.value[key]
                 var treeItem = {
-                  id: item.id,
+                  id: data.value[0].id + ":" + item.id,
                   text: item.name,
                   type: item.folder ? 'folders' : 'items',
                   children: item.folder ? !!item.folder.childCount : false
@@ -119,10 +124,16 @@ router.get('/api/storage/tree', function (req, res) {
             }
 
             // In case we are listing the drives
-            if (id === '#') {
-              treeItem.text = item.id
+            if (driveId === '#') {
+              // dealing with differences between
+              // driveType = "personal" vs "documentLibrary" drives
+              if (!treeItem.text)
+                treeItem.text = item.id
+
               treeItem.type = 'drives'
               treeItem.children = true
+            } else {
+              treeItem.id = driveId + ":" + treeItem.id
             }
             treeList.push(treeItem)
           }

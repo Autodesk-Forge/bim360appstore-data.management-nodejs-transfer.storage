@@ -74,7 +74,9 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   if (parentFolder === '#') {
     path = '/drive/root/children'
   } else {
-    var onedriveDriveId = parentFolder.split('!')[0]
+    var idParts = parentFolder.split(':')
+    var onedriveDriveId = idParts[0]
+    parentFolder = idParts[1]
     path = '/drives/' + onedriveDriveId + '/items/' + parentFolder + '/children'
   }
 
@@ -145,7 +147,9 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
       };
 
       // file IDs to transfer
-      var onedriveDriveId = storageFolder.split('!')[0]
+      var idParts = storageFolder.split(':')
+      var onedriveDriveId = idParts[0]
+      var storageFolder = idParts[1]
       var fileName = version.attributes.name;
 
       var destination = {
@@ -175,7 +179,9 @@ router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
   utility.assertIsFolder(req.body.autodeskFolder, req, function (autodeskProjectId, autodeskFolderId) {
     //<<<
     var storageId = req.body.storageItem;
-    var driveId = storageId.split('!')[0]
+    var idParts = storageId.split(':')
+    var driveId = idParts[0]
+    storageId = idParts[1]
     var path = '/drives/' + driveId + '/items/' + storageId
     var msGraphClient = msGraph.init({
       defaultVersion: 'v1.0',
