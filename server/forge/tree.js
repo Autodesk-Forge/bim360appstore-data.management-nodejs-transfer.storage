@@ -211,7 +211,7 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
         versionsForTree.push(prepareItemForTree(
           version.links.self.href,
           decodeURI('v' + versionst + ': ' + dateFormated + ' by ' + version.attributes.lastModifiedUserName),
-          (item.attributes.createUsername === 'bot@autodesk360.com' ? 'versions' : 'unsupported'),
+          (unsupported.indexOf(version.attributes.createUserName) == -1 ? 'versions' : 'unsupported'),
           false
         ));
       });
