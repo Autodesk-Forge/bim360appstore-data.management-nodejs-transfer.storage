@@ -32,7 +32,7 @@ var forgeSDK = require('forge-apis');
 
 router.get('/api/forge/signin', function (req, res) {
   var url =
-    "https://developer.api.autodesk.com" +
+    "https://developer-stg.api.autodesk.com" +
     '/authentication/v1/authorize?response_type=code' +
     '&client_id=' + config.forge.credentials.client_id +
     '&redirect_uri=' + config.forge.callbackURL +
