@@ -47,7 +47,7 @@ router.get('/api/storage/signin', function (req, res) {
     req.session.onedriveURL + '/common/oauth2/v2.0/authorize?' +
     'client_id=' + config.storage.credentials.client_id +
     '&redirect_uri=' + config.storage.callbackURL +
-    '&scope=user.read%20files.readwrite%20files.readwrite.all%20sites.read.all' +
+    '&scope=user.read%20files.readwrite%20files.readwrite.all%20sites.read.all%20sites.readwrite.all' +
     '&response_type=code'
   res.end(url)
 });
@@ -108,6 +108,7 @@ router.get('/api/storage/profile', function (req, res) {
   msGraphClient
     .api('/me')
     //.select("displayName")
+    //.select("mySite")
     .get(function (error, data) {
       if (error) {
         console.log(error)
