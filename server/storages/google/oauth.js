@@ -41,7 +41,8 @@ router.get('/api/storage/signin', function (req, res) {
   ];
   var url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // 'online' (default) or 'offline' (gets refresh_token)
-    scope: scopes  // If you only need one scope you can pass it as string
+    scope: scopes,  // If you only need one scope you can pass it as string
+    approval_prompt: 'force'
   });
   res.end(url);
 });
@@ -60,6 +61,7 @@ router.get('/api/google/callback/oauth', function (req, res) {
       return;
     }
     var token = new Credentials(req.session);
+    tokenInfo['expires_at'] = new Date(tokenInfo.expiry_date); // consistent property name
     token.setStorageCredentials(tokenInfo);
     res.redirect('/');
   });

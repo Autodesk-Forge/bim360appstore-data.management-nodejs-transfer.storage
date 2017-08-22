@@ -92,7 +92,7 @@ app.use('/', localTransfer);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // for httpS://localhost
 
 if (process.env.MONGO_STATS) {
-  var mongodb = require('./stats/mongodb');
+  var mongodb = require('./database/mongodb');
   mongodb.connect(
     function () {
       console.log('Mongo connection live');

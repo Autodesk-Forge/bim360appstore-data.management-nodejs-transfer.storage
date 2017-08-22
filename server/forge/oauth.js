@@ -51,16 +51,24 @@ router.get('/api/forge/callback/oauth', function (req, res) {
     config.forge.callbackURL,
     config.forge.scope);
 
+  var user = new forgeSDK.UserProfileApi();
   forge3legged.getToken(code).then(function (credentials) {
-    token.setForgeCredentials(credentials);
-    res.redirect('/')
+    user.getUserProfile(forge3legged, credentials)
+      .then(function (profile) {
+        stats.userProfile(profile.body, function () {
+          token.setAutodeskId(profile.body.userId);
+          token.setForgeCredentials(credentials);
+
+          res.redirect('/')
+        });
+      });
   }).catch(function (err) {
     console.log(err);
     res.redirect('/')
   })
 });
 
-var stats = require('./../stats/stats');
+var stats = require('./../database/stats');
 
 router.get('/api/forge/profile', function (req, res) {
   var token = new Credentials(req.session);
@@ -74,14 +82,13 @@ router.get('/api/forge/profile', function (req, res) {
     config.forge.credentials.client_id,
     config.forge.credentials.client_secret,
     config.forge.callbackURL,
-    config.forge.scope,
-    true);
+    config.forge.scope);
 
   var user = new forgeSDK.UserProfileApi();
   user.getUserProfile(forge3legged, token.getForgeCredentials())
     .then(function (profile) {
-      token.setAutodeskId(profile.body.userId);
-      stats.userProfile(profile.body);
+      //stats.userProfile(profile.body);
+      //token.setAutodeskId(profile.body.userId);
       res.json({
         name: profile.body.firstName + ' ' + profile.body.lastName,
         picture: profile.body.profileImages.sizeX40,

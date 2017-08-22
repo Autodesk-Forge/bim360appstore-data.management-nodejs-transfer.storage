@@ -35,8 +35,7 @@ router.get('/api/forge/tree', function (req, res) {
     config.forge.credentials.client_id,
     config.forge.credentials.client_secret,
     config.forge.callbackURL,
-    config.forge.scope,
-    true);
+    config.forge.scope);
 
   var href = decodeURIComponent(req.query.id);
   if (href === '') {

@@ -39,8 +39,7 @@ router.post('/api/forge/createFolder', jsonParser, function (req, res) {
     config.forge.credentials.client_id,
     config.forge.credentials.client_secret,
     config.forge.callbackURL,
-    config.forge.scope,
-    true);
+    config.forge.scope);
 
   if (token.getForgeCredentials() === undefined) {
     res.status(401).end();

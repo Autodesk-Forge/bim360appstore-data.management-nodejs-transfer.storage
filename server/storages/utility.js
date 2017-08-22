@@ -59,8 +59,7 @@ module.exports = {
       config.forge.credentials.client_id,
       config.forge.credentials.client_secret,
       config.forge.callbackURL,
-      config.forge.scope,
-      true);
+      config.forge.scope);
 
     var items = new forgeSDK.ItemsApi();
     items.getItemVersions(projectId, itemId, {}, forge3legged, token.getForgeCredentials())
@@ -103,8 +102,7 @@ module.exports = {
       config.forge.credentials.client_id,
       config.forge.credentials.client_secret,
       config.forge.callbackURL,
-      config.forge.scope,
-      true);
+      config.forge.scope);
 
     // get the root folder of this project
     var hubId = params[params.length - 3];
@@ -126,8 +124,7 @@ module.exports = {
       config.forge.credentials.client_id,
       config.forge.credentials.client_secret,
       config.forge.callbackURL,
-      config.forge.scope,
-      true);
+      config.forge.scope);
 
     var folders = new forgeSDK.FoldersApi();
     folders.getFolderContents(projectId, folderId, {}, forge3legged, token.getForgeCredentials())
@@ -170,8 +167,7 @@ module.exports = {
       config.forge.credentials.client_id,
       config.forge.credentials.client_secret,
       config.forge.callbackURL,
-      config.forge.scope,
-      true);
+      config.forge.scope);
 
     var folders = new forgeSDK.FoldersApi();
     folders.getFolderContents(projectId, folderId, {}, forge3legged, credentials)
@@ -224,8 +220,7 @@ module.exports = {
       config.forge.credentials.client_id,
       config.forge.credentials.client_secret,
       config.forge.callbackURL,
-      config.forge.scope,
-      true);
+      config.forge.scope);
 
     var versions = new forgeSDK.VersionsApi();
     versions.getVersion(projectId, versionId, forge3legged, token.getForgeCredentials())
@@ -243,7 +238,7 @@ module.exports = {
   postLambdaJob: function (sourceReq, destinationReq, token, data) {
     var newTaskId = guid();
     var request = require('request');
-    var stats = require('./../stats/stats');
+    var stats = require('././stats');
     stats.usage(token.getAutodeskId(), config.storage.name);
 
     if (token) {

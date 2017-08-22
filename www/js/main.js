@@ -560,6 +560,7 @@ function transferToStorage() {
     else if (item.type === 'unsupported') {
       listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" disabled="true">' + item.text + ' <span class="label label-danger">Sample files are not supported</span></label></div>');
     } else if (item.type === 'folders') {
+      
       foldersToCreate.push({href: item.id, node: item, parentFolderStorageId: storageDestinationFolder.id});
       $('#autodeskTree').unbind('open_all.jstree').bind('open_all.jstree', function (e, data) {
         for (var n = 0; n < data.node.children_d.length; n++) {

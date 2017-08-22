@@ -25,7 +25,7 @@ var mongodb = require('./mongodb');
 
 
 module.exports = {
-  userProfile: function (profile) {
+  userProfile: function (profile, callback) {
     if (!config.stats.mongo) return;
     if (!mongodb) return;
     if (!mongodb.db) return;
@@ -33,18 +33,21 @@ module.exports = {
     var users = mongodb.db.collection('users');
     if (!users) return;
     users.count({
-        autodeskId: profile.userId
-      }, function (err, count) {
-        if (count == 0) {
-          users.insert({
-            autodeskId: profile.userId,
-            email: profile.emailId,
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            first: today
-          });
-        }
-      });
+      autodeskId: profile.userId
+    }, function (err, count) {
+      if (count == 0) {
+        users.insert({
+          autodeskId: profile.userId,
+          email: profile.emailId,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          first: today
+        }, function () {
+          if (callback) callback();
+        });
+      }
+      else if (callback) callback();
+    });
   },
 
   usage: function (userId, storage) {
