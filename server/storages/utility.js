@@ -342,17 +342,15 @@ function getVersionURL (version, projectId, token, req, callback) {
       if (error != null) {
         console.log(error)  // connection problems
 
-        if (body.errors != null)
+        if (body && body.errors != null)
           console.log(body.errors)
-
-        respondWithError(res, error)
 
         callback(error)
 
         return
       }
 
-      if (body.errors) {
+      if (body && body.errors) {
         callback(body.errors[0])
 
         return
@@ -378,7 +376,7 @@ function getJobURL (jobURL, token, req, callback) {
     if (error != null) {
       console.log(error)  // connection problems
 
-      if (body.errors != null)
+      if (body && body.errors != null)
         console.log(body.errors)
 
       respondWithError(res, error)
