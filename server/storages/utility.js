@@ -230,15 +230,17 @@ module.exports = {
     var versions = new forgeSDK.VersionsApi();
     versions.getVersion(projectId, versionId, forge3legged, token.getForgeCredentials())
       .then(function (version) {
-        if (!version.body.data.relationships.storage || !version.body.data.relationships.storage.meta.link.href) {
-          return;
-        }
+        //adam if (!version.body.data.relationships.storage || !version.body.data.relationships.storage.meta.link.href) {
+        //  return;
+        //}
         callback(version.body.data)
       })
       .catch(function (error) {
         console.log(error);
       });
   },
+
+  getVersionURL: getVersionURL,
 
   postLambdaJob: function (sourceReq, destinationReq, token, data) {
     var newTaskId = guid();
@@ -302,6 +304,99 @@ function guid() {
     });
 
   return guid;
+}
+
+function getVersionURL (version, projectId, token, req, callback) {
+  if (version.attributes.extension.type === 'versions:autodesk.fusion360:Design' ||
+      version.attributes.extension.type === 'versions:autodesk.fusion360:Drawing') {
+    // Request an export for the file
+    request({
+      url: "https://developer.api.autodesk.com/data/v1/projects/" + projectId + "/downloads",
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/vnd.api+json',
+        'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+      },
+      json: {
+        "jsonapi": {
+          "version": "1.0"
+        },
+        "data": {
+          "type": "downloads",
+          "attributes": {
+            "format": {
+              "fileType": "f3z"
+            }
+          },
+          "relationships": {
+            "source": {
+              "data": {
+                "type": "versions",
+                "id": version.id
+              }
+            }
+          }
+        }
+      }
+    }, function (error, response, body) {
+      if (error != null) {
+        console.log(error)  // connection problems
+
+        if (body.errors != null)
+          console.log(body.errors)
+
+        respondWithError(res, error)
+
+        callback(error)
+
+        return
+      }
+
+      if (body.errors) {
+        callback(body.errors[0])
+
+        return
+      }
+
+      getJobURL(body.data[0].links.self.href, token, req, callback)
+    })
+  } else {
+    callback(null, version.relationships.storage.meta.link.href)
+  }
+}
+
+function getJobURL (jobURL, token, req, callback) {
+ // Check Job progress
+  request({
+    url: jobURL,
+    method: "GET",
+    headers: {
+      'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+    },
+    json: true
+  }, function (error, response, body) {
+    if (error != null) {
+      console.log(error)  // connection problems
+
+      if (body.errors != null)
+        console.log(body.errors)
+
+      respondWithError(res, error)
+
+      callback(error)
+
+      return
+    }
+
+    // If it's still just a job, i.e. conversion did not finish
+    // then we need to keep asking for the file
+    if (body.data[0].type === 'jobs') {
+      setTimeout(getJobURL, 2000, jobURL, token, req, callback)
+    } else {
+      // We got the file
+      callback(null, body.data[0].relationships.storage.meta.link.href, ".f3z")
+    }
+  })
 }
 
 function getBucketKeyObjectName(objectId) {

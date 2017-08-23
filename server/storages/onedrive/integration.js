@@ -135,36 +135,43 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
 
   utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
     utility.getVersion(autodeskVersionId, req, function (version) {
-      var storageFolder = req.body.storageFolder;
+      var projectId = autodeskVersionId.split('/')[6]
+      utility.getVersionURL(version, projectId, token, req, function (error, versionURL, extension) {
+        var storageFolder = req.body.storageFolder;
+        // now with the file created, let's prepare the transfer job\
+        var source = {
+          url: versionURL,
+          method: "GET",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
 
-      // now with the file created, let's prepare the transfer job\
-      var source = {
-        url: version.relationships.storage.meta.link.href,
-        method: "GET",
-        headers: {
-          'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
-        },
-        encoding: null
-      };
-
-      // file IDs to transfer
-      var idParts = storageFolder.split(':')
-      var onedriveDriveId = idParts[0]
-      var storageFolder = idParts[1]
-      var fileName = version.attributes.name;
-
-      var destination = {
-        url: 'https://graph.microsoft.com/v1.0/drives/' + onedriveDriveId + '/items/' + storageFolder + '/children/' + fileName + '/content',
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+        // file IDs to transfer
+        var idParts = storageFolder.split(':')
+        var onedriveDriveId = idParts[0]
+        var storageFolder = idParts[1]
+        var fileName = ''
+        if (extension) {
+          fileName = version.attributes.displayName + extension;
+        } else {
+          fileName = version.attributes.name;
         }
-      };
 
-      // send Lambda job
-      var id = utility.postLambdaJob(source, destination, token);
+        var destination = {
+          url: 'https://graph.microsoft.com/v1.0/drives/' + onedriveDriveId + '/items/' + storageFolder + '/children/' + fileName + '/content',
+          method: 'PUT',
+          headers: {
+            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+          }
+        };
 
-      res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+        // send Lambda job
+        var id = utility.postLambdaJob(source, destination, token);
+
+        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+      })
     });
   });
 });
