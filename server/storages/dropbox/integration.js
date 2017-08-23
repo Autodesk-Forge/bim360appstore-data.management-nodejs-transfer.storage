@@ -53,7 +53,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   var parentPath = parentFolder === '#' ? '' : parentFolder;
   var path = parentPath + "/" + folderName;
 
-  var dbx = new Dropbox({ accessToken: token.getStorageCredentials().access_token })
+  var dbx = new Dropbox({accessToken: token.getStorageCredentials().access_token})
 
   dbx.filesGetMetadata({path: path})
     .then(function (folderInfo) {
@@ -86,41 +86,50 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
 
   utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
     utility.getVersion(autodeskVersionId, req, function (version) {
-      var storageFolder = req.body.storageFolder;
 
-      // now with the file created, let's prepare the transfer job\
-      var source = {
-        url: version.relationships.storage.meta.link.href,
-        method: "GET",
-        headers: {
-          'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
-        },
-        encoding: null
-      };
+      var projectId = autodeskVersionId.split('/')[6];
+      utility.getVersionURL(version, projectId, token, req, function (error, versionURL, extension) {
+        var storageFolder = req.body.storageFolder;
 
-      // file IDs to transfer
-      var fileName = version.attributes.name;
+        // now with the file created, let's prepare the transfer job\
+        var source = {
+          url: versionURL,
+          method: "GET",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
 
-      var destination = {
-        url: 'https://content.dropboxapi.com/2/files/upload',
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token.getStorageCredentials().access_token,
-          'Content-Type': 'application/octet-stream',
-          'Dropbox-API-Arg': JSON.stringify(
-            {
-              path: storageFolder + '/' + fileName,
-              mode: "add",
-              autorename: true,
-              mute: false
-            })
+        // file IDs to transfer
+        var fileName = ''
+        if (extension) {
+          fileName = version.attributes.displayName + extension;
+        } else {
+          fileName = version.attributes.name;
         }
-      };
 
-      // send Lambda job
-      var id = utility.postLambdaJob(source, destination, token);
+        var destination = {
+          url: 'https://content.dropboxapi.com/2/files/upload',
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token,
+            'Content-Type': 'application/octet-stream',
+            'Dropbox-API-Arg': JSON.stringify(
+              {
+                path: storageFolder + '/' + fileName,
+                mode: "add",
+                autorename: true,
+                mute: false
+              })
+          }
+        };
 
-      res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+        // send Lambda job
+        var id = utility.postLambdaJob(source, destination, token);
+
+        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+      });
     });
   });
 });
@@ -138,48 +147,48 @@ router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
   utility.assertIsFolder(req.body.autodeskFolder, req, function (autodeskProjectId, autodeskFolderId) {
     //<<<
 
-    var dbx = new Dropbox({ accessToken: credentials.access_token })
+    var dbx = new Dropbox({accessToken: credentials.access_token})
 
     dbx.filesGetMetadata({path: req.body.storageItem})
-      .then( function (fileInfo) {
-      var fileName = fileInfo.name; // name, that's all we need from Google
+      .then(function (fileInfo) {
+        var fileName = fileInfo.name; // name, that's all we need from Google
 
-      // >>>
-      utility.prepareAutodeskStorage(autodeskProjectId, autodeskFolderId, fileName, req, function (autodeskStorageUrl, skip, callbackData) {
-        if (skip) {
-          res.status(409).end(); // no action (server-side)
-          return;
-        }
-        //<<<
+        // >>>
+        utility.prepareAutodeskStorage(autodeskProjectId, autodeskFolderId, fileName, req, function (autodeskStorageUrl, skip, callbackData) {
+          if (skip) {
+            res.status(409).end(); // no action (server-side)
+            return;
+          }
+          //<<<
 
-        var source = {
-          url: 'https://content.dropboxapi.com/2/files/download',
-          method: "POST",
-          headers: {
-            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token,
-            'Dropbox-API-Arg': JSON.stringify(
-              {
-                path: fileInfo.path_display
-              })
-          },
-          encoding: null
-        };
+          var source = {
+            url: 'https://content.dropboxapi.com/2/files/download',
+            method: "POST",
+            headers: {
+              'Authorization': 'Bearer ' + token.getStorageCredentials().access_token,
+              'Dropbox-API-Arg': JSON.stringify(
+                {
+                  path: fileInfo.path_display
+                })
+            },
+            encoding: null
+          };
 
-        var destination = {
-          url: autodeskStorageUrl,
-          method: "PUT",
-          headers: {
-            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
-          },
-          encoding: null
-        };
+          var destination = {
+            url: autodeskStorageUrl,
+            method: "PUT",
+            headers: {
+              'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+            },
+            encoding: null
+          };
 
-        // send Lambda job
-        var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
+          // send Lambda job
+          var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
 
-        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+          res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+        });
       });
-    });
   });
 });
 
