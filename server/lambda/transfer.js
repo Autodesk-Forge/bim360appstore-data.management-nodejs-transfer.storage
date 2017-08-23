@@ -27,6 +27,9 @@ module.exports = {
     // as of now adding an exception for BOX UPLOAD
     if (destination.url.indexOf('upload.box.com') > 0) {
       request(source, function (error, sourceRes, file) {
+        if (process.env.CONSOLELOG)
+          console.log('Download ' + source.url + ': ' + sourceRes.statusCode + ' > ' + sourceRes.statusMessage);
+
         var sdk = new BoxSDK({
           clientID: destination.credentials.ClientID, // required
           clientSecret: destination.credentials.ClientSecret // required
@@ -34,7 +37,10 @@ module.exports = {
 
         var box = sdk.getBasicClient(destination.credentials.Authorization);
         box.files.uploadFile(destination.file.attributes.parent.id, destination.file.attributes.name, file, function (err, boxdata) {
-          MakeCallback(autodeskId, taskId, sourceRes.statusCode, (err ? 500 : 200), data, callback);
+          if (process.env.CONSOLELOG)
+            console.log('Upload ' + destination.url + ': ' + (err ? err.statusCode : 200) + ' > ' + (err ? err.message : "OK"));
+
+          MakeCallback(autodeskId, taskId, (err ? 500 : 200), sourceRes.statusCode, data, callback);
         });
       });
     }

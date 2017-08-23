@@ -87,40 +87,48 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
 
   utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
     utility.getVersion(autodeskVersionId, req, function (version) {
-      var storageFolder = req.body.storageFolder;
+      var projectId = autodeskVersionId.split('/')[6];
 
-      var source = {
-        url: version.relationships.storage.meta.link.href,
-        method: "GET",
-        headers: {
-          'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
-        },
-        encoding: null
-      };
+      utility.getVersionURL(version, projectId, token, req, function (error, versionURL, extension) {
+        var storageFolder = req.body.storageFolder;
+
+        var source = {
+          url: versionURL,
+          method: "GET",
+          headers: {
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          },
+          encoding: null
+        };
+
+        var fileName = version.attributes.displayName
+        if (extension) {
+          fileName = fileName + extension;
+        }
+
+        var destination = {
+          url: 'https://upload.box.com/api/2.0/files/content',
+          method: 'POST',
+          credentials: {
+            'ClientID': config.storage.credentials.client_id,
+            'ClientSecret': config.storage.credentials.client_secret,
+            'Authorization': token.getStorageCredentials().accessToken
+          },
+          file: {
+            'attributes': {
+              'name': fileName,
+              'parent': {id: storageFolder}
+            }
+          },
+          encoding: null
+        };
+
+        // send Lambda job
+        var id = utility.postLambdaJob(source, destination, token);
 
 
-      var destination = {
-        url: 'https://upload.box.com/api/2.0/files/content',
-        method: 'POST',
-        credentials: {
-          'ClientID': config.storage.credentials.client_id,
-          'ClientSecret': config.storage.credentials.client_secret,
-          'Authorization': token.getStorageCredentials().accessToken
-        },
-        file: {
-          'attributes': {
-            'name': version.attributes.displayName,
-            'parent': {id: storageFolder}
-          }
-        },
-        encoding: null
-      };
-
-      // send Lambda job
-      var id = utility.postLambdaJob(source, destination, token);
-
-
-      res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
+      });
     });
   })
   ;

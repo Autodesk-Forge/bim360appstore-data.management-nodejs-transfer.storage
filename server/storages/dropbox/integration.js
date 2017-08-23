@@ -102,11 +102,9 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
         };
 
         // file IDs to transfer
-        var fileName = ''
+        var fileName = version.attributes.displayName
         if (extension) {
-          fileName = version.attributes.displayName + extension;
-        } else {
-          fileName = version.attributes.name;
+          fileName = fileName + extension;
         }
 
         var destination = {

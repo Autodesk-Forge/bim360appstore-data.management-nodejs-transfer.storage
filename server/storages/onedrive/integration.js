@@ -152,11 +152,9 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
         var idParts = storageFolder.split(':')
         var onedriveDriveId = idParts[0]
         var storageFolder = idParts[1]
-        var fileName = ''
+        var fileName = version.attributes.displayName
         if (extension) {
-          fileName = version.attributes.displayName + extension;
-        } else {
-          fileName = version.attributes.name;
+          fileName = fileName + extension;
         }
 
         var destination = {
