@@ -35,7 +35,6 @@ module.exports = {
     users.count({
       autodeskId: userId
     }, function (err, count) {
-      console.log(count);
       users.update({
           autodeskId: userId
         }, {

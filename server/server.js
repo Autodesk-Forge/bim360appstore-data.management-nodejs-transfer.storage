@@ -82,6 +82,9 @@ app.use('/', storateOAuth); // redirect oauth API calls
 app.use('/', storateTree); // redirect oauth API calls
 app.use('/', storageIntegration); // redirect oauth API calls
 
+var webhooks = require('./storages/webhooks');
+app.use('/', webhooks);
+
 // this condition should allow the local transfer if on localhost heroku
 //if (process.env.TRANSFER_ENDPOINT && (process.env.TRANSFER_ENDPOINT.indexOf('localhost') > -1 || process.env.TRANSFER_ENDPOINT.indexOf('herokuapp') > -1)) {
 // define a local testing that transfer the files

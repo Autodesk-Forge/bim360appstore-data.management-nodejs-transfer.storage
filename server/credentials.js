@@ -33,8 +33,8 @@ Credentials.prototype.setForgeCredentials = function (accessToken) {
   refreshTokenMgn.onNewForgeToken(this.getAutodeskId(), accessToken.refresh_token, accessToken.expires_at);
 
   // if the user log in on the storage before Autodesk, then we need the following
-  refreshTokenMgn.onNewStorageToken(this.getAutodeskId(), config.storage.name,
-    this.getStorageCredentials().refresh_token, this.getStorageCredentials().expires_at)
+  //refreshTokenMgn.onNewStorageToken(this.getAutodeskId(), config.storage.name,
+  //  this.getStorageCredentials().refresh_token, this.getStorageCredentials().expires_at)
 };
 
 Credentials.prototype.getForgeCredentials = function () {

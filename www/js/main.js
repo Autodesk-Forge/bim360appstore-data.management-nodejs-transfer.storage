@@ -547,7 +547,9 @@ function transferToStorage() {
 
   // list files to transfer
   var foldersToCreate = [];
+  var listOfFoldersToSync = $('#divListFoldersToSync');
   var listOfFiles = $('#divListFilesToTransfer');
+  listOfFoldersToSync.empty();
   listOfFiles.empty();
   autodeskNodes.forEach(function (item) {
     if (item.type === 'items') {
@@ -560,7 +562,7 @@ function transferToStorage() {
     else if (item.type === 'unsupported') {
       listOfFiles.append('<div class="checkbox transferItem"><label><input type="checkbox" disabled="true">' + item.text + ' <span class="label label-danger">Sample files are not supported</span></label></div>');
     } else if (item.type === 'folders') {
-      
+      listOfFoldersToSync.append('<div class="checkbox transferItem"><label><input type="checkbox" value="sync|' + item.id + '">' + item.text + ' <span class="label label-info">Sync folder</span></label></div>');
       foldersToCreate.push({href: item.id, node: item, parentFolderStorageId: storageDestinationFolder.id});
       $('#autodeskTree').unbind('open_all.jstree').bind('open_all.jstree', function (e, data) {
         for (var n = 0; n < data.node.children_d.length; n++) {
@@ -673,6 +675,28 @@ function transferToStorage() {
         });
       }
 
+      function setupSyncFolder(autodeskFolderId, storageFolderId) {
+        console.log('Preparing sync from ' + autodeskFolderId + ' to ' + storageFolderId);
+        jQuery.ajax({
+          url: '/api/sync/setup',
+          contentType: 'application/json',
+          type: 'POST',
+          //dataType: 'json', comment this to avoid parsing the response which would result in an error
+          data: JSON.stringify({
+            'autodeskFolderId': autodeskFolderId,
+            'storageFolderId': storageFolderId
+          }),
+          success: function (res) {
+            //_pendingTransfers.push(res.taskId);
+            //$('#' + tempId).attr("id", res.taskId); // adjust the id to the taskId, for sockets
+          },
+          error: function (res) {
+            //$('#' + tempId).empty();
+            //$('#' + tempId).append('<span class="glyphicon glyphicon-alert" title="Error!"></span>');
+          }
+        });
+      }
+
 
       if (params[0] === '') { // need to recheck the newly created folder
         var autodeskTreeNodeToTransfer = autodeskTree.get_node('#' + params[1]);
@@ -684,9 +708,13 @@ function transferToStorage() {
           }
         }
       }
-      else {
+      else if (params[0]==='sync'){
+        setupSyncFolder(params[1], storageDestinationFolder.id);
+      }
+      else{
         sendRequest(params[0], params[1]);
       }
+
     });
   });
 }
