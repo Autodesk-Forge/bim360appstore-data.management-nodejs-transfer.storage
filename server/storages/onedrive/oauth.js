@@ -41,10 +41,10 @@ function respondWithError(res, error) {
 }
 
 router.get('/api/storage/signin', function (req, res) {
-  req.session.onedriveURL = "https://login.microsoftonline.com";
+  //req.session.onedriveURL = "https://login.microsoftonline.com";
 
   var url =
-    req.session.onedriveURL + '/common/oauth2/v2.0/authorize?' +
+    'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?' +
     'client_id=' + config.storage.credentials.client_id +
     '&redirect_uri=' + config.storage.callbackURL +
     '&scope=user.read%20files.readwrite%20files.readwrite.all%20sites.read.all%20sites.readwrite.all' +
@@ -57,7 +57,7 @@ router.get('/api/onedrive/callback/oauth', function (req, res) {
   var code = req.query.code
 
   request({
-    url: req.session.onedriveURL + "/common/oauth2/v2.0/token",
+    url: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
     method: "POST",
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -70,16 +70,20 @@ router.get('/api/onedrive/callback/oauth', function (req, res) {
   }, function (error, response, body) {
     if (error != null) {
       console.log(error)  // connection problems
-
       if (body.errors != null)
         console.log(body.errors)
 
       respondWithError(res, error)
-
       return
     }
 
-    var json = JSON.parse(body)
+    var json = JSON.parse(body);
+
+    if (json.error!=null) {
+      respondWithError(res, json.error)
+      return;
+    }
+
     var token = new Credentials(req.session);
     token.setStorageCredentials(json);
 
