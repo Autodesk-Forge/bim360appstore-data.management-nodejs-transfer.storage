@@ -142,7 +142,7 @@ function createFolderSpecData(folderName, parentFolderId) {
 function createBIM360FolderSpecData(folderName, parentFolderId) {
   return {
     jsonapi: {
-      "version": "1.0"
+      version: "1.0"
     },
     data: {
       type: "commands",
