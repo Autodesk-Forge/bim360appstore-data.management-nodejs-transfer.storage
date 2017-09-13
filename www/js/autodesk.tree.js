@@ -19,6 +19,10 @@
 var haveBIM360Hub = false;
 
 function prepareAutodeskTree() {
+  $.getJSON("/api/forge/clientID", function (res) {
+    $("#ClientID").val(res.ForgeClientId);
+  });
+
   $('#autodeskTree').jstree({
     'core': {
       'themes': {"icons": true},
@@ -31,7 +35,7 @@ function prepareAutodeskTree() {
           $('#autodeskTree').jstree(true).toggle_node(node);
           return {"id": node.id};
         },
-        "cache" : false,
+        "cache": false,
         "success": function (nodes) {
           nodes.forEach(function (n) {
             if (n.type === 'bim360Hubs' && n.id.indexOf('b.') > 0)
@@ -39,15 +43,13 @@ function prepareAutodeskTree() {
           });
 
           if (!haveBIM360Hub) {
-            $.getJSON("/api/forge/clientID", function (res) {
-              $("#ClientID").val(res.ForgeClientId);
-              $("#provisionAccountModal").modal();
-              $("#provisionAccountSave").click(function () {
-                $('#provisionAccountModal').modal('toggle');
-                $('#autodeskTree').jstree(true).refresh();
-              });
-              haveBIM360Hub = true;
+            $("#ClientID").val(res.ForgeClientId);
+            $("#provisionAccountModal").modal();
+            $("#provisionAccountSave").click(function () {
+              $('#provisionAccountModal').modal('toggle');
+              $('#autodeskTree').jstree(true).refresh();
             });
+            haveBIM360Hub = true;
           }
         }
       }
