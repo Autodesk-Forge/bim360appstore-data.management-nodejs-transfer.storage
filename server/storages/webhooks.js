@@ -57,7 +57,7 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
 
   // build a callback URL with the information we need:
   // user + storage destination name + storage destination folder
-  var host = 'https://bdcf96f6.ngrok.io';
+  var host = 'https://dc9fa147.ngrok.io';
   var callbackURL = host + '/api/sync/callback/' + autodeskId + '/' + storageName + '/' + storageFolderId;
 
   // create one hook for each event
@@ -65,13 +65,31 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
     var webhookURL = 'https://developer-stg.api.autodesk.com/webhooks-dev/v1/systems/adsk.wipqa/events/' + event + '/hooks';
 
     request.get({
-      url: webhookURL + '?scope={' + autodeskFolderId + '}',
+      url: webhookURL + '?scope=' + autodeskFolderId,
       headers: {
         'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
       },
       body: JSON.stringify(body)
     }, function (error, response) {
-      console.log('GET: ' + response.body);
+      //console.log('GET: ' + response.req.path + ': ' + response.body);
+      if (response.body === '') return;
+
+      var body = JSON.parse(response.body);
+
+      body.forEach(function (hook) {
+        // for this testing, let's remove all hooks...
+        var deleteURL = 'https://developer-stg.api.autodesk.com/webhooks-dev/v1' + hook.__self__; // systems/adsk.wipqa/events/'+ hook.eventType +'/hooks/' + hook.hookId;
+        request({
+          url: deleteURL,
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+          }
+        }, function (error, response) {
+          console.log('DELETE ' + deleteURL + ': ' + response.statusCode);
+        })
+      })
     });
 
     var body = {
@@ -81,8 +99,6 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
       }
     };
 
-    console.log('Calling ' + webhookURL);
-    console.log('Body ' + JSON.stringify(body))
     request.post({
       url: webhookURL,
       headers: {
@@ -91,7 +107,7 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
       },
       body: JSON.stringify(body)
     }, function (error, response) {
-      console.log('POST: ' + response.body);
+      console.log('POST ' + webhookURL + ': ' + response.statusCode);
     });
   });
 
@@ -105,9 +121,11 @@ router.post('/api/sync/callback/*', jsonParser, function (req, res) {
   var storageName = params[params.length - 2];
   var starageFolderId = params[params.length - 1];
 
-  console.log('For user ' + autodeskId + ', transfer files to ' + storageName + ':' + starageFolderId);
+  var body = req.body;
+  console.log(JSON.stringify(body));
 
-  console.log(req.body);
+  console.log('For user ' + autodeskId + ', transfer "' + body.payload.name + '" to ' + storageName + ':' + starageFolderId);
+
 
   res.status(200).end();
 });
