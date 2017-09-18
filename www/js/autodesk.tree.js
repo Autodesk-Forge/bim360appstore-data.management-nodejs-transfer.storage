@@ -43,7 +43,6 @@ function prepareAutodeskTree() {
           });
 
           if (!haveBIM360Hub) {
-            $("#ClientID").val(res.ForgeClientId);
             $("#provisionAccountModal").modal();
             $("#provisionAccountSave").click(function () {
               $('#provisionAccountModal').modal('toggle');
