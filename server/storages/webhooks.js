@@ -57,12 +57,14 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
 
   // build a callback URL with the information we need:
   // user + storage destination name + storage destination folder
-  var host = 'https://dc9fa147.ngrok.io';
+  var host = 'https://8dd72d98.ngrok.io'; //'https://dc9fa147.ngrok.io';
+  // new address https://developer-stg.api.autodesk.com/webhooks/v1/systems/adsk.wipstg/events/fs.file.added/hooks
+
   var callbackURL = host + '/api/sync/callback/' + autodeskId + '/' + storageName + '/' + storageFolderId;
 
   // create one hook for each event
   events.forEach(function (event) {
-    var webhookURL = 'https://developer-stg.api.autodesk.com/webhooks-dev/v1/systems/adsk.wipqa/events/' + event + '/hooks';
+    var webhookURL = 'https://developer-stg.api.autodesk.com/webhooks/v1/systems/adsk.wipstg/events/' + event + '/hooks';
 
     request.get({
       url: webhookURL + '?scope=' + autodeskFolderId,
@@ -78,7 +80,7 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
 
       body.forEach(function (hook) {
         // for this testing, let's remove all hooks...
-        var deleteURL = 'https://developer-stg.api.autodesk.com/webhooks-dev/v1' + hook.__self__; // systems/adsk.wipqa/events/'+ hook.eventType +'/hooks/' + hook.hookId;
+        var deleteURL = 'https://developer-stg.api.autodesk.com/webhooks/v1' + hook.__self__; // systems/adsk.wipqa/events/'+ hook.eventType +'/hooks/' + hook.hookId;
         request({
           url: deleteURL,
           method: 'DELETE',
