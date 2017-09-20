@@ -23,6 +23,10 @@ var Credentials = require('./../../credentials');
 // forge config information, such as client ID and secret
 var config = require('./../../config');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 // web framework
 var express = require('express');
 var router = express.Router();
@@ -102,7 +106,7 @@ router.get('/api/storage/tree', function (req, res) {
                 var item = data.value[key]
                 var treeItem = {
                   id: driveId + ":" + item.id,
-                  text: item.name,
+                  text: encoder.htmlEncode(item.name),
                   type: item.folder ? 'folders' : 'items',
                   children: item.folder ? !!item.folder.childCount : false
                   // !! turns an object into boolean
@@ -118,7 +122,7 @@ router.get('/api/storage/tree', function (req, res) {
             var item = data.value[key]
             var treeItem = {
               id: item.id,
-              text: item.name,
+              text: encoder.htmlEncode(item.name),
               type: item.folder ? 'folders' : 'items',
               children: item.folder ? !!item.folder.childCount : false
               // !! turns an object into boolean

@@ -23,6 +23,10 @@ var Credentials = require('./../../credentials');
 // forge config information, such as client ID and secret
 var config = require('./../../config');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 // web framework
 var express = require('express');
 var router = express.Router();
@@ -70,7 +74,7 @@ router.get('/api/storage/tree', function (req, res) {
           var item = data.entries[key]
           var treeItem = {
             id: item.path_display,
-            text: item.name,
+            text: encoder.htmlEncode(item.name),
             type: item['.tag'] === 'folder' ? 'folders' : 'items',
             children: item['.tag'] === 'folder' ? true : false
             // !! turns an object into boolean

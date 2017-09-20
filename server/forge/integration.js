@@ -85,7 +85,7 @@ router.post('/api/forge/createFolder', jsonParser, function (req, res) {
           }
           var body = JSON.parse(response.body);
 
-          if (body.errors && body.errors.length > 0) {
+          if ((body.errors && body.errors.length > 0) || (body.data && body.data.attributes && body.data.attributes.errors)) {
             if (process.env.CONSOLELOG) console.log(body.errors);
             res.status(500).end();
             return;

@@ -35,6 +35,7 @@
     "jstree": "3.3.4",
     "moment": "2.18.1",
     "mongodb": "2.2.30",
+    "node-html-encoder": "0.0.2",
     "socket.io": "2.0.3"
   }
 }

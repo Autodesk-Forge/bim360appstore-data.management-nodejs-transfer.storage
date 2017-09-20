@@ -23,6 +23,10 @@ var Credentials = require('./../../credentials');
 // forge config information, such as client ID and secret
 var config = require('./../../config');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 // web framework
 var express = require('express');
 var router = express.Router();
@@ -68,7 +72,7 @@ function drivePage(res, drive, folderId, npToken, first) {
       var treeItem = {
         id: item.id,
         data: '',
-        text: item.title,
+        text: encoder.htmlEncode(item.title),
         type: ((item.mimeType != 'application/vnd.google-apps.folder') ? item.mimeType.replace('application/', '') : 'folders'),
         icon: item.iconLink,
         children: (item.mimeType === 'application/vnd.google-apps.folder')

@@ -478,7 +478,10 @@ function createAutodeskFolder() {
 
     },
     error: function (res) {
-
+      $("#createAutodeskFolder").notify(
+        "Cannor create folder",
+        {position: "bottom", className: 'error'}
+      );
     }
   });
 }
@@ -633,6 +636,10 @@ function transferToStorage() {
           }
         },
         error: function (res) {
+          $("#createStorageFolder").notify(
+            "Cannor create folder",
+            {position: "bottom", className: 'error'}
+          );
         }
       });
     }

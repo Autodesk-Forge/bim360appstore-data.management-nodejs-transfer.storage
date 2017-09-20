@@ -23,6 +23,10 @@ var Credentials = require('./../../credentials');
 // forge config information, such as client ID and secret
 var config = require('./../../config');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 // web framework
 var express = require('express');
 var router = express.Router();
@@ -74,7 +78,7 @@ function prepareArraysForJSTree(folders, files) {
       //console.log(item);
       var treeItem = {
         id: item.path,
-        text: item.name,
+        text: encoder.htmlEncode(item.name),
         type: item.is_folder ? 'folders' : 'items',
         children: item.is_folder
       };

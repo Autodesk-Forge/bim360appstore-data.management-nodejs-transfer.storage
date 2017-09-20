@@ -23,6 +23,10 @@ var Credentials = require('./../credentials');
 // forge config information, such as client ID and secret
 var config = require('./../config');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 // web framework
 var express = require('express');
 var router = express.Router();
@@ -224,7 +228,7 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
 }
 
 function prepareItemForTree(_id, _text, _type, _children) {
-  return {id: _id, text: _text, type: _type, children: _children};
+  return {id: _id, text: encoder.htmlEncode(_text), type: _type, children: _children};
 }
 
 module.exports = router;
