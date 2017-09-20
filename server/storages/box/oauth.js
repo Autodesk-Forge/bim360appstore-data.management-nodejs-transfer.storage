@@ -29,17 +29,26 @@ var router = express.Router();
 // box sdk: https://github.com/box/box-node-sdk/
 var BoxSDK = require('box-node-sdk');
 
+var cryptiles = require('cryptiles');
+
 router.get('/api/storage/signin', function (req, res) {
+  req.session.csrf = cryptiles.randomString(24);
   var url =
     'https://account.box.com/api/oauth2/authorize?response_type=code&' +
     '&client_id=' + config.storage.credentials.client_id +
     '&redirect_uri=' + config.storage.callbackURL.toLowerCase() +
-    '&state=autodeskforge';
+    '&state=' + req.session.csrf;
   res.end(url);
 });
 
 // the callback endpoint should have the storage name (exception)
 router.get('/api/box/callback/oauth', function (req, res) {
+  var csrf = req.query.state;
+  if (csrf !== req.session.csrf) {
+    res.status(401).end();
+    return;
+  }
+
   var code = req.query.code;
   var sdk = new BoxSDK({
     clientID: config.storage.credentials.client_id, // required

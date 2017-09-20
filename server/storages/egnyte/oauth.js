@@ -31,6 +31,8 @@ var request = require('request')
 
 var egnyteSDK = require('egnyte-js-sdk');
 
+var cryptiles = require('cryptiles');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage)
@@ -40,6 +42,7 @@ function respondWithError(res, error) {
 }
 
 router.get('/api/storage/signin', function (req, res) {
+  req.session.csrf = cryptiles.randomString(24);
   req.session.egnyteURL = "https://" + req.query.accountName + ".egnyte.com";
 
   var url =
@@ -47,13 +50,19 @@ router.get('/api/storage/signin', function (req, res) {
     'client_id=' + config.storage.credentials.client_id +
     '&redirect_uri=' + config.storage.callbackURL +
     '&scope=Egnyte.filesystem' +
-    '&state=uptomewhatIpasshere' +
+    '&state=' + req.session.csrf +
     '&response_type=code'
   res.end(url);
 });
 
 // the callback endpoint should have the storage name (exception)
 router.get('/api/egnyte/callback/oauth', function (req, res) {
+  var csrf = req.query.state;
+  if (csrf !== req.session.csrf) {
+    res.status(401).end();
+    return;
+  }
+
   var code = req.query.code
 
   request({

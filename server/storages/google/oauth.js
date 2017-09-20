@@ -29,7 +29,11 @@ var router = express.Router();
 // google drive sdk: https://developers.google.com/drive/v3/web/quickstart/nodejs
 var googleSdk = require('googleapis');
 
+var cryptiles = require('cryptiles');
+
 router.get('/api/storage/signin', function (req, res) {
+  req.session.csrf = cryptiles.randomString(24);
+
   var oauth2Client = new googleSdk.auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
@@ -41,13 +45,20 @@ router.get('/api/storage/signin', function (req, res) {
   ];
   var url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // 'online' (default) or 'offline' (gets refresh_token)
-    scope: scopes  // If you only need one scope you can pass it as string
+    scope: scopes,  // If you only need one scope you can pass it as string
+    state: req.session.csrf
   });
   res.end(url);
 });
 
 // the callback endpoint should have the storage name (exception)
 router.get('/api/google/callback/oauth', function (req, res) {
+  var csrf = req.query.state;
+  if (csrf !== req.session.csrf) {
+    res.status(401).end();
+    return;
+  }
+
   var code = req.query.code;
 
   var oauth2Client = new googleSdk.auth.OAuth2(

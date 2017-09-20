@@ -32,6 +32,8 @@ var request = require('request');
 // OneDrive SDK
 const msGraph = require("@microsoft/microsoft-graph-client").Client;
 
+var cryptiles = require('cryptiles');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage)
@@ -41,19 +43,26 @@ function respondWithError(res, error) {
 }
 
 router.get('/api/storage/signin', function (req, res) {
-  //req.session.onedriveURL = "https://login.microsoftonline.com";
+  req.session.csrf = cryptiles.randomString(24);
 
   var url =
     'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?' +
     'client_id=' + config.storage.credentials.client_id +
     '&redirect_uri=' + config.storage.callbackURL +
     '&scope=user.read%20files.readwrite%20files.readwrite.all%20sites.read.all%20sites.readwrite.all' +
+    '&state=' + req.session.csrf +
     '&response_type=code'
   res.end(url)
 });
 
 // the callback endpoint should have the storage name (exception)
 router.get('/api/onedrive/callback/oauth', function (req, res) {
+  var csrf = req.query.state;
+  if (csrf !== req.session.csrf) {
+    res.status(401).end();
+    return;
+  }
+
   var code = req.query.code
 
   request({

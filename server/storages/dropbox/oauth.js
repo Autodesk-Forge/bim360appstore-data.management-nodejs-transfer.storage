@@ -31,6 +31,8 @@ var request = require('request')
 
 var Dropbox = require('dropbox');
 
+var cryptiles = require('cryptiles');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage)
@@ -40,9 +42,9 @@ function respondWithError(res, error) {
 }
 
 router.get('/api/storage/signin', function (req, res) {
-
+  req.session.csrf = cryptiles.randomString(24);
   var dbx = new Dropbox({ clientId: config.storage.credentials.client_id });
-  var url = dbx.getAuthenticationUrl(config.storage.callbackURL);
+  var url = dbx.getAuthenticationUrl(config.storage.callbackURL, req.session.csrf);
 
   url = url.replace("token", "code")
 
@@ -51,6 +53,12 @@ router.get('/api/storage/signin', function (req, res) {
 
 // the callback endpoint should have the storage name (exception)
 router.get('/api/dropbox/callback/oauth', function (req, res) {
+  var csrf = req.query.state;
+  if (csrf !== req.session.csrf) {
+    res.status(401).end();
+    return;
+  }
+
   var code = req.query.code
 
   request({
