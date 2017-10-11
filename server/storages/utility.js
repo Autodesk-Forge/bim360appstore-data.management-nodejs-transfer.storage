@@ -154,7 +154,7 @@ module.exports = {
               credentials: token.getForgeCredentials()
             };
 
-            callback('https://developer.api.autodesk.com/oss/v2/buckets/' + bucketKeyObjectName.bucketKey + '/objects/' + bucketKeyObjectName.objectName, false, callbackData);
+            callback('https://developer-stg.api.autodesk.com/oss/v2/buckets/' + bucketKeyObjectName.bucketKey + '/objects/' + bucketKeyObjectName.objectName, false, callbackData);
           })
           .catch(function (error) {
             console.log(error);
@@ -210,12 +210,12 @@ module.exports = {
       });
   },
 
-  getVersion: function (versionUrl, req, callback) {
+  getVersion: function (versionUrl, token, callback) {
     var params = decodeURIComponent(versionUrl).split('/');
     var projectId = params[params.length - 3];
     var versionId = params[params.length - 1];
 
-    var token = new Credentials(req.session);
+    //var token = new Credentials(req.session);
     var forge3legged = new forgeSDK.AuthClientThreeLegged(
       config.forge.credentials.client_id,
       config.forge.credentials.client_secret,
@@ -238,11 +238,11 @@ module.exports = {
   postLambdaJob: function (sourceReq, destinationReq, token, data) {
     var newTaskId = guid();
     var request = require('request');
-    var stats = require('././stats');
-    stats.usage(token.getAutodeskId(), config.storage.name);
+    var stats = require('./../database/stats');
+    stats.usage(token, config.storage.name);
 
     if (token) {
-      var connectedUser = io.sockets.in(token.getAutodeskId());
+      var connectedUser = io.sockets.in(token);
       if (connectedUser != null)
         connectedUser.emit('taskStatus', {
           taskId: newTaskId,
@@ -259,7 +259,7 @@ module.exports = {
       },
       rejectUnhauthorized: false, // required on httpS://localhost
       body: JSON.stringify({
-        autodeskId: token.getAutodeskId(),
+        autodeskId: token,
         taskId: newTaskId,
         source: sourceReq,
         destination: destinationReq,
@@ -274,7 +274,7 @@ module.exports = {
         console.log('postLambdaJob>' + config.transfer.endpoint + ': ' + response.body);
       }
       if (token) {
-        var connectedUser = io.sockets.in(token.getAutodeskId());
+        var connectedUser = io.sockets.in(token);
         if (connectedUser != null)
           connectedUser.emit('taskStatus', {
             taskId: newTaskId,

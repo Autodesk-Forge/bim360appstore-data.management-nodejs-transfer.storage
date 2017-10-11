@@ -30,7 +30,7 @@ function Credentials(session) {
 Credentials.prototype.setForgeCredentials = function (accessToken) {
   this._session.ForgeCredentials = accessToken;
 
-  refreshTokenMgn.onNewForgeToken(this.getAutodeskId(), accessToken.refresh_token, accessToken.expires_at);
+  refreshTokenMgn.onNewForgeToken(this.getAutodeskId(), accessToken.access_token,  accessToken.refresh_token, accessToken.expires_at);
 
   // if the user log in on the storage before Autodesk, then we need the following
   //refreshTokenMgn.onNewStorageToken(this.getAutodeskId(), config.storage.name,
@@ -56,7 +56,7 @@ Credentials.prototype.setStorageCredentials = function (accessToken) {
   this._session.StorageName = config.storage.name;
   this._session.StorageCredentials = accessToken;
 
-  refreshTokenMgn.onNewStorageToken(this.getAutodeskId(), config.storage.name, accessToken.refresh_token, accessToken.expires_at)
+  refreshTokenMgn.onNewStorageToken(this.getAutodeskId(), config.storage.name, accessToken.access_token, accessToken.refresh_token, accessToken.expires_at)
 };
 
 Credentials.prototype.getStorageCredentials = function () {

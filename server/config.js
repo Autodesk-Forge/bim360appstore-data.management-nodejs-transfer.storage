@@ -24,7 +24,7 @@ module.exports = {
     // Required scopes for your application on server-side
     scope: ['data:read', 'data:write', 'data:create', 'data:search'],
     // this this callback URL when creating your client ID and secret
-    callbackURL: process.env.FORGE_CALLBACK_URL || 'https://localhost:3000/api/forge/callback/oauth',
+    callbackURL: process.env.FORGE_CALLBACK_URL || 'http://localhost:3000/api/forge/callback/oauth',
     // credentials
     credentials: {
       client_id: process.env.FORGE_CLIENT_ID || '<replace with your consumer key>',
@@ -38,7 +38,7 @@ module.exports = {
     // box, google (drive), dropbox, onedrive, egnyte
     name: process.env.STORAGE_NAME,
     needsAccountName: process.env.STORAGE_NEEDS_ACCOUNT_NAME || false,
-    callbackURL: process.env.STORAGE_CALLBACK_URL || 'https://localhost:3000/api/' + process.env.STORAGE_NAME + '/callback/oauth',
+    callbackURL: process.env.STORAGE_CALLBACK_URL || 'http://localhost:3000/api/' + process.env.STORAGE_NAME + '/callback/oauth',
     credentials: {
       client_id: process.env.STORAGE_CLIENT_ID || '<replace with your storage client id',
       client_secret: process.env.STORAGE_CLIENT_SECRET || '<replace with your storage client secret'
@@ -46,9 +46,9 @@ module.exports = {
   },
 
   transfer : {
-    endpoint: process.env.TRANSFER_ENDPOINT || 'https://localhost:3000/api/lambda/transfer',
+    endpoint: process.env.TRANSFER_ENDPOINT || 'http://localhost:3000/api/lambda/transfer',
     authorization: process.env.TRANSFER_ENDPOINT_AUTHORIZATION || '',
-    callbackURL : process.env.TRANSFER_CALLBACK_URL || 'https://localhost:3000/api/app/callback/transferStatus'
+    callbackURL : process.env.TRANSFER_CALLBACK_URL || 'http://localhost:3000/api/app/callback/transferStatus'
   },
 
   stats :{

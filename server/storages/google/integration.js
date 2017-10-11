@@ -59,11 +59,11 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   }
 
   drive.files.list({
-    q: '\''+ (parentFolder==='#' ? 'root' : parentFolder ) +'\' in parents and title = \''+ folderName + '\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false',
+    q: '\'' + (parentFolder === '#' ? 'root' : parentFolder ) + '\' in parents and title = \'' + folderName + '\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false',
     fields: 'nextPageToken, items(id,mimeType,title, iconLink)'
   }, function (err, lst) {
     if (err) console.log(err);
-    if (lst.items!=null && lst.items.length==1){
+    if (lst.items != null && lst.items.length == 1) {
       res.json({folderId: lst.items[0].id});
       return;
     }
@@ -101,51 +101,58 @@ router.post('/api/storage/transferTo', jsonParser, function (req, res) {
   }
 
   utility.assertIsVersion(req.body.autodeskItem, req, function (autodeskVersionId) {
-    utility.getVersion(autodeskVersionId, req, function (version) {
-      var storageFolder = req.body.storageFolder;
+    var storageFolder = req.body.storageFolder;
 
-      // Google API first need to create an entry, then upload
-      request({
-        url: 'https://www.googleapis.com/drive/v3/files',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
-        },
-        body: JSON.stringify({
-          name: version.attributes.displayName,
-          parents: [storageFolder]
-        })
-      }, function (error, response, file) {
-        var newFile = JSON.parse(response.body);
-
-        // now with the file created, let's prepare the transfer job\
-        var source = {
-          url: version.relationships.storage.meta.link.href,
-          method: "GET",
-          headers: {
-            'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
-          },
-          encoding: null
-        };
-
-        var destination = {
-          url: 'https://www.googleapis.com/upload/drive/v2/files/' + newFile.id + '?uploadType=media',
-          method: 'PUT',
-          headers: {
-            'Content-Type': newFile.mimeType,
-            'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
-          }
-        };
-
-        // send Lambda job
-        var id = utility.postLambdaJob(source, destination, token);
-
-        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
-      });
+    doTransferTo(token, autodeskVersionId, storageFolder, function (taskId) {
+      res.json({taskId: taskId, status: utility.TRANSFER_STATUS.RECEIVED});
     });
+
   });
 });
+
+function doTransferTo(token, sourceVersion, destinationStorageFolder, callback) {
+  utility.getVersion(sourceVersion, token, function (version) {
+    // Google API first need to create an entry, then upload
+    request({
+      url: 'https://www.googleapis.com/drive/v3/files',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+      },
+      body: JSON.stringify({
+        name: version.attributes.displayName,
+        parents: [destinationStorageFolder]
+      })
+    }, function (error, response, file) {
+      var newFile = JSON.parse(response.body);
+
+      // now with the file created, let's prepare the transfer job\
+      var source = {
+        url: version.relationships.storage.meta.link.href,
+        method: "GET",
+        headers: {
+          'Authorization': 'Bearer ' + token.getForgeCredentials().access_token
+        },
+        encoding: null
+      };
+
+      var destination = {
+        url: 'https://www.googleapis.com/upload/drive/v2/files/' + newFile.id + '?uploadType=media',
+        method: 'PUT',
+        headers: {
+          'Content-Type': newFile.mimeType,
+          'Authorization': 'Bearer ' + token.getStorageCredentials().access_token
+        }
+      };
+
+      // send Lambda job
+      var id = utility.postLambdaJob(source, destination, token.getAutodeskId());
+
+      callback(id);
+    });
+  });
+}
 
 router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
   // >>>
@@ -200,11 +207,12 @@ router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
         // send Lambda job
         var id = utility.postLambdaJob(source, destination, token, callbackData /*returned from prepareAutodeskStorage, used to setup item/version */);
 
-        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED });
+        res.json({taskId: id, status: utility.TRANSFER_STATUS.RECEIVED});
       });
     });
   });
 });
 
-
 module.exports = router;
+module.exports.doTransferTo = doTransferTo;
+

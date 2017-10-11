@@ -29,6 +29,7 @@ var request = require('request');
 var config = require('./../config');
 // token handling in session
 var Credentials = require('./../credentials');
+var CredentialsOffline = require('./../database/credentialsOffline');
 
 // forge oAuth package
 var forgeSDK = require('forge-apis');
@@ -38,6 +39,7 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
 
   var params = req.body.autodeskFolderId.split('/');
   var autodeskFolderId = params[params.length - 1]; // source folder ID
+  var projectId = params[params.length - 3];
   var storageFolderId = req.body.storageFolderId; // destination folder ID
   var storageName = config.storage.name; // storage destination name
   var autodeskId = token.getAutodeskId(); // user ID that owns this hook (linked to respective refresh tokens)
@@ -57,7 +59,7 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
 
   // build a callback URL with the information we need:
   // user + storage destination name + storage destination folder
-  var host = 'https://8dd72d98.ngrok.io'; //'https://dc9fa147.ngrok.io';
+  var host = 'https://71a346cf.ngrok.io';
   // new address https://developer-stg.api.autodesk.com/webhooks/v1/systems/adsk.wipstg/events/fs.file.added/hooks
 
   var callbackURL = host + '/api/sync/callback/' + autodeskId + '/' + storageName + '/' + storageFolderId;
@@ -74,6 +76,7 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
       body: JSON.stringify(body)
     }, function (error, response) {
       //console.log('GET: ' + response.req.path + ': ' + response.body);
+      if (response.statusCode != 200) return;
       if (response.body === '') return;
 
       var body = JSON.parse(response.body);
@@ -98,6 +101,9 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
       callbackUrl: callbackURL,
       scope: {
         folder: autodeskFolderId
+      },
+      hookAttribute: {
+        projectId: projectId
       }
     };
 
@@ -118,16 +124,36 @@ router.post('/api/sync/setup', jsonParser, function (req, res) {
 });
 
 router.post('/api/sync/callback/*', jsonParser, function (req, res) {
-  var params = req.url.split('/');
-  var autodeskId = params[params.length - 3];
-  var storageName = params[params.length - 2];
-  var starageFolderId = params[params.length - 1];
-
   var body = req.body;
+  var params = req.url.split('/');
+
+  var autodeskId = params[params.length - 3];
+  var projectId = body.hook.hookAttribute.projectId; // custom property
+  var storageName = params[params.length - 2];
+  var storageFolderId = params[params.length - 1];
+
   console.log(JSON.stringify(body));
 
-  console.log('For user ' + autodeskId + ', transfer "' + body.payload.name + '" to ' + storageName + ':' + starageFolderId);
+  var twilio = require('twilio');
+  var client = new twilio('', '');
 
+  client.messages.create({
+    body: 'File ' + body.payload.name + ' was added and will sync to ' + storageName,
+    to: '+',  // Text this number
+    from: '+' // From a valid Twilio number
+  }, function(err, result) {
+  });
+
+  console.log('For user ' + autodeskId + ', transfer "' + body.payload.name + '" to ' + storageName + ':' + storageFolderId);
+
+  var storageIntegration = require('./' + storageName + '/integration.js');
+  var sourceVersion = 'https://developer.api.autodesk.com/data/v1/projects/' + projectId + '/versions/' + body.payload.source;
+  var token = new CredentialsOffline(autodeskId, storageName);
+  token.init(function () {
+    storageIntegration.doTransferTo(token, sourceVersion, storageFolderId, function (taskId) {
+      // all set
+    });
+  });
 
   res.status(200).end();
 });

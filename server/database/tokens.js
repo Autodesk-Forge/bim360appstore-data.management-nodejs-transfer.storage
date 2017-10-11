@@ -23,9 +23,8 @@ var config = require('./../config');
 
 var mongodb = require('./mongodb');
 
-
 module.exports = {
-  onNewForgeToken: function (userId, refreshToken, expiresAt) {
+  onNewForgeToken: function (userId, accessToken, refreshToken, expiresAt) {
     if (!config.stats.mongo) return;
     if (!mongodb) return;
     if (!mongodb.db) return;
@@ -40,7 +39,8 @@ module.exports = {
         }, {
           $set: {
             "refreshToken.forge": {
-              token: refreshToken,
+              accessToken: accessToken,
+              refreshToken: refreshToken,
               refreshAfter: expiresAt
             }
           }
@@ -51,7 +51,7 @@ module.exports = {
     });
   },
 
-  onNewStorageToken: function (userId, storageName, refreshToken, expiresAt) {
+  onNewStorageToken: function (userId, storageName, accessToken, refreshToken, expiresAt) {
     if (userId === undefined) return;
 
     if (!config.stats.mongo) return;
@@ -65,7 +65,8 @@ module.exports = {
       }, {
         $set: JSON.parse(
           '{"refreshToken.' + storageName + '":' + JSON.stringify({
-            token: refreshToken,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
             refreshAfter: expiresAt
           })
           + "}")
@@ -74,5 +75,27 @@ module.exports = {
         if (err) console.log(err);
       }
     );
+  },
+
+  getTokens: function (userId, storageName, callback) {
+    if (userId === undefined) return;
+
+    if (!config.stats.mongo) return;
+    if (!mongodb) return;
+    if (!mongodb.db) return;
+    var users = mongodb.db.collection('users');
+    if (!users) return;
+
+    users.findOne({autodeskId: userId}, function (err, result) {
+      // ToDo refresh token
+      callback({
+        forge:{
+          access_token: result.refreshToken.forge.accessToken
+        },
+        storage:{
+          access_token: result.refreshToken[storageName].accessToken
+        }
+      });
+    });
   }
 };
