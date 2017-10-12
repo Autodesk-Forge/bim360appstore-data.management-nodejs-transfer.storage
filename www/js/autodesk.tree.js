@@ -19,10 +19,6 @@
 var haveBIM360Hub = false;
 
 function prepareAutodeskTree() {
-  $.getJSON("/api/forge/clientID", function (res) {
-    $("#ClientID").val(res.ForgeClientId);
-  });
-
   $('#autodeskTree').jstree({
     'core': {
       'themes': {"icons": true},
@@ -97,3 +93,7 @@ function prepareAutodeskTree() {
     $('#autodeskTree').jstree(true).refresh();
   })
 }
+
+$.getJSON("/api/forge/clientID", function (res) {
+  $("#ClientID").val(res.ForgeClientId);
+});
