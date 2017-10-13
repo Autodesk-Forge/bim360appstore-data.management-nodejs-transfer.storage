@@ -1,8 +1,9 @@
 # bim360appstore-data.management-nodejs-transfer.storage
 
 This sample application demonstrate how to transfer files from **BIM 360 Docs**, **BIM 360 Team** (formerly A360) and **Fusion 360** to a series of storages: Box, Egnyte, Google Drive, OneDrive and Dropbox. It uses Forge [Data Management API](https://developer.autodesk.com/en/docs/data/v2/overview/). As of now, BIM 360 Field and Glue **are NOT supported**. The front-end will look like (e.g. Google Drive):
-  
-![](www/img/readme/indexpage.png)
+
+## Thumnail
+![thumbnail](www/img/readme/indexpage.png)
 
 ## Demonstration
 
