@@ -31,6 +31,10 @@ var BoxSDK = require('box-node-sdk');
 
 var cryptiles = require('cryptiles');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 router.get('/api/storage/signin', function (req, res) {
   req.session.csrf = cryptiles.randomString(24);
   var url =
@@ -84,7 +88,7 @@ router.get('/api/storage/profile', function (req, res) {
       return;
     }
     res.json({
-      name: user.name,
+      name: encoder.htmlEncode(user.name),
       picture: user.avatar_url
     });
   })

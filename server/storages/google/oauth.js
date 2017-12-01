@@ -31,6 +31,10 @@ var googleSdk = require('googleapis');
 
 var cryptiles = require('cryptiles');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 router.get('/api/storage/signin', function (req, res) {
   req.session.csrf = cryptiles.randomString(24);
 
@@ -100,7 +104,7 @@ router.get('/api/storage/profile', function (req, res) {
       return;
     }
     res.json({
-      name: user.displayName,
+      name: encoder.htmlEncode(user.displayName),
       picture: user.image.url
     });
   });

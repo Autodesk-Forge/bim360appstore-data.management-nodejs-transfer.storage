@@ -33,6 +33,10 @@ var Dropbox = require('dropbox');
 
 var cryptiles = require('cryptiles');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage)
@@ -106,7 +110,7 @@ router.get('/api/storage/profile', function (req, res) {
   dbx.usersGetCurrentAccount()
     .then(function(response) {
       var profile = {
-        'name': response.name.display_name,
+        'name': encoder.htmlEncode(response.name.display_name),
         'picture': response.profile_photo_url
       };
       res.json(profile)

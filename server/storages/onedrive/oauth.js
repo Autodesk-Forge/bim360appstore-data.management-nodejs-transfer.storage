@@ -34,6 +34,10 @@ const msGraph = require("@microsoft/microsoft-graph-client").Client;
 
 var cryptiles = require('cryptiles');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage)
@@ -131,7 +135,7 @@ router.get('/api/storage/profile', function (req, res) {
 
       // This works for personal accounts
       var profile = {
-        'name': data.displayName,
+        'name': encoder.htmlEncode(data.displayName),
         'picture': 'https://apis.live.net/v5.0/' + data.id + '/picture?type=small'
       }
       res.json(profile)

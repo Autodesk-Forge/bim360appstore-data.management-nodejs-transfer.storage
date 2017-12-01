@@ -61,7 +61,7 @@ router.get('/api/storage/tree', function (req, res) {
     if (id === '#') {
       path = ''
     } else {
-      path = id
+      path = encoder.htmlDecode(id);
     }
 
     var dbx = new Dropbox({ accessToken: credentials.access_token })
@@ -73,7 +73,7 @@ router.get('/api/storage/tree', function (req, res) {
         for (var key in data.entries) {
           var item = data.entries[key]
           var treeItem = {
-            id: item.path_display,
+            id: encoder.htmlEncode(item.path_display),
             text: encoder.htmlEncode(item.name),
             type: item['.tag'] === 'folder' ? 'folders' : 'items',
             children: item['.tag'] === 'folder' ? true : false

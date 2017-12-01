@@ -33,6 +33,10 @@ var egnyteSDK = require('egnyte-js-sdk');
 
 var cryptiles = require('cryptiles');
 
+// entity type encoder
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 function respondWithError(res, error) {
   if (error.statusCode) {
     res.status(error.statusCode).end(error.statusMessage)
@@ -113,7 +117,7 @@ router.get('/api/storage/profile', function (req, res) {
   egnyte.API.auth.getUserInfo()
     .then(function (data) {
       var profile = {
-        'name': data.first_name + ' ' + data.last_name,
+        'name': encoder.htmlEncode(data.first_name + ' ' + data.last_name),
         'picture': ""
       };
       res.json(profile);
