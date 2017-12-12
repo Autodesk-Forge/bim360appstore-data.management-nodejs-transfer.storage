@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////
 
 var _storageName;
-var _needsAccountName;
-var _accountName;
+var _needsAccountUrl;
+var _accountUrl;
 var _pendingTransfers = [];
 
 var socket = io.connect(location.host);
@@ -145,7 +145,7 @@ function prepareStorageSide() {
     url: '/api/storageInfo',
     success: function (storageInfo) {
       _storageName = storageInfo.storageName;
-      _needsAccountName = storageInfo.needsAccountName;
+      _needsAccountUrl = storageInfo.needsAccountName;
 
       if (window.location.href.indexOf('herokuapp') > 0) {
         $("a").attr("href", 'http://bim360' + _storageName + '.autodesk.io');
@@ -185,14 +185,14 @@ function prepareStorageSide() {
         },
         error: function () {
           $('#storageSigninButton').click(function () {
-            _accountName = undefined;
-            if (_needsAccountName) {
-              _accountName = prompt("Please provide account name", _needsAccountName);
+            _accountUrl = undefined;
+            if (_needsAccountUrl) {
+              _accountUrl = prompt("Please provide account URL", "https://<egnyte account>.egnyte.com");
             }
 
-            if (_accountName || !_needsAccountName) {
+            if (_accountUrl || !_needsAccountUrl) {
               jQuery.ajax({
-                url: '/api/storage/signin?accountName=' + _accountName,
+                url: '/api/storage/signin?accountUrl=' + _accountUrl,
                 success: function (storageOAuthURL) {
                   location.href = storageOAuthURL;
                 }

@@ -47,7 +47,7 @@ function respondWithError(res, error) {
 
 router.get('/api/storage/signin', function (req, res) {
   req.session.csrf = cryptiles.randomString(24);
-  req.session.egnyteURL = "https://" + req.query.accountName + ".egnyte.com";
+  req.session.egnyteURL = req.query.accountUrl;
 
   var url =
     req.session.egnyteURL + '/puboauth/token?' +
