@@ -52,6 +52,7 @@ router.get('/api/forge/callback/oauth', function (req, res) {
     config.forge.scope);
 
   forge3legged.getToken(code).then(function (credentials) {
+    delete credentials.refresh_token;
     token.setForgeCredentials(credentials);
     res.redirect('/')
   }).catch(function (err) {

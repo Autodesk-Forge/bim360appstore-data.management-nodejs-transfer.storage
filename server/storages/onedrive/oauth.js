@@ -98,6 +98,8 @@ router.get('/api/onedrive/callback/oauth', function (req, res) {
     }
 
     var token = new Credentials(req.session);
+    delete json.scope;
+    delete json.ext_expires_in;
     token.setStorageCredentials(json);
 
     res.redirect('/')
