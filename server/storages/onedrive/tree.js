@@ -65,11 +65,11 @@ router.get('/api/storage/tree', function (req, res) {
 
   try {
     if (driveId === '#') {
-      path = '/drives'
+      path = '/me/drives'
     } else if (!id) {
-      path = '/drives/' + driveId + '/root/children'
+      path = '/me/drives/' + driveId + '/root/children'
     } else {
-      path = '/drives/' + driveId + '/items/' + id + '/children'
+      path = '/me/drives/' + driveId + '/items/' + id + '/children'
     }
 
     var msGraphClient = msGraph.init({
@@ -94,7 +94,7 @@ router.get('/api/storage/tree', function (req, res) {
         if (driveId === '#' && data.value.length === 1) {
           driveId = data.value[0].id
           msGraphClient
-            .api('/drives/' + driveId + '/root/children')
+            .api('/me/drives/' + driveId + '/root/children')
             .get(function (error, data) {
               if (error) {
                 console.log(error)
