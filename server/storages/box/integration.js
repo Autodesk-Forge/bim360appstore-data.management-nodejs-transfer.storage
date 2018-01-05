@@ -28,6 +28,8 @@ var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
 
 // box sdk: https://github.com/box/box-node-sdk/
 var BoxSDK = require('box-node-sdk');
@@ -43,7 +45,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   }
 
   var parentFolder = req.body.parentFolder;
-  var folderName = req.body.folderName;
+  var folderName = encoder.htmlDecode(req.body.folderName);
 
   if (parentFolder === '' || folderName === '') {
     res.status(500).end('Invalid parentId or folderName');

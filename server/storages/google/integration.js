@@ -29,6 +29,9 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 var googleSdk = require('googleapis');
 
 var request = require('request');
@@ -51,7 +54,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   var drive = googleSdk.drive({version: 'v2', auth: oauth2Client}); // not sure why, v2 works for list, not for create
 
   var parentFolder = req.body.parentFolder;
-  var folderName = req.body.folderName;
+  var folderName = encoder.htmlDecode(req.body.folderName);
 
   if (parentFolder === '' || folderName === '') {
     res.status(500).end('Invalid parentId or folderName');
