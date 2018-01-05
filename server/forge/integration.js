@@ -30,6 +30,9 @@ var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 var request = require('request');
 
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
+
 // forge oAuth package
 var forgeSDK = require('forge-apis');
 
@@ -48,7 +51,7 @@ router.post('/api/forge/createFolder', jsonParser, function (req, res) {
   }
 
   var parentFolderHref = req.body.parentFolder;
-  var folderName = req.body.folderName;
+  var folderName = encoder.htmlDecode(req.body.folderName);
 
   var params = parentFolderHref.split('/');
   var projectId = params[params.length - 3];
