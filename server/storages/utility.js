@@ -39,6 +39,11 @@ module.exports = {
   },
 
   assertIsVersion: function (autodeskItem, req, callback) {
+
+    var projectId = autodeskItem.split('/')[autodeskItem.split('/').length-3];
+    var stats = require('./../stats/stats');
+    stats.transfer(projectId, 'download');
+
     if (autodeskItem.indexOf('/versions/') > -1) {
       // already a version, just return
       callback(autodeskItem);
@@ -128,6 +133,9 @@ module.exports = {
       config.forge.callbackURL,
       config.forge.scope,
       true);
+
+    var stats = require('./../stats/stats');
+    stats.transfer(projectId, 'upload');
 
     var folders = new forgeSDK.FoldersApi();
     folders.getFolderContents(projectId, folderId, {}, forge3legged, token.getForgeCredentials())
@@ -246,7 +254,8 @@ module.exports = {
     var newTaskId = guid();
     var request = require('request');
     var stats = require('./../stats/stats');
-    stats.usage(token.getAutodeskId(), config.storage.name);
+    // This feature is not GDPR compliant
+    //stats.usage(token.getAutodeskId(), config.storage.name);
 
     if (token) {
       var connectedUser = io.sockets.in(token.getAutodeskId());
