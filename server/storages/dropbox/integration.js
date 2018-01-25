@@ -25,7 +25,8 @@ var config = require('./../../config');
 
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
-
+var Encoder = require('node-html-encoder').Encoder;
+var encoder = new Encoder('entity');
 var request = require('request');
 
 // web framework
@@ -49,7 +50,7 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   }
 
   var parentFolder = req.body.parentFolder;
-  var folderName = req.body.folderName;
+  var folderName = encoder.htmlDecode(req.body.folderName);
   var parentPath = parentFolder === '#' ? '' : parentFolder;
   var path = parentPath + "/" + folderName;
 
