@@ -25,6 +25,7 @@ var mongodb = require('./mongodb');
 
 
 module.exports = {
+  // This feature is not GDPR compliant
   userProfile: function (profile) {
     if (!config.stats.mongo) return;
     if (!mongodb) return;
@@ -33,20 +34,21 @@ module.exports = {
     var users = mongodb.db.collection('users');
     if (!users) return;
     users.count({
-        autodeskId: profile.userId
-      }, function (err, count) {
-        if (count == 0) {
-          users.insert({
-            autodeskId: profile.userId,
-            email: profile.emailId,
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            first: today
-          });
-        }
-      });
+      autodeskId: profile.userId
+    }, function (err, count) {
+      if (count == 0) {
+        users.insert({
+          autodeskId: profile.userId,
+          email: profile.emailId,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          first: today
+        });
+      }
+    });
   },
 
+  // This feature is not GDPR compliant
   usage: function (userId, storage) {
     if (!config.stats.mongo) return;
     if (!mongodb) return;
@@ -69,6 +71,37 @@ module.exports = {
           function (err, result) {
             if (err) console.log(err);
           });
+      }
+    });
+  },
+
+  transfer: function (projectId, direction) {
+    if (!config.stats.mongo) return;
+    if (!mongodb) return;
+    if (!mongodb.db) return;
+    var projects = mongodb.db.collection('projects');
+    if (!projects) return;
+    projects.count({
+      _id: projectId
+    }, function (err, count) {
+
+      if (count == 0) {
+        var push = JSON.parse('{"' + direction + '":[{"' + config.storage.name + '": "' + new Date(Date.now()).toISOString() + '"}]}')
+        var insert = {_id: projectId}
+        Object.assign(insert, push);
+        projects.insert(insert, function (err, results) {
+          if (err) console.log(err);
+        });
+      }
+      else if (count == 1) {
+        var push = JSON.parse('{"' + direction + '":{"' + config.storage.name + '": "' + new Date(Date.now()).toISOString() + '"}}')
+        projects.update({_id: projectId},
+          {$push: push},
+          function (err, result) {
+            if (err) console.log(err);
+          }
+        )
+        ;
       }
     });
   }

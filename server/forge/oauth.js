@@ -61,7 +61,7 @@ router.get('/api/forge/callback/oauth', function (req, res) {
   })
 });
 
-var stats = require('./../stats/stats');
+//var stats = require('./../stats/stats');
 
 router.get('/api/forge/profile', function (req, res) {
   var token = new Credentials(req.session);
@@ -82,7 +82,8 @@ router.get('/api/forge/profile', function (req, res) {
   user.getUserProfile(forge3legged, token.getForgeCredentials())
     .then(function (profile) {
       token.setAutodeskId(profile.body.userId);
-      stats.userProfile(profile.body);
+      // This feature is not GDPR compliant
+      //stats.userProfile(profile.body);
       res.json({
         name: profile.body.firstName + ' ' + profile.body.lastName,
         picture: profile.body.profileImages.sizeX40,
