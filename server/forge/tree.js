@@ -158,7 +158,7 @@ function getFolders(hubId, projectId, oauthClient, credentials, res) {
       topFolders.body.data.forEach(function (item) {
         folderItemsForTree.push(prepareItemForTree(
           item.links.self.href,
-          item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName,
+          item.attributes.name == null ? item.attributes.displayName : item.attributes.name,
           item.type,
           true
         ))
@@ -182,7 +182,7 @@ function getFolderContents(projectId, folderId, oauthClient, credentials, res) {
       var folderItemsForTree = [];
       folderContents.body.data.forEach(function (item) {
 
-        var displayName = item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName;
+        var displayName = item.attributes.name == null ? item.attributes.displayName : item.attributes.name;
         var itemType = (unsupported.indexOf(item.attributes.createUserName) == -1 ? item.type : 'unsupported');
         if (displayName !== '') { // BIM 360 Items with no displayName also don't have storage, so not file to transfer
           folderItemsForTree.push(prepareItemForTree(
