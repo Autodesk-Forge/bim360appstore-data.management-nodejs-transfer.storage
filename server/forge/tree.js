@@ -158,7 +158,7 @@ function getFolders(hubId, projectId, oauthClient, credentials, res) {
       topFolders.body.data.forEach(function (item) {
         folderItemsForTree.push(prepareItemForTree(
           item.links.self.href,
-          item.attributes.name == null ? item.attributes.displayName : item.attributes.name,
+          item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName,
           item.type,
           true
         ))
