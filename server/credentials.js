@@ -47,7 +47,6 @@ Credentials.prototype.setStorageCredentials = function (accessToken) {
   // to get access to another service and fail "misteriously" :)
   this._session.SN = config.storage.name
   this._session.SC = accessToken;
-  console.log(this._session);
 };
 
 Credentials.prototype.getStorageCredentials = function () {
