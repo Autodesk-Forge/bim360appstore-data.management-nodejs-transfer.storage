@@ -96,6 +96,9 @@ router.get('/api/egnyte/callback/oauth', function (req, res) {
     var token = new Credentials(req.session);
     token.setStorageCredentials(json);
 
+    console.log('Oauth callback');
+    console.log(json);
+
     res.redirect('/');
   })
 });
@@ -104,6 +107,9 @@ router.get('/api/egnyte/callback/oauth', function (req, res) {
 router.get('/api/storage/profile', function (req, res) {
   var token = new Credentials(req.session);
   var credentials = token.getStorageCredentials();
+
+  console.log('profile');
+  console.log(credentials);
 
   if (credentials === undefined) {
     res.status(401).end();
