@@ -181,6 +181,9 @@ function getFolderContents(projectId, folderId, oauthClient, credentials, res) {
     .then(function (folderContents) {
       var folderItemsForTree = [];
       folderContents.body.data.forEach(function (item) {
+        if (item.attributes.extension.type.indexOf('File') == -1
+          && item.attributes.extension.type.indexOf('Folder') == -1
+          && item.attributes.extension.type.indexOf('C4RModel') == -1) return;
 
         var displayName = item.attributes.name == null ? item.attributes.displayName : item.attributes.name;
         var itemType = (unsupported.indexOf(item.attributes.createUserName) == -1 ? item.type : 'unsupported');
@@ -211,7 +214,7 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
         var lastModifiedTime = moment(version.attributes.lastModifiedTime);
         var days = moment().diff(lastModifiedTime, 'days')
         var dateFormated = (versions.body.data.length > 1 || days > 7 ? lastModifiedTime.format('MMM D, YYYY, h:mm a') : lastModifiedTime.fromNow());
-        var versionst = version.id.match(/^(.*)\?version=(\d+)$/) [2];
+        var versionst = version.id.match(/^(.*)\?version=(\d+)$/)[2];
         versionsForTree.push(prepareItemForTree(
           version.links.self.href,
           decodeURI('v' + versionst + ': ' + dateFormated + ' by ' + version.attributes.lastModifiedUserName),
@@ -228,7 +231,7 @@ function getVersions(projectId, itemId, oauthClient, credentials, res) {
 }
 
 function prepareItemForTree(_id, _text, _type, _children) {
-  return {id: _id, text: encoder.htmlEncode(_text), type: _type, children: _children};
+  return { id: _id, text: encoder.htmlEncode(_text), type: _type, children: _children };
 }
 
 module.exports = router;
