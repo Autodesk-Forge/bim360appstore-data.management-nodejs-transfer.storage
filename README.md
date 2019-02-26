@@ -15,12 +15,6 @@ This sample application demonstrate how to transfer files from **BIM 360 Docs**,
 
 ## Demonstration
 
-- Box: [STG](https://bim360box.herokuapp.com) | [PROD](https://bim360box.autodesk.io/)
-- Dropbox: [STG](https://bim360dropbox.herokuapp.com) | [PROD](https://bim360dropbox.autodesk.io/)
-- Egnyte: [STG](https://bim360egnyte.herokuapp.com) | [PROD](https://bim360egnyte.autodesk.io/)
-- Google: [STG](https://bim360google.herokuapp.com) | [PROD](https://bim360google.autodesk.io/)
-- OneDrive: [STG](https://bim360onedrive.herokuapp.com) | [PROD](https://bim360onedrive.autodesk.io/)
-
 See [video demonstration](https://www.youtube.com/watch?v=zD1gFELz-2E)
 
 **Usage**: select **folders** or **files** (or specific version) on Autodesk side (left), select one **folder** on storage side (right). Click on the right-pointing-arrow (at the center) to start transferring. The opposite is also supported, use the left-pointing-arrow. When transferring **from** storage **to** Autodesk, a new version is created if file name already exists. 

@@ -147,10 +147,10 @@ function prepareStorageSide() {
       _storageName = storageInfo.storageName;
       _needsAccountUrl = storageInfo.needsAccountName;
 
-      if (window.location.href.indexOf('herokuapp') > 0) {
-        $("a").attr("href", 'http://bim360' + _storageName + '.autodesk.io');
-        $('#testinEnvWarning').modal('toggle');
-      }
+      //if (window.location.href.indexOf('herokuapp') > 0) {
+      //  $("a").attr("href", 'http://bim360' + _storageName + '.autodesk.io');
+      $('#testinEnvWarning').modal('toggle');
+      //}
 
       // preparing icons and titles
       $('#storageLogoHelp').attr("src", 'img/' + _storageName + '/signin.png');
